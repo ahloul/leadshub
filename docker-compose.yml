@@ -1,0 +1,58 @@
+# Local test environment. NOT for production: debug is on and the
+# secrets below are throwaway values.
+#
+#   make docker-up      app on http://localhost:8000 (+ demo login)
+#   make docker-test    run the test suite against PostgreSQL
+#   make docker-down    stop everything (add -v to drop the database)
+
+# djust 1.2.8 ships Linux wheels for x86_64 only, so the app image is amd64
+# (emulated on Apple Silicon). Drop this once djust publishes arm64 wheels.
+x-app-platform: &app-platform linux/amd64
+
+x-app-env: &app-env
+  DEBUG: "True"
+  SECRET_KEY: "docker-test-only-not-a-real-secret"
+  ALLOWED_HOSTS: "localhost,127.0.0.1"
+  DB_NAME: leadshub
+  DB_USER: leadshub
+  DB_PASSWORD: leadshub
+  DB_HOST: db
+  DB_PORT: "5432"
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: leadshub
+      POSTGRES_USER: leadshub
+      POSTGRES_PASSWORD: leadshub
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadshub -d leadshub"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    platform: *app-platform
+    environment: *app-env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  test:
+    build: .
+    platform: *app-platform
+    environment: *app-env
+    command: python manage.py test
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["test"]
+
+volumes:
+  pgdata:

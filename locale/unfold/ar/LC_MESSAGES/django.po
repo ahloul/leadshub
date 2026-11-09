@@ -1,0 +1,228 @@
+# Arabic for django-unfold's own strings (it ships no translations).
+# Kept apart from locale/ar so `make messages`, which only scans our code,
+# doesn't mark these obsolete. Compiled by `make messages` / compilemessages.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "Select record"
+msgstr "اختر سجلًا"
+
+msgid "Select action"
+msgstr "اختر إجراءً"
+
+msgid "Select action to run"
+msgstr "اختر الإجراء المطلوب تنفيذه"
+
+msgid "Raw passwords are not stored, so there is no way to see this user’s password, but you can change the password using <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">this form</a>."
+msgstr "لا تُخزَّن كلمات المرور كما هي، لذا لا يمكن رؤية كلمة مرور هذا المستخدم، لكن يمكنك تغييرها باستخدام <a href=\"{}\" class=\"text-primary-600 dark:text-primary-500\">هذا النموذج</a>."
+
+msgid "Dataset not found. No action performed."
+msgstr "لم يُعثر على مجموعة البيانات. لم يُنفَّذ أي إجراء."
+
+msgid "Select value"
+msgstr "اختر قيمة"
+
+msgid "Field <strong class=\"font-semibold\">{field_name}</strong> is not an autocomplete field. Please add it to the `autocomplete_fields` list."
+msgstr "الحقل <strong class=\"font-semibold\">{field_name}</strong> ليس حقل إكمال تلقائي. أضِفه إلى قائمة `autocomplete_fields`."
+
+msgid "You can not create nested object without parent"
+msgstr "لا يمكن إنشاء عنصر فرعي دون عنصر أب"
+
+msgid "Run"
+msgstr "تنفيذ"
+
+msgid "After you've created a user, you’ll be able to edit more user options."
+msgstr "بعد إنشاء المستخدم، يمكنك تعديل المزيد من خياراته."
+
+msgid "Welcome back to"
+msgstr "مرحبًا بعودتك إلى"
+
+msgid "Forgotten your password or username?"
+msgstr "نسيت كلمة المرور أو اسم المستخدم؟"
+
+msgid "Type to search"
+msgstr "اكتب للبحث"
+
+msgid "You have been successfully logged out from the administration"
+msgstr "تم تسجيل خروجك من لوحة الإدارة بنجاح"
+
+msgid "No data"
+msgstr "لا توجد بيانات"
+
+msgid "All applications"
+msgstr "كل التطبيقات"
+
+msgid "True"
+msgstr "نعم"
+
+msgid "False"
+msgstr "لا"
+
+msgid "Apply Filters"
+msgstr "تطبيق عوامل التصفية"
+
+msgid "Filters"
+msgstr "عوامل التصفية"
+
+msgid "Navigate"
+msgstr "تنقّل"
+
+msgid "Select"
+msgstr "اختيار"
+
+msgid "Recent searches"
+msgstr "عمليات البحث الأخيرة"
+
+msgid "Nothing matched your search"
+msgstr "لا توجد نتائج مطابقة لبحثك"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Submit"
+msgstr "إرسال"
+
+msgid "Record picture"
+msgstr "التقاط صورة"
+
+msgid "This item will be deleted."
+msgstr "سيُحذف هذا العنصر."
+
+msgid "Click to cancel"
+msgstr "انقر للإلغاء"
+
+msgid "No results found"
+msgstr "لا توجد نتائج"
+
+msgid "This page yielded into no results."
+msgstr "لا توجد نتائج في هذه الصفحة."
+
+msgid "Reset filters"
+msgstr "إعادة ضبط عوامل التصفية"
+
+msgid "Image preview"
+msgstr "معاينة الصورة"
+
+msgid "Click to download"
+msgstr "انقر للتنزيل"
+
+msgid "Go back"
+msgstr "رجوع"
+
+msgid "Previous"
+msgstr "السابق"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "Search apps and models..."
+msgstr "ابحث في التطبيقات والنماذج..."
+
+msgid "Available shortcuts"
+msgstr "الاختصارات المتاحة"
+
+msgid "Global shortcuts"
+msgstr "اختصارات عامة"
+
+msgid "Open command tool"
+msgstr "فتح أداة الأوامر"
+
+msgid "Open shortcuts list"
+msgstr "فتح قائمة الاختصارات"
+
+msgid "Toggle sidebar"
+msgstr "إظهار الشريط الجانبي أو إخفاؤه"
+
+msgid "Toggle dark/light mode"
+msgstr "التبديل بين الوضع الداكن والفاتح"
+
+msgid "Changelist shortcuts"
+msgstr "اختصارات قائمة السجلات"
+
+msgid "Toggle filter"
+msgstr "إظهار عوامل التصفية أو إخفاؤها"
+
+msgid "Create new record"
+msgstr "إنشاء سجل جديد"
+
+msgid "Command tool shortcuts"
+msgstr "اختصارات أداة الأوامر"
+
+msgid "Open selection"
+msgstr "فتح العنصر المحدد"
+
+msgid "Open selection in new tab"
+msgstr "فتح العنصر المحدد في علامة تبويب جديدة"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Light"
+msgstr "فاتح"
+
+msgid "Dark"
+msgstr "داكن"
+
+msgid "System"
+msgstr "حسب الجهاز"
+
+msgid "Return to site"
+msgstr "العودة إلى الموقع"
+
+msgid "Choose file to upload"
+msgstr "اختر ملفًا لرفعه"
+
+msgid "Toggle password visibility"
+msgstr "إظهار كلمة المرور أو إخفاؤها"
+
+msgid "Add row"
+msgstr "إضافة صف"
+
+msgid "Welcome"
+msgstr "مرحبًا"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Select currency"
+msgstr "اختر العملة"
+
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] "سجل"
+msgstr[1] "سجل"
+msgstr[2] "سجل"
+msgstr[3] "سجل"
+msgstr[4] "سجل"
+msgstr[5] "سجل"
+
+msgid "\n            Found <span class=\"font-medium text-important\">%(counter)s</span> result in %(time)s seconds\n        "
+msgid_plural "\n            Found <span class=\"font-medium text-important\">%(counter)s</span> results in %(time)s seconds\n        "
+msgstr[0] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+msgstr[1] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+msgstr[2] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+msgstr[3] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+msgstr[4] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+msgstr[5] "\n            تم العثور على <span class=\"font-medium text-important\">%(counter)s</span> نتيجة في %(time)s ثانية\n        "
+
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] "يُرجى تصحيح الخطأ أدناه."
+msgstr[1] "يُرجى تصحيح الخطأ أدناه."
+msgstr[2] "يُرجى تصحيح الخطأين أدناه."
+msgstr[3] "يُرجى تصحيح الأخطاء أدناه."
+msgstr[4] "يُرجى تصحيح الأخطاء أدناه."
+msgstr[5] "يُرجى تصحيح الأخطاء أدناه."
+
+msgid "%(counter)s result"
+msgid_plural "%(counter)s results"
+msgstr[0] "%(counter)s نتيجة"
+msgstr[1] "%(counter)s نتيجة"
+msgstr[2] "%(counter)s نتيجة"
+msgstr[3] "%(counter)s نتيجة"
+msgstr[4] "%(counter)s نتيجة"
+msgstr[5] "%(counter)s نتيجة"

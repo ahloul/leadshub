@@ -1,0 +1,518 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-09 04:59+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Arabic\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: accounts/admin.py:27
+msgid "view"
+msgstr "عرض"
+
+#: accounts/admin.py:28
+msgid "add"
+msgstr "إضافة"
+
+#
+#: accounts/admin.py:29
+msgid "change"
+msgstr "تعديل"
+
+#: accounts/admin.py:30
+msgid "delete"
+msgstr "حذف"
+
+#: accounts/admin.py:52 accounts/admin.py:88 accounts/models.py:132
+msgid "roles"
+msgstr "الأدوار"
+
+#
+#: accounts/admin.py:53
+msgid ""
+"A user can have several roles, all internal, all broker, or all developer."
+msgstr "يمكن أن يكون للمستخدم عدة أدوار، كلها داخلية أو كلها للوسطاء أو كلها للمطوّرين."
+
+#: accounts/admin.py:75
+msgid "Personal info"
+msgstr "المعلومات الشخصية"
+
+#: accounts/admin.py:77
+msgid "Roles and permissions"
+msgstr "الأدوار والصلاحيات"
+
+#: accounts/admin.py:80
+msgid "Important dates"
+msgstr "تواريخ مهمة"
+
+#
+#
+#: accounts/admin.py:119
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+#: accounts/admin.py:145
+msgid ""
+"Internal roles may use any of these. Broker roles: create and run campaigns, "
+"wallet, leads, team. Developer roles: aggregate project metrics."
+msgstr "يمكن للأدوار الداخلية استخدام أي منها. أدوار الوسطاء: إنشاء الحملات وتشغيلها، والمحفظة، والعملاء المحتملون، والفريق. أدوار المطوّرين: المؤشرات الإجمالية للمشروعات."
+
+#: accounts/admin.py:174
+msgid "A role with this name already exists."
+msgstr "يوجد دور بهذا الاسم بالفعل."
+
+#: accounts/admin.py:189
+#, python-format
+msgid "Not allowed for this audience: %(perms)s"
+msgstr "غير مسموح بها لهذه الفئة: %(perms)s"
+
+#: accounts/admin.py:198
+#, python-format
+msgid "This role must keep: %(perms)s"
+msgstr "يجب أن يحتفظ هذا الدور بما يلي: %(perms)s"
+
+#
+#: accounts/admin.py:232
+msgid "members"
+msgstr "الأعضاء"
+
+#: accounts/apps.py:9
+msgid "Accounts"
+msgstr "الحسابات"
+
+#: accounts/models.py:16
+msgid "email address"
+msgstr "البريد الإلكتروني"
+
+#: accounts/models.py:25 catalog/models.py:34 catalog/models.py:55
+msgid "developer"
+msgstr "المطوّر"
+
+#: accounts/models.py:46
+msgid "Bronze"
+msgstr "برونزي"
+
+#: accounts/models.py:47
+msgid "Silver"
+msgstr "فضي"
+
+#: accounts/models.py:48
+msgid "Gold"
+msgstr "ذهبي"
+
+#: accounts/models.py:49
+msgid "Platinum"
+msgstr "بلاتيني"
+
+#: accounts/models.py:56
+msgid "company name"
+msgstr "اسم الشركة"
+
+#: accounts/models.py:58
+msgid "wallet balance (EGP)"
+msgstr "رصيد المحفظة (جنيه مصري)"
+
+#: accounts/models.py:61
+msgid "wallet balance (USD)"
+msgstr "رصيد المحفظة (دولار أمريكي)"
+
+#: accounts/models.py:64
+msgid "spend tier"
+msgstr "فئة الإنفاق"
+
+#: accounts/models.py:67
+msgid "feedback score"
+msgstr "درجة التقييم"
+
+#: accounts/models.py:69
+msgid "created at"
+msgstr "تاريخ الإنشاء"
+
+#: accounts/models.py:72
+msgid "broker office"
+msgstr "مكتب وساطة"
+
+#: accounts/models.py:73
+msgid "broker offices"
+msgstr "مكاتب الوساطة"
+
+#: accounts/models.py:96
+msgid "user"
+msgstr "المستخدم"
+
+#: accounts/models.py:102
+msgid "office"
+msgstr "المكتب"
+
+#: accounts/models.py:104
+msgid "joined at"
+msgstr "تاريخ الانضمام"
+
+#: accounts/models.py:107
+msgid "membership"
+msgstr "العضوية"
+
+#: accounts/models.py:108
+msgid "memberships"
+msgstr "العضويات"
+
+#: accounts/models.py:123
+msgid "group"
+msgstr "المجموعة"
+
+#: accounts/models.py:125 catalog/models.py:14
+msgid "name (English)"
+msgstr "الاسم (بالإنجليزية)"
+
+#: accounts/models.py:126 catalog/models.py:15
+msgid "name (Arabic)"
+msgstr "الاسم (بالعربية)"
+
+#: accounts/models.py:127
+msgid "audience"
+msgstr "الفئة"
+
+#: accounts/models.py:128
+msgid "essential role"
+msgstr "دور أساسي"
+
+#
+#: accounts/models.py:131
+msgid "role"
+msgstr "الدور"
+
+#: accounts/roles.py:45
+msgid "View actual ad spend and media margin"
+msgstr "عرض الإنفاق الإعلاني الفعلي وهامش الوسائط"
+
+#: accounts/roles.py:46
+msgid "Approve or reject campaign tasks"
+msgstr "اعتماد مهام الحملات أو رفضها"
+
+#: accounts/roles.py:47
+msgid "Manage master data and ad accounts"
+msgstr "إدارة البيانات الرئيسية والحسابات الإعلانية"
+
+#: accounts/roles.py:48
+msgid "Manage FX rates and price overrides"
+msgstr "إدارة أسعار الصرف وتعديلات الأسعار"
+
+#: accounts/roles.py:49
+msgid "Create and run campaigns"
+msgstr "إنشاء الحملات وتشغيلها"
+
+#: accounts/roles.py:50
+msgid "Manage wallet and top up funds"
+msgstr "إدارة المحفظة وشحن الرصيد"
+
+#: accounts/roles.py:51
+msgid "Access and work assigned leads"
+msgstr "الوصول إلى العملاء المحتملين المسندين والعمل عليهم"
+
+#: accounts/roles.py:52
+msgid "View aggregate project metrics"
+msgstr "عرض المؤشرات الإجمالية للمشروعات"
+
+#: accounts/roles.py:53
+msgid "Manage the creative library"
+msgstr "إدارة مكتبة المواد الإعلانية"
+
+#: accounts/roles.py:54
+msgid "Invite and manage office team members"
+msgstr "دعوة أعضاء فريق المكتب وإدارتهم"
+
+#: accounts/roles.py:55
+msgid "Assign campaign tasks to media buyers"
+msgstr "إسناد مهام الحملات إلى مشتري الإعلانات"
+
+#: accounts/roles.py:57
+msgid "Open the internal back office"
+msgstr "الدخول إلى المكتب الخلفي الداخلي"
+
+#: accounts/roles.py:58
+msgid "Open the broker client portal"
+msgstr "الدخول إلى بوابة عملاء الوسطاء"
+
+#
+#: accounts/roles.py:59
+msgid "Open the developer read-only view"
+msgstr "الدخول إلى عرض المطوّر للقراءة فقط"
+
+#: accounts/roles.py:66
+msgid "Platform Admin"
+msgstr "مدير المنصة"
+
+#: accounts/roles.py:67
+msgid "Media Buying Lead"
+msgstr "قائد شراء الوسائط"
+
+#: accounts/roles.py:68
+msgid "Media Buyer"
+msgstr "مشتري الوسائط"
+
+#: accounts/roles.py:69
+msgid "Content Manager"
+msgstr "مدير المحتوى"
+
+#: accounts/roles.py:70
+msgid "Finance Manager"
+msgstr "المدير المالي"
+
+#: accounts/roles.py:71
+msgid "Broker Owner"
+msgstr "مالك مكتب الوساطة"
+
+#: accounts/roles.py:72
+msgid "Broker Team Member"
+msgstr "عضو فريق الوساطة"
+
+#: accounts/roles.py:73
+msgid "Developer Read-Only View"
+msgstr "عرض المطوّر (قراءة فقط)"
+
+#: accounts/roles.py:79
+msgid "Internal staff"
+msgstr "الموظفون الداخليون"
+
+#
+#: accounts/roles.py:80
+msgid "Broker office"
+msgstr "مكتب وساطة"
+
+#
+#: accounts/roles.py:81
+msgid "Developer"
+msgstr "مطوّر"
+
+#: accounts/roles.py:239
+msgid ""
+"A user's roles must all be internal, all broker, or all developer roles."
+msgstr ""
+"يجب أن تكون أدوار المستخدم كلها داخلية، أو كلها للوسطاء، أو كلها للمطوّرين."
+
+#: accounts/roles.py:242
+msgid "Choose the developer this read-only account belongs to."
+msgstr "اختر المطوّر الذي يتبعه حساب القراءة فقط هذا."
+
+#
+#: accounts/roles.py:244
+msgid "Only developer accounts are linked to a developer."
+msgstr "تُربط بالمطوّر حسابات المطوّرين وحدها."
+
+#: accounts/templates/registration/login.html:4
+#: accounts/templates/registration/login.html:30
+msgid "Sign in"
+msgstr "تسجيل الدخول"
+
+#: accounts/templates/registration/login.html:9
+msgid "Sign in to LeadsHub"
+msgstr "تسجيل الدخول إلى LeadsHub"
+
+#: catalog/apps.py:8 leadshub/settings.py:274
+msgid "Master data"
+msgstr "البيانات الرئيسية"
+
+#: catalog/models.py:16
+msgid "active"
+msgstr "نشط"
+
+#: catalog/models.py:35
+msgid "developers"
+msgstr "المطوّرون"
+
+#: catalog/models.py:41 catalog/models.py:58
+msgid "area"
+msgstr "المنطقة"
+
+#: catalog/models.py:42
+msgid "areas"
+msgstr "المناطق"
+
+#: catalog/models.py:48
+msgid "unit type"
+msgstr "نوع الوحدة"
+
+#: catalog/models.py:49 catalog/models.py:61
+msgid "unit types"
+msgstr "أنواع الوحدات"
+
+#: catalog/models.py:65
+msgid "commission rate (%)"
+msgstr "نسبة العمولة (%)"
+
+#: catalog/models.py:73
+msgid "project"
+msgstr "المشروع"
+
+#: catalog/models.py:74
+msgid "projects"
+msgstr "المشروعات"
+
+#
+#: leadshub/settings.py:218 leadshub/settings.py:256
+#: leadshub/templates/leadshub/back_office.html:4
+#: leadshub/templates/leadshub/back_office.html:10
+msgid "Back office"
+msgstr "المكتب الخلفي"
+
+#
+#: leadshub/settings.py:258
+msgid "Overview"
+msgstr "نظرة عامة"
+
+#: leadshub/settings.py:259
+msgid "Admin home"
+msgstr "رئيسية الإدارة"
+
+#: leadshub/settings.py:263
+msgid "People and access"
+msgstr "الأشخاص والصلاحيات"
+
+#: leadshub/settings.py:266
+msgid "Users"
+msgstr "المستخدمون"
+
+#
+#: leadshub/settings.py:267
+msgid "Roles"
+msgstr "الأدوار"
+
+#
+#
+#: leadshub/settings.py:269
+msgid "Broker offices"
+msgstr "مكاتب الوساطة"
+
+#
+#
+#: leadshub/settings.py:277
+msgid "Developers"
+msgstr "المطوّرون"
+
+#
+#: leadshub/settings.py:279
+msgid "Projects"
+msgstr "المشروعات"
+
+#
+#: leadshub/settings.py:281
+msgid "Areas"
+msgstr "المناطق"
+
+#
+#: leadshub/settings.py:282
+msgid "Unit types"
+msgstr "أنواع الوحدات"
+
+#: leadshub/templates/leadshub/back_office.html:11
+msgid "Internal operations. Clients never see this area."
+msgstr "العمليات الداخلية. لا يرى العملاء هذا القسم أبدًا."
+
+#: leadshub/templates/leadshub/back_office.html:14
+msgid "Open admin"
+msgstr "فتح لوحة الإدارة"
+
+#: leadshub/templates/leadshub/back_office.html:20
+msgid "Your roles"
+msgstr "أدوارك"
+
+#: leadshub/templates/leadshub/back_office.html:25
+msgid "Superuser (all permissions)"
+msgstr "مستخدم خارق (كل الصلاحيات)"
+
+#: leadshub/templates/leadshub/back_office.html:31
+msgid "What you can do"
+msgstr "ما يمكنك فعله"
+
+#: leadshub/templates/leadshub/base.html:33
+msgid "Language"
+msgstr "اللغة"
+
+#: leadshub/templates/leadshub/base.html:40
+msgid "Change"
+msgstr "تغيير"
+
+#: leadshub/templates/leadshub/base.html:44
+msgid "Toggle dark mode"
+msgstr "تبديل الوضع الداكن"
+
+#: leadshub/templates/leadshub/base.html:53
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+#: leadshub/templates/leadshub/dashboard.html:4
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: leadshub/templates/leadshub/dashboard.html:10
+msgid "Your office at a glance."
+msgstr "نظرة سريعة على مكتبك."
+
+#: leadshub/templates/leadshub/dashboard.html:13
+msgid "Office summary"
+msgstr "ملخص المكتب"
+
+#: leadshub/templates/leadshub/dashboard.html:15
+msgid "Wallet (EGP)"
+msgstr "المحفظة (جنيه مصري)"
+
+#: leadshub/templates/leadshub/dashboard.html:19
+msgid "Wallet (USD)"
+msgstr "المحفظة (دولار أمريكي)"
+
+#: leadshub/templates/leadshub/dashboard.html:23
+msgid "Spend tier"
+msgstr "فئة الإنفاق"
+
+#: leadshub/templates/leadshub/dashboard.html:27
+msgid "Feedback score"
+msgstr "درجة التقييم"
+
+#: leadshub/templates/leadshub/dashboard.html:33
+msgid "Team"
+msgstr "الفريق"
+
+#: leadshub/templates/leadshub/dashboard.html:41
+msgid "No team members yet."
+msgstr "لا يوجد أعضاء في الفريق بعد."
+
+#
+#: leadshub/templates/leadshub/developer_home.html:4
+#: leadshub/templates/leadshub/developer_home.html:9
+msgid "Developer view"
+msgstr "عرض المطوّر"
+
+#: leadshub/templates/leadshub/developer_home.html:10
+msgid "Aggregate project metrics, without broker or customer details."
+msgstr "مؤشرات المشروعات الإجمالية، دون بيانات الوسطاء أو العملاء."
+
+#: leadshub/templates/leadshub/developer_home.html:13
+msgid "Project metrics will appear here once campaigns are live."
+msgstr "ستظهر مؤشرات المشروعات هنا عند تشغيل الحملات."
+
+#: templates/403.html:4 templates/403.html:9
+msgid "Access denied"
+msgstr "تم رفض الوصول"
+
+#: templates/403.html:10
+msgid "Your role doesn't allow access to this page."
+msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
+
+#: templates/403.html:11
+msgid "Go to my home page"
+msgstr "الذهاب إلى صفحتي الرئيسية"
+
+#~ msgid "A broker is either the owner or a team member, not both."
+#~ msgstr "الوسيط إما مالك أو عضو فريق، وليس الاثنين معًا."

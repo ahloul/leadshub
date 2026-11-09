@@ -1,0 +1,16 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Developer view" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="leadshub.views.DeveloperHomeView" class="space-y-6">
+    <section>
+        <h1 class="text-2xl font-bold sm:text-3xl">{% if developer %}{{ developer.display_name }}{% else %}{% translate "Developer view" %}{% endif %}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Aggregate project metrics, without broker or customer details." %}</p>
+    </section>
+    <section class="card">
+        <p class="text-slate-600 dark:text-slate-300">{% translate "Project metrics will appear here once campaigns are live." %}</p>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+django>=5.1
+djust>=1.2.8
+channels>=4.0
+uvicorn[standard]>=0.30
+django-axes>=8.3.1,<9
+psycopg[binary]>=3.3.6,<3.4
+# Tailwind-based admin theme. Pinned: releases must be two weeks old.
+django-unfold==0.110.0

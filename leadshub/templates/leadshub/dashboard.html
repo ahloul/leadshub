@@ -1,0 +1,46 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Dashboard" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="leadshub.views.DashboardView" class="space-y-6 sm:space-y-8">
+    <section>
+        <h1 class="text-2xl font-bold sm:text-3xl">{{ office.company_name }}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Your office at a glance." %}</p>
+    </section>
+
+    <section aria-label="{% translate 'Office summary' %}" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="card">
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Wallet (EGP)" %}</p>
+            <p class="mt-2 text-2xl font-semibold" dir="ltr">EGP {{ office.wallet_balance_egp|floatformat:"2g" }}</p>
+        </div>
+        <div class="card">
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Wallet (USD)" %}</p>
+            <p class="mt-2 text-2xl font-semibold" dir="ltr">${{ office.wallet_balance_usd|floatformat:"2g" }}</p>
+        </div>
+        <div class="card">
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Spend tier" %}</p>
+            <p class="mt-2 text-2xl font-semibold">{{ office.get_spend_tier_display }}</p>
+        </div>
+        <div class="card">
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Feedback score" %}</p>
+            <p class="mt-2 text-2xl font-semibold">{{ office.feedback_score }}<span class="text-base text-slate-400"> / 100</span></p>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2 class="text-lg font-semibold">{% translate "Team" %}</h2>
+        <ul class="mt-4 divide-y divide-slate-200 dark:divide-slate-800">
+            {% for member in members %}
+            <li class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <span class="font-medium">{{ member.user.get_full_name|default:member.user.username }}</span>
+                <span class="text-sm text-slate-500 dark:text-slate-400" dir="ltr">{{ member.user.email }}</span>
+            </li>
+            {% empty %}
+            <li class="py-3 text-slate-500 dark:text-slate-400">{% translate "No team members yet." %}</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}

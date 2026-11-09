@@ -1,0 +1,43 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Back office" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="leadshub.views.BackOfficeView" class="space-y-6 sm:space-y-8">
+    <section class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold sm:text-3xl">{% translate "Back office" %}</h1>
+            <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Internal operations. Clients never see this area." %}</p>
+        </div>
+        {% if can_open_admin %}
+        <a href="{% url 'admin:index' %}" class="btn-primary self-start sm:self-auto">{% translate "Open admin" %}</a>
+        {% endif %}
+    </section>
+
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <section class="card">
+            <h2 class="text-lg font-semibold">{% translate "Your roles" %}</h2>
+            <ul class="mt-4 flex flex-wrap gap-2">
+                {% for label in role_labels %}
+                <li class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{{ label }}</li>
+                {% empty %}
+                <li class="text-slate-500 dark:text-slate-400">{% translate "Superuser (all permissions)" %}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="card lg:col-span-2">
+            <h2 class="text-lg font-semibold">{% translate "What you can do" %}</h2>
+            <ul class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {% for label in capability_labels %}
+                <li class="flex items-start gap-2 text-sm">
+                    <svg class="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/></svg>
+                    <span>{{ label }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</div>
+{% endblock %}
