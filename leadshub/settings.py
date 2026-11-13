@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "leadshub",
     "accounts",
     "catalog",
+    "ad_channels",
     # Locks out repeated failed logins on /login/ and /admin/ (djust.A030).
     "axes",
 ]
@@ -166,6 +167,27 @@ DATABASES = {
         "CONN_HEALTH_CHECKS": True,
     }
 }
+
+# Meta Marketing API (SRS §6.1, US-META-01). Each Business Manager's system
+# user token is entered in the admin and stored encrypted; only the app
+# credentials live here. With both app ID and secret set, every call carries
+# appsecret_proof.
+META_APP_ID = os.environ.get("META_APP_ID") or None
+META_APP_SECRET = os.environ.get("META_APP_SECRET") or None
+META_API_VERSION = os.environ.get("META_API_VERSION", "v25.0")
+
+# Fernet keys that encrypt the Business Manager tokens at rest (US-META-01 #4).
+# Comma-separated: the first encrypts, all decrypt, so a key is rotated by
+# putting the new one first; a token is re-encrypted when it is replaced. In DEBUG
+# without a key, one is derived from SECRET_KEY so development just works.
+META_TOKEN_KEYS = [k.strip() for k in os.environ.get("META_TOKEN_KEYS", "").split(",") if k.strip()]
+if not META_TOKEN_KEYS and DEBUG:
+    import base64
+    import hashlib
+
+    META_TOKEN_KEYS = [
+        base64.urlsafe_b64encode(hashlib.sha256(f"meta-tokens:{SECRET_KEY}".encode()).digest()).decode()
+    ]
 
 # English and Arabic (Arabic renders right-to-left). URLs carry the language
 # prefix (/en/, /ar/); see leadshub/urls.py.
@@ -281,6 +303,17 @@ UNFOLD = {
                     _nav(_("Areas"), "map", "admin:catalog_area_changelist", "catalog.view_area"),
                     _nav(_("Unit types"), "category", "admin:catalog_unittype_changelist",
                          "catalog.view_unittype"),
+                ],
+            },
+            {
+                # US-META-01: Platform Admin edits, Media Buying Lead reads.
+                "title": _("Meta ads"),
+                "collapsible": True,
+                "items": [
+                    _nav(_("Business Managers"), "business", "admin:ad_channels_metabusinessmanager_changelist",
+                         "ad_channels.view_metabusinessmanager"),
+                    _nav(_("Ad accounts"), "account_balance", "admin:ad_channels_metaadaccount_changelist",
+                         "ad_channels.view_metaadaccount"),
                 ],
             },
         ],

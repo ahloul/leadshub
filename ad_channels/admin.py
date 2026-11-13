@@ -1,0 +1,344 @@
+"""Admin screens for Business Managers and ad accounts (US-META-01).
+
+Access follows model permissions (AGENTS.md, permission step 6):
+
+- Platform Admin: create, list, update and delete both, and run Sync,
+  Recheck token, Deactivate and the launch switches. Ad accounts get in only
+  two ways: added by hand here, or by Sync. Nothing runs on a schedule.
+- Media Buying Lead: view only. Django's admin renders the forms read-only
+  and hides every action (``permissions=["change"]``) and delete.
+- Deleting a Business Manager deletes its ad accounts. Once campaigns exist
+  they reference ad accounts with ``PROTECT``, so anything a campaign uses
+  can't be deleted (criterion 19).
+"""
+
+from django import forms
+from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
+from django.db.models import Count, Q
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
+from django.views.decorators.debug import sensitive_post_parameters
+from unfold.admin import ModelAdmin
+from unfold.decorators import action, display
+from unfold.widgets import UnfoldAdminPasswordWidget
+
+from .meta_ads import sync as meta_sync
+from .models import MetaAdAccount, MetaBusinessManager
+
+_TOKEN_LABELS = {
+    MetaBusinessManager.TokenStatus.VALID: "success",
+    MetaBusinessManager.TokenStatus.INVALID: "danger",
+    MetaBusinessManager.TokenStatus.UNCHECKED: "warning",
+}
+
+
+class MetaBusinessManagerForm(forms.ModelForm):
+    """Name, Meta business ID and a write-only token, checked with Meta on save (criteria 1 to 6)."""
+
+    token = forms.CharField(
+        label=_("System user token"),
+        # Never sent back to the browser, not even after a failed save (criterion 5).
+        widget=UnfoldAdminPasswordWidget(render_value=False, attrs={"autocomplete": "off"}),
+        strip=True,
+    )
+
+    class Meta:
+        model = MetaBusinessManager
+        fields = ["name", "meta_business_id"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields["token"].required = False
+            self.fields["token"].help_text = _(
+                "Current token: %(masked)s. Leave blank to keep it; a new one is checked with "
+                "Meta before it replaces the old one."
+            ) % {"masked": self.instance.masked_token}
+        if "meta_business_id" in self.fields:  # Absent on read-only (view permission) pages.
+            self.fields["meta_business_id"].widget.attrs["dir"] = "ltr"
+
+    def clean_meta_business_id(self):
+        value = self.cleaned_data["meta_business_id"].strip()
+        if not value.isdigit():
+            raise ValidationError(_("Enter the numeric Meta business ID."))
+        return value
+
+    def clean(self):
+        cleaned = super().clean()
+        business_id = cleaned.get("meta_business_id")
+        token = cleaned.get("token")
+        if self.errors or not business_id:
+            return cleaned  # Duplicate or malformed ID: don't call Meta (criterion 3).
+        if MetaBusinessManager.objects.filter(meta_business_id=business_id).exclude(pk=self.instance.pk).exists():
+            return cleaned  # validate_unique() reports it next.
+        id_changed = "meta_business_id" in self.changed_data
+        if token or id_changed:
+            stored = None if token else self.instance.get_token()
+            if problem := meta_sync.check_token(business_id, token or stored):
+                raise ValidationError(_("Meta refused this token: %(reason)s") % {"reason": problem})
+            self._checked = True
+        return cleaned
+
+    def save(self, commit=True):
+        bm = super().save(commit=False)
+        if token := self.cleaned_data.get("token"):
+            bm.set_token(token)
+        if getattr(self, "_checked", False):
+            bm.token_status = MetaBusinessManager.TokenStatus.VALID
+            bm.token_error = ""
+            bm.token_checked_at = timezone.now()
+        if commit:
+            bm.save()
+        return bm
+
+
+@admin.register(MetaBusinessManager)
+class MetaBusinessManagerAdmin(ModelAdmin):
+    form = MetaBusinessManagerForm
+    # criterion 20
+    list_display = [
+        "name",
+        "meta_business_id",
+        "token_badge",
+        "account_counts",
+        "last_synced_at",
+        "sync_badge",
+        "is_active",
+    ]
+    list_filter = ["is_active", "token_status"]
+    search_fields = ["name", "meta_business_id"]
+    readonly_fields = [
+        "masked_token",
+        "token_status",
+        "token_checked_at",
+        "token_error",
+        "is_active",
+        "last_synced_at",
+        "last_sync_failed_at",
+        "last_sync_error",
+    ]
+    actions = ["sync_accounts", "recheck_tokens", "deactivate", "reactivate", "delete_selected"]
+    # A "Save and sync" button on the edit page (POST, like Save).
+    actions_submit_line = ["save_and_sync"]
+
+    def get_fieldsets(self, request, obj=None):
+        details = (None, {"fields": ["name", "meta_business_id"]})
+        if obj is None:
+            return [(None, {"fields": ["name", "meta_business_id", "token"]})]
+        token_fields = ["masked_token", "token_status", "token_checked_at", "token_error"]
+        if self.has_change_permission(request, obj):
+            token_fields.insert(0, "token")
+        return [
+            details,
+            (_("Token"), {"fields": token_fields}),
+            (_("Sync"), {"fields": ["is_active", "last_synced_at", "last_sync_failed_at", "last_sync_error"]}),
+        ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                accounts_total=Count("ad_accounts", filter=Q(ad_accounts__is_removed=False)),
+                accounts_enabled=Count(
+                    "ad_accounts",
+                    filter=Q(ad_accounts__is_removed=False, ad_accounts__enabled_for_launch=True),
+                ),
+            )
+        )
+
+    @method_decorator(sensitive_post_parameters("token"))
+    def changeform_view(self, *args, **kwargs):
+        # Keeps the token out of Django's error reports (criterion 7).
+        return super().changeform_view(*args, **kwargs)
+
+    @display(description=_("token"))
+    def masked_token(self, obj):
+        return obj.masked_token
+
+    @display(description=_("token status"), label=_TOKEN_LABELS)
+    def token_badge(self, obj):
+        return obj.token_status, obj.get_token_status_display()
+
+    @display(description=_("ad accounts (enabled / total)"))
+    def account_counts(self, obj):
+        return f"{obj.accounts_enabled} / {obj.accounts_total}"
+
+    @display(description=_("last sync"), label={"ok": "success", "failed": "danger", "never": "info"})
+    def sync_badge(self, obj):
+        # Failed more recently than it last succeeded (criterion 13).
+        if obj.last_sync_failed_at and (not obj.last_synced_at or obj.last_sync_failed_at > obj.last_synced_at):
+            return "failed", _("Failed")
+        if obj.last_synced_at:
+            return "ok", _("OK")
+        return "never", _("Never synced")
+
+    @admin.action(description=_("Sync ad accounts from Meta"), permissions=["change"])
+    def sync_accounts(self, request, queryset):
+        for bm in queryset:
+            self._sync(request, bm)
+
+    @action(description=_("Save and sync"), permissions=["change"])
+    def save_and_sync(self, request, obj):
+        self._sync(request, obj)
+
+    def _sync(self, request, bm):
+        """Sync one Business Manager and report the result as a message."""
+        try:
+            result = meta_sync.sync_business_manager(bm)
+        except meta_sync.SyncError as error:
+            self.message_user(
+                request,
+                _("%(bm)s: sync failed: %(reason)s") % {"bm": bm, "reason": error},
+                messages.ERROR,
+            )
+        else:
+            self.message_user(
+                request,
+                _("%(bm)s: %(new)d new, %(updated)d updated, %(removed)d removed.")
+                % {"bm": bm, "new": result.created, "updated": result.updated, "removed": result.removed},
+                messages.SUCCESS,
+            )
+
+    @admin.action(description=_("Recheck token with Meta"), permissions=["change"])
+    def recheck_tokens(self, request, queryset):
+        for bm in queryset:
+            meta_sync.recheck_token(bm)
+            level = messages.SUCCESS if bm.token_is_valid else messages.WARNING
+            text = _("%(bm)s: token is %(status)s.") % {"bm": bm, "status": bm.get_token_status_display()}
+            if bm.token_error:
+                text = f"{text} {bm.token_error}"
+            self.message_user(request, text, level)
+
+    @admin.action(description=_("Deactivate (stop all launches)"), permissions=["change"])
+    def deactivate(self, request, queryset):
+        count = queryset.update(is_active=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext(
+                "%(count)d Business Manager deactivated; its ad accounts are no longer offered for launch.",
+                "%(count)d Business Managers deactivated; their ad accounts are no longer offered for launch.",
+                count,
+            )
+            % {"count": count},
+        )
+
+    @admin.action(description=_("Reactivate"), permissions=["change"])
+    def reactivate(self, request, queryset):
+        count = queryset.update(is_active=True, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("%(count)d Business Manager reactivated.", "%(count)d Business Managers reactivated.", count)
+            % {"count": count},
+        )
+
+
+class LaunchReadyFilter(admin.SimpleListFilter):
+    """Accounts new campaigns can use, and the ones flagged (criterion 17)."""
+
+    title = _("launch")
+    parameter_name = "launch"
+
+    def lookups(self, request, model_admin):
+        return [("available", _("Available for launch")), ("flagged", _("Enabled but blocked"))]
+
+    def queryset(self, request, queryset):
+        available = MetaAdAccount.objects.available_for_launch()
+        if self.value() == "available":
+            return queryset.filter(pk__in=available)
+        if self.value() == "flagged":
+            return queryset.filter(enabled_for_launch=True).exclude(pk__in=available)
+        return queryset
+
+
+_META_FIELDS = ["business_manager", "meta_account_id", "name", "account_status", "ownership", "currency", "timezone_name"]
+
+
+@admin.register(MetaAdAccount)
+class MetaAdAccountAdmin(ModelAdmin):
+    # criterion 21
+    list_display = [
+        "name",
+        "meta_account_id",
+        "business_manager",
+        "status_badge",
+        "enabled_for_launch",
+        "launch_badge",
+        "currency",
+        "timezone_name",
+        "last_synced_at",
+    ]
+    list_filter = ["business_manager", "account_status", LaunchReadyFilter, "enabled_for_launch", "is_removed"]
+    list_select_related = ["business_manager"]
+    search_fields = ["name", "meta_account_id"]
+    actions = ["enable_for_launch", "disable_for_launch"]
+
+    def get_fields(self, request, obj=None):
+        if obj is None:
+            return [*_META_FIELDS, "enabled_for_launch"]
+        return [*_META_FIELDS, "enabled_for_launch", "is_removed", "last_synced_at", "launch_badge"]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return []
+        # Once synced, Meta owns these and the next sync would overwrite any
+        # edit (criterion 11). A hand-added account stays editable until then.
+        meta = _META_FIELDS if obj.last_synced_at else []
+        return [*meta, "is_removed", "last_synced_at", "launch_badge"]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "business_manager":
+            kwargs["queryset"] = MetaBusinessManager.objects.filter(is_active=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    # Every status needs a colour: Unfold shows the raw number for an unmapped one.
+    @display(
+        description=_("Meta status"),
+        label={
+            status: "success" if status in (MetaAdAccount.Status.ACTIVE, MetaAdAccount.Status.ANY_ACTIVE) else "danger"
+            for status in MetaAdAccount.Status
+        },
+    )
+    def status_badge(self, obj):
+        return obj.account_status, obj.get_account_status_display()
+
+    @display(description=_("launch"), label={"ready": "success", "blocked": "danger", "off": "info"})
+    def launch_badge(self, obj):
+        if problems := obj.launch_blockers():
+            return "blocked", ", ".join(str(p) for p in problems)
+        if obj.enabled_for_launch:
+            return "ready", _("Available")
+        return "off", _("Not enabled")
+
+    @admin.action(description=_("Enable for launch"), permissions=["change"])
+    def enable_for_launch(self, request, queryset):
+        enabled = 0
+        for account in queryset.select_related("business_manager").filter(enabled_for_launch=False):
+            account.enabled_for_launch = True
+            try:
+                account.clean()  # The launch rule only (criterion 15); Meta's data isn't re-validated.
+            except ValidationError as error:
+                self.message_user(
+                    request, f"{account}: {' '.join(error.message_dict['enabled_for_launch'])}", messages.ERROR
+                )
+                continue
+            account.save(update_fields=["enabled_for_launch", "updated_at"])
+            enabled += 1
+        if enabled:
+            self.message_user(
+                request,
+                ngettext("%(count)d ad account enabled.", "%(count)d ad accounts enabled.", enabled)
+                % {"count": enabled},
+                messages.SUCCESS,
+            )
+
+    @admin.action(description=_("Disable for launch"), permissions=["change"])
+    def disable_for_launch(self, request, queryset):
+        count = queryset.update(enabled_for_launch=False, updated_at=timezone.now())
+        self.message_user(
+            request,
+            ngettext("%(count)d ad account disabled.", "%(count)d ad accounts disabled.", count) % {"count": count},
+        )

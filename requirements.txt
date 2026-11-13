@@ -1,8 +1,12 @@
 django>=5.1
 djust>=1.2.8
 channels>=4.0
+# Meta Marketing API SDK (ad_channels/meta). Major version tracks the Graph API version.
+facebook-business>=25.0,<27
 uvicorn[standard]>=0.30
 django-axes>=8.3.1,<9
 psycopg[binary]>=3.3.6,<3.4
 # Tailwind-based admin theme. Pinned: releases must be two weeks old.
 django-unfold==0.110.0
+# Fernet encryption of Meta Business Manager tokens (US-META-01 #4).
+cryptography>=45,<47

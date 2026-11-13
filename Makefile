@@ -1,4 +1,5 @@
-.PHONY: dev test migrate check install collectstatic css css-watch messages docker-up docker-test docker-down
+.PHONY: dev test migrate check install collectstatic css css-watch messages docker-up docker-test docker-down \
+	docker-dev-up docker-dev-logs docker-dev-test docker-dev-shell docker-dev-down docker-dev-clean
 
 # The project's own environment, so no activation is needed. An exported
 # PYTHON variable does not override this; `make dev PYTHON=python` does.
@@ -49,3 +50,33 @@ docker-test:
 
 docker-down:
 	docker compose down
+
+# Docker development environment (see docker-compose-dev.yml): your checkout
+# is mounted into the containers, so edits on the host reload the app and
+# rebuild the CSS. Its own project, database and DB port (5433).
+DEV_COMPOSE = docker compose -f docker-compose-dev.yml
+
+docker-dev-up:
+	$(DEV_COMPOSE) build
+	$(DEV_COMPOSE) up -d --wait db
+	$(DEV_COMPOSE) run --rm web python manage.py migrate --noinput
+	$(DEV_COMPOSE) run --rm web python manage.py seed_demo
+	$(DEV_COMPOSE) up -d -V web css
+	@echo "Open http://localhost:8000 (logs: make docker-dev-logs)"
+
+docker-dev-logs:
+	$(DEV_COMPOSE) logs -f web css
+
+docker-dev-test:
+	$(DEV_COMPOSE) --profile test run --rm test
+
+# A shell in the app container, e.g. for makemigrations or manage.py shell.
+docker-dev-shell:
+	$(DEV_COMPOSE) exec web bash
+
+docker-dev-down:
+	$(DEV_COMPOSE) down
+
+# Also deletes the development database.
+docker-dev-clean:
+	$(DEV_COMPOSE) down -v

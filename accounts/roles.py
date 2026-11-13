@@ -112,6 +112,22 @@ _CATALOG_ADMIN = [
     for action in ("view", "add", "change", "delete")
 ]
 
+# Meta Business Managers and ad accounts (US-META-01, FR-6.10, FR-6.11).
+# Platform Admin: full CRUD on both, plus Sync and deactivate. The Media
+# Buying Lead only reads, since they spread campaigns across the accounts.
+_AD_CHANNELS_VIEW = [
+    f"ad_channels.view_{model}" for model in ("metabusinessmanager", "metaadaccount")
+]
+_AD_CHANNELS_ADMIN = [
+    *_AD_CHANNELS_VIEW,
+    "ad_channels.add_metabusinessmanager",
+    "ad_channels.change_metabusinessmanager",
+    "ad_channels.add_metaadaccount",
+    "ad_channels.change_metaadaccount",
+    "ad_channels.delete_metabusinessmanager",
+    "ad_channels.delete_metaadaccount",
+]
+
 # Creating roles and giving them to people, in the admin (SRS §2.1 Platform Admin).
 _ROLE_ADMIN = [
     "accounts.view_user",
@@ -137,6 +153,7 @@ AUDIENCE_PERMISSIONS = {
             "accounts.view_project_metrics",
             "accounts.manage_creative_library",
             *_CATALOG_ADMIN,
+            *_AD_CHANNELS_ADMIN,
             *_ROLE_ADMIN,
         }
     ),
@@ -165,6 +182,7 @@ ROLE_PERMISSIONS = {
         "accounts.manage_creative_library",
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
+        *_AD_CHANNELS_ADMIN,
         *_ROLE_ADMIN,
     ],
     # Plus everything a Media Buyer has (ROLE_INCLUDES).
@@ -172,6 +190,7 @@ ROLE_PERMISSIONS = {
         "accounts.manage_master_data",
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
+        *_AD_CHANNELS_VIEW,
     ],
     Role.MEDIA_BUYER: [
         "accounts.view_internal_financials",
