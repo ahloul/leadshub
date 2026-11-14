@@ -1,0 +1,54 @@
+# Fly.io deployment. One-time setup and the commands: docs/DEPLOY.md.
+#
+# Secrets (fly secrets list) hold what isn't here: SECRET_KEY, DATABASE_URL
+# (Fly Postgres), the Tigris storage keys (fly storage create) and the
+# Mailtrap SMTP values.
+
+# App names are global on Fly. If this one is taken, change it here and in
+# ALLOWED_HOSTS / CSRF_TRUSTED_ORIGINS below.
+app = "leadshub"
+# Frankfurt, the nearest Fly region to Cairo (TIME_ZONE).
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  # Runs once per deploy, before the new version takes traffic. post_migrate
+  # also creates any missing essential roles.
+  release_command = "python manage.py migrate --noinput"
+
+[env]
+  DEBUG = "False"
+  # DATABASE_URL goes through Managed Postgres' PgBouncer (settings.py).
+  DB_TRANSACTION_POOLING = "True"
+  ALLOWED_HOSTS = "leadshub.fly.dev"
+  CSRF_TRUSTED_ORIGINS = "https://leadshub.fly.dev"
+  # Tigris answers on <bucket>.fly.storage.tigris.dev.
+  AWS_S3_ADDRESSING_STYLE = "virtual"
+  EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+  EMAIL_USE_TLS = "True"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  # Stay up: live pages hold a WebSocket, and a cold start takes seconds.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  # Live pages keep one connection open per browser tab.
+  [http_service.concurrency]
+    type = "connections"
+    soft_limit = 200
+    hard_limit = 250
+
+# Served by Fly's proxy from the image (collectstatic in the Dockerfile),
+# without reaching Django.
+[[statics]]
+  guest_path = "/app/staticfiles"
+  url_prefix = "/static/"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"

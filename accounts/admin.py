@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ValidationError
@@ -7,11 +7,14 @@ from django.db import transaction
 from django.db.models import Case, Value, When
 from django.utils.text import capfirst, format_lazy
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from unfold.widgets import UnfoldAdminCheckboxSelectMultipleWidget
 
-from .models import BrokerOffice, Membership, RoleProfile, User
+from . import services
+from .forms import NewOfficeForm
+from .models import BrokerOffice, Membership, OfficeRegistration, RoleProfile, User
 from .roles import (
     AUDIENCE_ENTRY,
     AUDIENCE_PERMISSIONS,
@@ -84,10 +87,25 @@ class UserAdmin(DjangoUserAdmin, ModelAdmin):
     list_filter = ["groups__role_profile__audience", "groups", "is_active"]
     autocomplete_fields = ["developer"]
     inlines = [MembershipInline]
+    actions = ["send_new_invitation"]
 
     @admin.display(description=_("roles"))
     def role_names(self, obj):
         return ", ".join(obj.role_labels())
+
+    @admin.action(description=_("Send a new invitation link"), permissions=["change"])
+    def send_new_invitation(self, request, queryset):
+        """For broker accounts whose invitation expired before they set a password."""
+        sent = services.resend_invitations(queryset, invited_by=request.user, request=request)
+        self.message_user(
+            request,
+            ngettext(
+                "Sent %(count)d invitation. People who already set a password were skipped.",
+                "Sent %(count)d invitations. People who already set a password were skipped.",
+                sent,
+            )
+            % {"count": sent},
+        )
 
     def get_queryset(self, request):
         qs = super().get_queryset(request).prefetch_related("groups")
@@ -264,9 +282,154 @@ class OfficeMembershipInline(TabularInline):
     autocomplete_fields = ["user"]
 
 
+class OfficeRegistrationInline(StackedInline):
+    """A self-signed-up office's sign-up details, read-only (ROADMAP Q6)."""
+
+    model = OfficeRegistration
+    extra = 0
+    can_delete = False
+    fields = readonly_fields = [
+        "applicant",
+        "phone_number",
+        "language",
+        "email_confirmed_at",
+        "created_at",
+        "reviewed_at",
+        "reviewed_by",
+    ]
+
+    def has_view_permission(self, request, obj=None):
+        # Part of the office's page: whoever sees the office sees its sign-up.
+        return request.user.has_perm("accounts.view_brokeroffice")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+def pending_signups_badge(request):
+    """Sidebar badge: sign-ups waiting for review (settings.UNFOLD)."""
+    from . import selectors
+
+    return selectors.pending_registration_count() or None
+
+
 @admin.register(BrokerOffice)
 class BrokerOfficeAdmin(ModelAdmin):
-    list_display = ["company_name", "spend_tier", "feedback_score", "created_at"]
-    list_filter = ["spend_tier"]
-    search_fields = ["company_name"]
-    inlines = [OfficeMembershipInline]
+    """Opening an office also invites its owner (ROADMAP M1, Q6).
+
+    Balances, tier and score are read-only here: they change through the
+    wallet and the nightly score, not by hand. Offices that signed themselves
+    up are approved or rejected with the list actions; their status changes
+    only that way.
+    """
+
+    list_display = ["company_name", "status", "email_confirmed", "spend_tier", "created_at"]
+    list_filter = ["status", "spend_tier"]
+    search_fields = ["company_name", "registration__applicant__email"]
+    readonly_fields = [
+        "status",
+        "wallet_balance_egp",
+        "wallet_balance_usd",
+        "spend_tier",
+        "feedback_score",
+    ]
+    inlines = [OfficeRegistrationInline, OfficeMembershipInline]
+    actions = ["approve_signups", "reject_signups"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("registration")
+
+    @admin.display(description=_("email confirmed"), boolean=True)
+    def email_confirmed(self, obj):
+        registration = getattr(obj, "registration", None)
+        if registration is None:
+            return None  # opened by staff
+        return registration.email_confirmed_at is not None
+
+    @admin.action(description=_("Approve selected sign-ups"), permissions=["change"])
+    def approve_signups(self, request, queryset):
+        approved = services.approve_registrations(queryset, actor=request.user, request=request)
+        self.message_user(
+            request,
+            ngettext(
+                "Approved %(count)d office; its owner was emailed.",
+                "Approved %(count)d offices; their owners were emailed.",
+                approved,
+            )
+            % {"count": approved},
+        )
+        skipped = queryset.count() - approved
+        if skipped:
+            self.message_user(
+                request,
+                ngettext(
+                    "Skipped %(count)d office: already open, opened by staff, or its email isn't confirmed yet.",
+                    "Skipped %(count)d offices: already open, opened by staff, or their email isn't confirmed yet.",
+                    skipped,
+                )
+                % {"count": skipped},
+                level=messages.WARNING,
+            )
+
+    @admin.action(description=_("Reject selected sign-ups"), permissions=["change"])
+    def reject_signups(self, request, queryset):
+        rejected = services.reject_registrations(queryset, actor=request.user, request=request)
+        self.message_user(
+            request,
+            ngettext(
+                "Rejected %(count)d sign-up.",
+                "Rejected %(count)d sign-ups.",
+                rejected,
+            )
+            % {"count": rejected},
+        )
+        skipped = queryset.count() - rejected
+        if skipped:
+            self.message_user(
+                request,
+                ngettext(
+                    "Skipped %(count)d office that isn't waiting for review.",
+                    "Skipped %(count)d offices that aren't waiting for review.",
+                    skipped,
+                )
+                % {"count": skipped},
+                level=messages.WARNING,
+            )
+    add_fieldsets = (
+        (None, {"fields": ["company_name"]}),
+        (_("Owner"), {"fields": ["owner_first_name", "owner_last_name", "owner_email"]}),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            kwargs["form"] = NewOfficeForm
+        return super().get_form(request, obj, **kwargs)
+
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        # The add form shows only the office name and the owner.
+        return self.readonly_fields if obj is not None else []
+
+    def get_inline_instances(self, request, obj=None):
+        # The owner is created from the add form; people are added after that.
+        return super().get_inline_instances(request, obj) if obj is not None else []
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            return super().save_model(request, obj, form, change)
+        data = form.cleaned_data
+        services.open_office(
+            office=obj,
+            owner_email=data["owner_email"],
+            owner_first_name=data["owner_first_name"],
+            owner_last_name=data["owner_last_name"],
+            opened_by=request.user,
+            request=request,
+        )

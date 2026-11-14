@@ -1,0 +1,11 @@
+{% comment %}
+The main action. {% include "email/button.html" with url=link label=label %}
+(set label with {% translate "…" as label %} first). One per email; pair it
+with email/link_fallback.html for clients that block buttons.
+{% endcomment %}<table role="presentation" class="lh-button-table" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" dir="{{ direction }}">
+  <tr>
+    <td class="lh-button" align="center" bgcolor="#4f46e5" style="border-radius:8px;background:#4f46e5;">
+      <a href="{{ url }}" target="_blank" style="display:inline-block;padding:14px 28px;border-radius:8px;font-size:16px;font-weight:600;line-height:1.2;color:#ffffff;text-decoration:none;">{{ label }}</a>
+    </td>
+  </tr>
+</table>

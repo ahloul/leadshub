@@ -1,0 +1,5 @@
+{% load i18n %}{% comment %}
+The button's link written out, for when the button doesn't work.
+{% include "email/link_fallback.html" with url=link %}
+{% endcomment %}<p class="lh-muted lh-rule" style="margin:24px 0 0;padding-top:20px;border-top:1px solid #e2e8f0;font-size:13px;line-height:1.6;color:#64748b;">{% translate "If the button doesn't work, copy this link into your browser:" %}<br>
+<a class="lh-link" href="{{ url }}" target="_blank" dir="ltr" style="color:#4f46e5;word-break:break-all;">{{ url }}</a></p>

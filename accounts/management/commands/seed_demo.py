@@ -1,4 +1,6 @@
-"""Create a demo broker office and one login per role for local/Docker testing.
+"""Create demo data for local/Docker testing: an office, one login per role,
+a brokerage that signed itself up and waits for review, a small catalog and a
+few creatives.
 
 Safe to run repeatedly. Never run against production data.
 """
@@ -6,15 +8,18 @@ Safe to run repeatedly. Never run against production data.
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
-from accounts.models import BrokerOffice, Membership, User
+from accounts.models import BrokerOffice, Membership, OfficeRegistration, OfficeStatus, User
 from accounts.roles import Role
+from catalog.demo import seed_catalog
+from creatives.demo import seed_library
 
 DEMO_PASSWORD = "demo-pass-123"
 
 
 class Command(BaseCommand):
-    help = "Create the Nour Realty demo office and demo logins for the broker and internal roles."
+    help = "Create the demo office, logins for every role, a small catalog and a few creatives."
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -44,11 +49,30 @@ class Command(BaseCommand):
         ]:
             self.demo_user(username, first, last, roles)
 
+        # A self-signed-up brokerage with its email confirmed, waiting for a
+        # Platform Admin (admin > Broker offices > Sign-ups to review).
+        applicant = self.demo_user("applicant", "Mona", "Said", [])
+        if not hasattr(applicant, "office_registration"):
+            pending = BrokerOffice.objects.create(
+                company_name="Delta Brokers", status=OfficeStatus.PENDING
+            )
+            Membership.objects.create(user=applicant, office=pending)
+            OfficeRegistration.objects.create(
+                office=pending,
+                applicant=applicant,
+                phone_number="01012345678",
+                language="en",
+                email_confirmed_at=timezone.now(),
+            )
+
+        seed_library(seed_catalog())
+
         self.stdout.write(
             self.style.SUCCESS(
                 "Demo ready. Password for every demo login: "
                 f"{DEMO_PASSWORD}\n"
                 "  brokers:  demo (owner), sara (team member)\n"
+                "  sign-up waiting for review: applicant\n"
                 "  internal: platform, lead, buyer, content, finance"
             )
         )

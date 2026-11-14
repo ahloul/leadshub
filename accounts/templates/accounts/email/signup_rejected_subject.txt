@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with office=office_name %}Your LeadsHub registration for {{ office }}{% endblocktranslate %}{% endautoescape %}

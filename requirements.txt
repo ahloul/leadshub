@@ -6,3 +6,13 @@ django-axes>=8.3.1,<9
 psycopg[binary]>=3.3.6,<3.4
 # Tailwind-based admin theme. Pinned: releases must be two weeks old.
 django-unfold==0.110.0
+# Uploads on S3-compatible storage (S3 in production, RustFS locally; see
+# docker-compose.yml). Pinned: releases must be two weeks old.
+django-storages[s3]==1.14.6
+boto3==1.43.121
+botocore==1.43.121
+# Shared state for running on several machines, used when REDIS_URL is set
+# (settings.py): the channel layer and djust's live page state. Pinned:
+# releases must be two weeks old.
+channels-redis==4.3.0
+redis==8.1.0

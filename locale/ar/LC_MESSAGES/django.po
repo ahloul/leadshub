@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 04:59+0200\n"
+"POT-Creation-Date: 2026-11-14 04:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -18,85 +18,251 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: accounts/admin.py:27
+#: accounts/admin.py:30
 msgid "view"
 msgstr "عرض"
 
-#: accounts/admin.py:28
+#: accounts/admin.py:31
 msgid "add"
 msgstr "إضافة"
 
 #
-#: accounts/admin.py:29
+#: accounts/admin.py:32
 msgid "change"
 msgstr "تعديل"
 
-#: accounts/admin.py:30
+#: accounts/admin.py:33
 msgid "delete"
 msgstr "حذف"
 
-#: accounts/admin.py:52 accounts/admin.py:88 accounts/models.py:132
+#: accounts/admin.py:55 accounts/admin.py:92 accounts/models.py:203
 msgid "roles"
 msgstr "الأدوار"
 
 #
-#: accounts/admin.py:53
+#: accounts/admin.py:56
 msgid ""
 "A user can have several roles, all internal, all broker, or all developer."
-msgstr "يمكن أن يكون للمستخدم عدة أدوار، كلها داخلية أو كلها للوسطاء أو كلها للمطوّرين."
+msgstr ""
+"يمكن أن يكون للمستخدم عدة أدوار، كلها داخلية أو كلها للوسطاء أو كلها "
+"للمطوّرين."
 
-#: accounts/admin.py:75
+#: accounts/admin.py:78
 msgid "Personal info"
 msgstr "المعلومات الشخصية"
 
-#: accounts/admin.py:77
+#: accounts/admin.py:80
 msgid "Roles and permissions"
 msgstr "الأدوار والصلاحيات"
 
-#: accounts/admin.py:80
+#: accounts/admin.py:83
 msgid "Important dates"
 msgstr "تواريخ مهمة"
 
+#: accounts/admin.py:96
+msgid "Send a new invitation link"
+msgstr "إرسال رابط دعوة جديد"
+
+#: accounts/admin.py:103
+#, python-format
+msgid ""
+"Sent %(count)d invitation. People who already set a password were skipped."
+msgid_plural ""
+"Sent %(count)d invitations. People who already set a password were skipped."
+msgstr[0] "لم تُرسل أي دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[1] "أُرسلت دعوة واحدة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[2] "أُرسلت دعوتان. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[3] "أُرسلت %(count)d دعوات. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[4] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[5] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+
 #
 #
-#: accounts/admin.py:119
+#: accounts/admin.py:137
 msgid "Permissions"
 msgstr "الصلاحيات"
 
-#: accounts/admin.py:145
+#: accounts/admin.py:163
 msgid ""
 "Internal roles may use any of these. Broker roles: create and run campaigns, "
 "wallet, leads, team. Developer roles: aggregate project metrics."
-msgstr "يمكن للأدوار الداخلية استخدام أي منها. أدوار الوسطاء: إنشاء الحملات وتشغيلها، والمحفظة، والعملاء المحتملون، والفريق. أدوار المطوّرين: المؤشرات الإجمالية للمشروعات."
+msgstr ""
+"يمكن للأدوار الداخلية استخدام أي منها. أدوار الوسطاء: إنشاء الحملات "
+"وتشغيلها، والمحفظة، والعملاء المحتملون، والفريق. أدوار المطوّرين: المؤشرات "
+"الإجمالية للمشروعات."
 
-#: accounts/admin.py:174
+#: accounts/admin.py:192
 msgid "A role with this name already exists."
 msgstr "يوجد دور بهذا الاسم بالفعل."
 
-#: accounts/admin.py:189
+#: accounts/admin.py:207
 #, python-format
 msgid "Not allowed for this audience: %(perms)s"
 msgstr "غير مسموح بها لهذه الفئة: %(perms)s"
 
-#: accounts/admin.py:198
+#: accounts/admin.py:216
 #, python-format
 msgid "This role must keep: %(perms)s"
 msgstr "يجب أن يحتفظ هذا الدور بما يلي: %(perms)s"
 
 #
-#: accounts/admin.py:232
+#: accounts/admin.py:250
 msgid "members"
 msgstr "الأعضاء"
+
+#: accounts/admin.py:345
+msgid "email confirmed"
+msgstr "تأكيد البريد الإلكتروني"
+
+#: accounts/admin.py:352
+msgid "Approve selected sign-ups"
+msgstr "الموافقة على التسجيلات المحددة"
+
+#: accounts/admin.py:358
+#, python-format
+msgid "Approved %(count)d office; its owner was emailed."
+msgid_plural "Approved %(count)d offices; their owners were emailed."
+msgstr[0] "لم تتم الموافقة على أي مكتب."
+msgstr[1] "تمت الموافقة على مكتب واحد، وأُرسل بريد إلى مالكه."
+msgstr[2] "تمت الموافقة على مكتبين، وأُرسل بريد إلى مالكيهما."
+msgstr[3] "تمت الموافقة على %(count)d مكاتب، وأُرسل بريد إلى مالكيها."
+msgstr[4] "تمت الموافقة على %(count)d مكتبًا، وأُرسل بريد إلى مالكيها."
+msgstr[5] "تمت الموافقة على %(count)d مكتب، وأُرسل بريد إلى مالكيها."
+
+#: accounts/admin.py:369
+#, python-format
+msgid ""
+"Skipped %(count)d office: already open, opened by staff, or its email isn't "
+"confirmed yet."
+msgid_plural ""
+"Skipped %(count)d offices: already open, opened by staff, or their email "
+"isn't confirmed yet."
+msgstr[0] "لم يُتخطَّ أي مكتب."
+msgstr[1] ""
+"تم تخطي مكتب واحد: مفعّل بالفعل، أو فتحه الفريق، أو لم يُؤكَّد بريده بعد."
+msgstr[2] ""
+"تم تخطي مكتبين: مفعّلان بالفعل، أو فتحهما الفريق، أو لم يُؤكَّد بريدهما بعد."
+msgstr[3] ""
+"تم تخطي %(count)d مكاتب: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها "
+"بعد."
+msgstr[4] ""
+"تم تخطي %(count)d مكتبًا: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها "
+"بعد."
+msgstr[5] ""
+"تم تخطي %(count)d مكتب: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها بعد."
+
+#: accounts/admin.py:377
+msgid "Reject selected sign-ups"
+msgstr "رفض التسجيلات المحددة"
+
+#: accounts/admin.py:383
+#, python-format
+msgid "Rejected %(count)d sign-up."
+msgid_plural "Rejected %(count)d sign-ups."
+msgstr[0] "لم يُرفض أي طلب."
+msgstr[1] "تم رفض طلب تسجيل واحد."
+msgstr[2] "تم رفض طلبَي تسجيل."
+msgstr[3] "تم رفض %(count)d طلبات تسجيل."
+msgstr[4] "تم رفض %(count)d طلب تسجيل."
+msgstr[5] "تم رفض %(count)d طلب تسجيل."
+
+#: accounts/admin.py:394
+#, python-format
+msgid "Skipped %(count)d office that isn't waiting for review."
+msgid_plural "Skipped %(count)d offices that aren't waiting for review."
+msgstr[0] "لم يُتخطَّ أي مكتب."
+msgstr[1] "تم تخطي مكتب واحد لا ينتظر المراجعة."
+msgstr[2] "تم تخطي مكتبين لا ينتظران المراجعة."
+msgstr[3] "تم تخطي %(count)d مكاتب لا تنتظر المراجعة."
+msgstr[4] "تم تخطي %(count)d مكتبًا لا ينتظر المراجعة."
+msgstr[5] "تم تخطي %(count)d مكتب لا ينتظر المراجعة."
+
+#: accounts/admin.py:403
+msgid "Owner"
+msgstr "المالك"
 
 #: accounts/apps.py:9
 msgid "Accounts"
 msgstr "الحسابات"
+
+#: accounts/forms.py:37
+msgid ""
+"This address can't be a sign-in name. Use one of up to 150 characters with "
+"only letters, digits and @ . + - _"
+msgstr ""
+"لا يمكن استخدام هذا العنوان اسمًا لتسجيل الدخول. استخدم عنوانًا لا يزيد على "
+"150 حرفًا ولا يحتوي إلا على الحروف والأرقام والرموز ‎@ . + - _"
+
+#: accounts/forms.py:44
+msgid "This email address already has a LeadsHub account."
+msgstr "لهذا البريد الإلكتروني حساب في LeadsHub بالفعل."
+
+#: accounts/forms.py:72
+msgid "Owner's first name"
+msgstr "الاسم الأول للمالك"
+
+#: accounts/forms.py:75
+msgid "Owner's last name"
+msgstr "الاسم الأخير للمالك"
+
+#: accounts/forms.py:78
+msgid "Owner's email address"
+msgstr "البريد الإلكتروني للمالك"
+
+#: accounts/forms.py:80
+msgid ""
+"The owner gets an email with a link to set their password. They sign in with "
+"this address."
+msgstr ""
+"يصل إلى المالك بريد إلكتروني فيه رابط لتعيين كلمة المرور، ويسجّل الدخول بهذا "
+"العنوان."
+
+#: accounts/forms.py:115
+msgid "Company name"
+msgstr "اسم الشركة"
+
+#: accounts/forms.py:118
+msgid "Your first name"
+msgstr "اسمك الأول"
+
+#: accounts/forms.py:123
+msgid "Your last name"
+msgstr "اسم العائلة"
+
+#: accounts/forms.py:126
+msgid "Work email"
+msgstr "البريد الإلكتروني للعمل"
+
+#: accounts/forms.py:128
+msgid "You sign in with this address. We send a link to confirm it."
+msgstr "تسجّل الدخول بهذا العنوان، وسنرسل إليه رابطًا لتأكيده."
+
+#: accounts/forms.py:132 accounts/services.py:314
+msgid "Mobile number"
+msgstr "رقم الموبايل"
+
+#: accounts/forms.py:134
+msgid "For example 01012345678."
+msgstr "مثال: 01012345678"
+
+#: accounts/forms.py:140
+msgid "Password"
+msgstr "كلمة المرور"
+
+#: accounts/forms.py:145
+msgid "Password again"
+msgstr "تأكيد كلمة المرور"
+
+#: accounts/forms.py:167
+msgid "The two passwords don't match."
+msgstr "كلمتا المرور غير متطابقتين."
 
 #: accounts/models.py:16
 msgid "email address"
 msgstr "البريد الإلكتروني"
 
 #: accounts/models.py:25 catalog/models.py:34 catalog/models.py:55
+#: creatives/models.py:112
 msgid "developer"
 msgstr "المطوّر"
 
@@ -117,79 +283,136 @@ msgid "Platinum"
 msgstr "بلاتيني"
 
 #: accounts/models.py:56
+msgid "Pending review"
+msgstr "قيد المراجعة"
+
+#: accounts/models.py:57
+msgid "Active"
+msgstr "نشط"
+
+#: accounts/models.py:58
+msgid "Rejected"
+msgstr "مرفوض"
+
+#: accounts/models.py:65
 msgid "company name"
 msgstr "اسم الشركة"
 
-#: accounts/models.py:58
+#: accounts/models.py:67
 msgid "wallet balance (EGP)"
 msgstr "رصيد المحفظة (جنيه مصري)"
 
-#: accounts/models.py:61
+#: accounts/models.py:70
 msgid "wallet balance (USD)"
 msgstr "رصيد المحفظة (دولار أمريكي)"
 
-#: accounts/models.py:64
+#: accounts/models.py:73
 msgid "spend tier"
 msgstr "فئة الإنفاق"
 
-#: accounts/models.py:67
+#: accounts/models.py:76
 msgid "feedback score"
 msgstr "درجة التقييم"
 
-#: accounts/models.py:69
+#: accounts/models.py:79 creatives/admin.py:65 creatives/models.py:146
+msgid "status"
+msgstr "الحالة"
+
+#: accounts/models.py:85 creatives/models.py:172
 msgid "created at"
 msgstr "تاريخ الإنشاء"
 
-#: accounts/models.py:72
+#: accounts/models.py:88
 msgid "broker office"
 msgstr "مكتب وساطة"
 
-#: accounts/models.py:73
+#: accounts/models.py:89
 msgid "broker offices"
 msgstr "مكاتب الوساطة"
 
-#: accounts/models.py:96
+#: accounts/models.py:112
 msgid "user"
 msgstr "المستخدم"
 
-#: accounts/models.py:102
+#: accounts/models.py:118 accounts/models.py:151
 msgid "office"
 msgstr "المكتب"
 
-#: accounts/models.py:104
+#: accounts/models.py:120
 msgid "joined at"
 msgstr "تاريخ الانضمام"
 
-#: accounts/models.py:107
+#: accounts/models.py:123
 msgid "membership"
 msgstr "العضوية"
 
-#: accounts/models.py:108
+#: accounts/models.py:124
 msgid "memberships"
 msgstr "العضويات"
 
-#: accounts/models.py:123
+#: accounts/models.py:134
+msgid "Enter a phone number of 8 to 15 digits, optionally starting with +."
+msgstr "أدخل رقم هاتف من 8 إلى 15 رقمًا، ويمكن أن يبدأ بعلامة +."
+
+#: accounts/models.py:157
+msgid "applicant"
+msgstr "مقدّم الطلب"
+
+#
+#: accounts/models.py:160
+msgid "mobile number"
+msgstr "رقم الموبايل"
+
+#: accounts/models.py:163 creatives/models.py:98
+msgid "language"
+msgstr "اللغة"
+
+#: accounts/models.py:164
+msgid "email confirmed at"
+msgstr "تاريخ تأكيد البريد الإلكتروني"
+
+#: accounts/models.py:165
+msgid "signed up at"
+msgstr "تاريخ التسجيل"
+
+#: accounts/models.py:166
+msgid "reviewed at"
+msgstr "تاريخ المراجعة"
+
+#: accounts/models.py:173
+msgid "reviewed by"
+msgstr "راجعه"
+
+#: accounts/models.py:177
+msgid "sign-up"
+msgstr "طلب تسجيل"
+
+#: accounts/models.py:178
+msgid "sign-ups"
+msgstr "طلبات التسجيل"
+
+#: accounts/models.py:194
 msgid "group"
 msgstr "المجموعة"
 
-#: accounts/models.py:125 catalog/models.py:14
+#: accounts/models.py:196 catalog/models.py:14
 msgid "name (English)"
 msgstr "الاسم (بالإنجليزية)"
 
-#: accounts/models.py:126 catalog/models.py:15
+#: accounts/models.py:197 catalog/models.py:15
 msgid "name (Arabic)"
 msgstr "الاسم (بالعربية)"
 
-#: accounts/models.py:127
+#: accounts/models.py:198
 msgid "audience"
 msgstr "الفئة"
 
-#: accounts/models.py:128
+#: accounts/models.py:199
 msgid "essential role"
 msgstr "دور أساسي"
 
 #
-#: accounts/models.py:131
+#: accounts/models.py:202
 msgid "role"
 msgstr "الدور"
 
@@ -296,31 +519,446 @@ msgstr "مكتب وساطة"
 msgid "Developer"
 msgstr "مطوّر"
 
-#: accounts/roles.py:239
+#: accounts/roles.py:251
 msgid ""
 "A user's roles must all be internal, all broker, or all developer roles."
 msgstr ""
 "يجب أن تكون أدوار المستخدم كلها داخلية، أو كلها للوسطاء، أو كلها للمطوّرين."
 
-#: accounts/roles.py:242
+#: accounts/roles.py:254
 msgid "Choose the developer this read-only account belongs to."
 msgstr "اختر المطوّر الذي يتبعه حساب القراءة فقط هذا."
 
 #
-#: accounts/roles.py:244
+#: accounts/roles.py:256
 msgid "Only developer accounts are linked to a developer."
 msgstr "تُربط بالمطوّر حسابات المطوّرين وحدها."
 
-#: accounts/templates/registration/login.html:4
-#: accounts/templates/registration/login.html:30
-msgid "Sign in"
-msgstr "تسجيل الدخول"
+#: accounts/services.py:118 accounts/services.py:358
+msgid "Sign-in name"
+msgstr "اسم تسجيل الدخول"
 
+#: accounts/services.py:142
+#, python-format
+msgid "%(name)s has already accepted the invitation."
+msgstr "قبِل %(name)s الدعوة بالفعل."
+
+#: accounts/services.py:246
+msgid "Your email address is already confirmed."
+msgstr "بريدك الإلكتروني مؤكَّد بالفعل."
+
+#: accounts/services.py:312
+msgid "Applicant"
+msgstr "مقدّم الطلب"
+
+#: accounts/services.py:313
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:2
+#: accounts/templates/accounts/email/confirm_email_body.html:4
+#: accounts/templates/registration/confirm_email.html:4
+#: accounts/templates/registration/registration_status.html:22
+msgid "Confirm your email address"
+msgstr "أكّد بريدك الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:3
+#, python-format
+msgid "One step left to register %(office)s on LeadsHub."
+msgstr "خطوة واحدة متبقية لتسجيل %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:6
+#: accounts/templates/accounts/email/confirm_email_body.txt:1
+#: accounts/templates/accounts/email/invitation_body.html:6
+#: accounts/templates/accounts/email/invitation_body.txt:1
+#: accounts/templates/accounts/email/signup_approved_body.html:6
+#: accounts/templates/accounts/email/signup_approved_body.txt:1
+#: accounts/templates/accounts/email/signup_rejected_body.html:6
+#: accounts/templates/accounts/email/signup_rejected_body.txt:1
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "مرحبًا %(name)s،"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:6
+#: accounts/templates/accounts/email/confirm_email_body.txt:1
+#: accounts/templates/accounts/email/invitation_body.html:6
+#: accounts/templates/accounts/email/invitation_body.txt:1
+#: accounts/templates/accounts/email/signup_approved_body.html:6
+#: accounts/templates/accounts/email/signup_approved_body.txt:1
+#: accounts/templates/accounts/email/signup_rejected_body.html:6
+#: accounts/templates/accounts/email/signup_rejected_body.txt:1
+msgid "Hello,"
+msgstr "مرحبًا،"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:7
+#: accounts/templates/accounts/email/confirm_email_body.txt:3
+#, python-format
+msgid "Thank you for registering %(office)s on LeadsHub."
+msgstr "شكرًا لتسجيل %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:7
+msgid "Confirm your email address so our team can review your brokerage."
+msgstr "أكّد بريدك الإلكتروني حتى يبدأ فريقنا مراجعة بيانات شركتك."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:8
+msgid "Confirm email address"
+msgstr "تأكيد البريد الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:12
+msgid "What happens next"
+msgstr "الخطوة التالية"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:13
+msgid ""
+"Once your email is confirmed, our team reviews your brokerage and emails you "
+"when your account opens."
+msgstr "بعد تأكيد بريدك الإلكتروني، يراجع فريقنا بيانات شركتك ويراسلك عند تفعيل حسابك."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:17
+#: accounts/templates/accounts/email/confirm_email_body.txt:8
+#, python-format
+msgid ""
+"The link works within %(days)s day. If it has expired, sign in to LeadsHub "
+"and ask for a new one."
+msgid_plural ""
+"The link works within %(days)s days. If it has expired, sign in to LeadsHub "
+"and ask for a new one."
+msgstr[0] ""
+"يعمل الرابط خلال اليوم نفسه. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[1] ""
+"يعمل الرابط خلال يوم واحد. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub واطلب "
+"رابطًا جديدًا."
+msgstr[2] ""
+"يعمل الرابط خلال يومين. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub واطلب "
+"رابطًا جديدًا."
+msgstr[3] ""
+"يعمل الرابط خلال %(days)s أيام. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[4] ""
+"يعمل الرابط خلال %(days)s يومًا. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[5] ""
+"يعمل الرابط خلال %(days)s يوم. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:20
+#: accounts/templates/accounts/email/confirm_email_body.txt:11
+msgid "If you didn't register, you can ignore this email."
+msgstr "إذا لم تكن أنت من سجّل، فتجاهل هذه الرسالة."
+
+#: accounts/templates/accounts/email/confirm_email_body.txt:5
+msgid "Confirm your email address with this link:"
+msgstr "أكّد بريدك الإلكتروني من هذا الرابط:"
+
+#: accounts/templates/accounts/email/confirm_email_body.txt:9
+msgid ""
+"After that, our team reviews your brokerage and emails you when your account "
+"opens."
+msgstr "بعد ذلك يراجع فريقنا بيانات شركتك ويراسلك عند تفعيل حسابك."
+
+#: accounts/templates/accounts/email/confirm_email_subject.txt:1
+msgid "Confirm your email address for LeadsHub"
+msgstr "تأكيد بريدك الإلكتروني على LeadsHub"
+
+#: accounts/templates/accounts/email/invitation_body.html:2
+#: accounts/templates/accounts/email/invitation_body.html:4
+#: accounts/templates/accounts/email/invitation_subject.txt:1
+#, python-format
+msgid "You're invited to %(office)s on LeadsHub"
+msgstr "دعوة للانضمام إلى %(office)s على LeadsHub"
+
+#: accounts/templates/accounts/email/invitation_body.html:3
+#: accounts/templates/accounts/email/invitation_body.html:7
+#: accounts/templates/accounts/email/invitation_body.txt:3
+#, python-format
+msgid "%(inviter)s invited you to join %(office)s on LeadsHub."
+msgstr "دعاك %(inviter)s للانضمام إلى %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/invitation_body.html:7
+msgid "Set a password to open your account."
+msgstr "عيّن كلمة مرور لتفتح حسابك."
+
+#: accounts/templates/accounts/email/invitation_body.html:8
+#: accounts/templates/registration/accept_invitation.html:4
+#: accounts/templates/registration/accept_invitation.html:10
+msgid "Set your password"
+msgstr "عيّن كلمة المرور"
+
+#: accounts/templates/accounts/email/invitation_body.html:10
+#: accounts/templates/accounts/email/invitation_body.txt:9
+#, python-format
+msgid ""
+"The link works once, within %(days)s day. If it has expired, ask the person "
+"who invited you to send a new one."
+msgid_plural ""
+"The link works once, within %(days)s days. If it has expired, ask the person "
+"who invited you to send a new one."
+msgstr[0] ""
+"يعمل الرابط مرة واحدة خلال اليوم نفسه. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[1] ""
+"يعمل الرابط مرة واحدة خلال يوم واحد. إذا انتهت صلاحيته، فاطلب من الشخص الذي "
+"دعاك أن يرسل رابطًا جديدًا."
+msgstr[2] ""
+"يعمل الرابط مرة واحدة خلال يومين. إذا انتهت صلاحيته، فاطلب من الشخص الذي "
+"دعاك أن يرسل رابطًا جديدًا."
+msgstr[3] ""
+"يعمل الرابط مرة واحدة خلال %(days)s أيام. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[4] ""
+"يعمل الرابط مرة واحدة خلال %(days)s يومًا. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[5] ""
+"يعمل الرابط مرة واحدة خلال %(days)s يوم. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+
+#: accounts/templates/accounts/email/invitation_body.txt:5
+msgid "Set your password with this link:"
+msgstr "عيّن كلمة المرور من هذا الرابط:"
+
+#: accounts/templates/accounts/email/invitation_body.txt:8
+#: accounts/templates/accounts/email/signup_approved_body.txt:8
+#, python-format
+msgid "Your sign-in name is %(name)s."
+msgstr "اسم تسجيل الدخول الخاص بك هو %(name)s."
+
+#: accounts/templates/accounts/email/new_signup_body.html:2
+#: accounts/templates/accounts/email/new_signup_subject.txt:1
+#, python-format
+msgid "New brokerage to review: %(office)s"
+msgstr "شركة وساطة جديدة للمراجعة: %(office)s"
+
+#: accounts/templates/accounts/email/new_signup_body.html:3
+#: accounts/templates/accounts/email/new_signup_body.html:6
+#: accounts/templates/accounts/email/new_signup_body.txt:1
+#, python-format
+msgid "%(office)s signed up for LeadsHub and confirmed its email address."
+msgstr "سجّلت %(office)s في LeadsHub وأكّدت بريدها الإلكتروني."
+
+#: accounts/templates/accounts/email/new_signup_body.html:4
+msgid "New brokerage to review"
+msgstr "شركة وساطة جديدة للمراجعة"
+
+#: accounts/templates/accounts/email/new_signup_body.html:8
+msgid "Review it, then approve or reject it from the broker offices list."
+msgstr "راجِع الطلب، ثم وافق عليه أو ارفضه من قائمة مكاتب الوساطة."
+
+#: accounts/templates/accounts/email/new_signup_body.html:9
+msgid "Review the sign-up"
+msgstr "مراجعة طلب التسجيل"
+
+#: accounts/templates/accounts/email/new_signup_body.html:12
+msgid "You get this email because you can approve brokerages on LeadsHub."
+msgstr "وصلتك هذه الرسالة لأنك تستطيع الموافقة على شركات الوساطة في LeadsHub."
+
+#: accounts/templates/accounts/email/new_signup_body.txt:3
+msgid "Applicant:"
+msgstr "مقدّم الطلب:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:4
+msgid "Email:"
+msgstr "البريد الإلكتروني:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:5
+msgid "Mobile:"
+msgstr "الموبايل:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:7
+msgid "Review it, then approve or reject it from the broker offices list:"
+msgstr "راجِع الطلب، ثم وافق عليه أو ارفضه من قائمة مكاتب الوساطة:"
+
+#: accounts/templates/accounts/email/signup_approved_body.html:2
+#: accounts/templates/accounts/email/signup_approved_subject.txt:1
+#, python-format
+msgid "%(office)s is ready on LeadsHub"
+msgstr "%(office)s جاهزة على LeadsHub"
+
+#: accounts/templates/accounts/email/signup_approved_body.html:3
+#: accounts/templates/accounts/email/signup_approved_body.html:7
+#: accounts/templates/accounts/email/signup_approved_body.txt:3
+#, python-format
+msgid "Good news: we approved %(office)s. Your LeadsHub account is open."
+msgstr "أخبار سارة: وافقنا على %(office)s، وحسابك على LeadsHub مفعّل الآن."
+
+#: accounts/templates/accounts/email/signup_approved_body.html:4
+msgid "Your account is open"
+msgstr "تم فتح حسابك"
+
+#: accounts/templates/accounts/email/signup_approved_body.html:9
 #: accounts/templates/registration/login.html:9
 msgid "Sign in to LeadsHub"
 msgstr "تسجيل الدخول إلى LeadsHub"
 
-#: catalog/apps.py:8 leadshub/settings.py:274
+#: accounts/templates/accounts/email/signup_approved_body.txt:5
+msgid "Sign in here:"
+msgstr "سجّل الدخول من هنا:"
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:2
+#: accounts/templates/accounts/email/signup_rejected_body.html:4
+#: accounts/templates/accounts/email/signup_rejected_subject.txt:1
+#, python-format
+msgid "Your LeadsHub registration for %(office)s"
+msgstr "طلب تسجيل %(office)s على LeadsHub"
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:3
+msgid "An update on your LeadsHub registration."
+msgstr "تحديث بشأن طلب تسجيلك على LeadsHub."
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:7
+#: accounts/templates/accounts/email/signup_rejected_body.txt:3
+#, python-format
+msgid ""
+"Thank you for registering %(office)s. Our team reviewed it and can't open an "
+"account for it at the moment."
+msgstr ""
+"شكرًا لتسجيل %(office)s. راجع فريقنا الطلب ولا يمكنه تفعيل حساب لها في الوقت "
+"الحالي."
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:8
+#: accounts/templates/accounts/email/signup_rejected_body.txt:5
+msgid "If you think this is a mistake, please contact LeadsHub support."
+msgstr "إذا كنت ترى أن هذا خطأ، فتواصل مع دعم LeadsHub."
+
+#: accounts/templates/registration/accept_invitation.html:12
+msgid "Your sign-in name"
+msgstr "اسم تسجيل الدخول"
+
+#: accounts/templates/registration/accept_invitation.html:40
+msgid "Set password and sign in"
+msgstr "تعيين كلمة المرور وتسجيل الدخول"
+
+#: accounts/templates/registration/accept_invitation.html:43
+#: accounts/templates/registration/confirm_email.html:13
+msgid "This link no longer works"
+msgstr "هذا الرابط لم يعد يعمل"
+
+#: accounts/templates/registration/accept_invitation.html:44
+msgid ""
+"An invitation link works once and only for a few days. Ask the person who "
+"invited you to send a new one."
+msgstr ""
+"يعمل رابط الدعوة مرة واحدة ولبضعة أيام فقط. اطلب من الشخص الذي دعاك أن يرسل "
+"رابطًا جديدًا."
+
+#: accounts/templates/registration/accept_invitation.html:45
+#: accounts/templates/registration/confirm_email.html:16
+msgid "Go to sign in"
+msgstr "الذهاب إلى تسجيل الدخول"
+
+#: accounts/templates/registration/confirm_email.html:10
+#: accounts/templates/registration/registration_status.html:18
+msgid "Email address confirmed"
+msgstr "تم تأكيد البريد الإلكتروني"
+
+#: accounts/templates/registration/confirm_email.html:11
+msgid ""
+"Thank you. Our team is reviewing your brokerage and will email you when your "
+"account opens."
+msgstr "شكرًا لك. يراجع فريقنا بيانات شركتك وسيراسلك عند تفعيل حسابك."
+
+#: accounts/templates/registration/confirm_email.html:14
+msgid ""
+"It may have been used already or expired. Sign in to see where your "
+"registration stands or to get a new link."
+msgstr ""
+"ربما استُخدم الرابط من قبل أو انتهت صلاحيته. سجّل الدخول لمعرفة حالة طلبك أو "
+"للحصول على رابط جديد."
+
+#: accounts/templates/registration/confirm_email.html:16
+msgid "See your registration"
+msgstr "عرض حالة طلبك"
+
+#: accounts/templates/registration/login.html:4
+#: accounts/templates/registration/login.html:30
+#: accounts/templates/registration/register.html:42
+msgid "Sign in"
+msgstr "تسجيل الدخول"
+
+#: accounts/templates/registration/login.html:34
+msgid "New to LeadsHub?"
+msgstr "جديد على LeadsHub؟"
+
+#: accounts/templates/registration/login.html:35
+#: accounts/templates/registration/register.html:4
+#: accounts/templates/registration/register.html:9
+msgid "Register your brokerage"
+msgstr "سجّل شركتك"
+
+#: accounts/templates/registration/register.html:10
+msgid ""
+"Our team reviews every new brokerage before its account opens. We email you "
+"as soon as it does."
+msgstr ""
+"يراجع فريقنا كل شركة وساطة جديدة قبل تفعيل حسابها، وسنراسلك فور تفعيله."
+
+#: accounts/templates/registration/register.html:37
+msgid "Register"
+msgstr "تسجيل"
+
+#: accounts/templates/registration/register.html:41
+msgid "Already have an account?"
+msgstr "لديك حساب بالفعل؟"
+
+#: accounts/templates/registration/registration_status.html:4
+msgid "Your registration"
+msgstr "طلب التسجيل"
+
+#: accounts/templates/registration/registration_status.html:11
+msgid "We couldn't approve this registration"
+msgstr "تعذّرت الموافقة على هذا الطلب"
+
+#: accounts/templates/registration/registration_status.html:12
+msgid ""
+"Our team reviewed your brokerage and can't open an account for it at the "
+"moment. If you think this is a mistake, please contact LeadsHub support."
+msgstr ""
+"راجع فريقنا بيانات شركتك ولا يمكنه تفعيل حساب لها في الوقت الحالي. إذا كنت "
+"ترى أن هذا خطأ، فتواصل مع دعم LeadsHub."
+
+#: accounts/templates/registration/registration_status.html:14
+msgid "Your registration is being reviewed"
+msgstr "طلبك قيد المراجعة"
+
+#: accounts/templates/registration/registration_status.html:15
+msgid ""
+"Thank you. Our team is checking your details and will email you when your "
+"account opens. You can close this page."
+msgstr ""
+"شكرًا لك. يراجع فريقنا بياناتك وسيراسلك عند تفعيل حسابك. يمكنك إغلاق هذه "
+"الصفحة."
+
+#: accounts/templates/registration/registration_status.html:17
+msgid "Brokerage registered"
+msgstr "تم تسجيل الشركة"
+
+#: accounts/templates/registration/registration_status.html:19
+msgid "Review by our team"
+msgstr "مراجعة فريقنا"
+
+#: accounts/templates/registration/registration_status.html:24
+msgid "We sent a link to"
+msgstr "أرسلنا رابطًا إلى"
+
+#: accounts/templates/registration/registration_status.html:25
+msgid ""
+"Open it to confirm your address. Our team starts reviewing your brokerage "
+"after that."
+msgstr "افتحه لتأكيد بريدك الإلكتروني، وبعدها يبدأ فريقنا مراجعة بيانات شركتك."
+
+#: accounts/templates/registration/registration_status.html:28
+msgid "We sent a new link. Earlier links still work until they expire."
+msgstr "أرسلنا رابطًا جديدًا. تظل الروابط السابقة صالحة حتى تنتهي صلاحيتها."
+
+#: accounts/templates/registration/registration_status.html:32
+msgid "Send the link again"
+msgstr "إرسال الرابط مرة أخرى"
+
+#: catalog/admin.py:38
+msgid "Meta targeting (internal)"
+msgstr "استهداف ميتا (داخلي)"
+
+#: catalog/apps.py:8 leadshub/settings.py:368
 msgid "Master data"
 msgstr "البيانات الرئيسية"
 
@@ -332,7 +970,8 @@ msgstr "نشط"
 msgid "developers"
 msgstr "المطوّرون"
 
-#: catalog/models.py:41 catalog/models.py:58
+#: catalog/models.py:41 catalog/models.py:58 catalog/models.py:99
+#: creatives/models.py:128
 msgid "area"
 msgstr "المنطقة"
 
@@ -340,7 +979,7 @@ msgstr "المنطقة"
 msgid "areas"
 msgstr "المناطق"
 
-#: catalog/models.py:48
+#: catalog/models.py:48 creatives/models.py:137
 msgid "unit type"
 msgstr "نوع الوحدة"
 
@@ -352,7 +991,7 @@ msgstr "أنواع الوحدات"
 msgid "commission rate (%)"
 msgstr "نسبة العمولة (%)"
 
-#: catalog/models.py:73
+#: catalog/models.py:73 creatives/models.py:120
 msgid "project"
 msgstr "المشروع"
 
@@ -360,61 +999,371 @@ msgstr "المشروع"
 msgid "projects"
 msgstr "المشروعات"
 
+#: catalog/models.py:100
+msgid "Leave empty if it suits any area."
+msgstr "اتركه فارغًا إن كان يناسب أي منطقة."
+
+#: catalog/models.py:103
+msgid "Meta interests"
+msgstr "اهتمامات ميتا"
+
+#: catalog/models.py:103
+msgid "One interest per line."
+msgstr "اهتمام واحد في كل سطر."
+
+#: catalog/models.py:106
+msgid "lookalike source"
+msgstr "مصدر الجمهور المشابه"
+
+#: catalog/models.py:109
+msgid "For example: closed_won_1pct."
+msgstr "مثال: closed_won_1pct."
+
+#: catalog/models.py:112
+msgid "location targeting"
+msgstr "الاستهداف الجغرافي"
+
+#: catalog/models.py:115
+msgid "For example: 6th of October + 15 km."
+msgstr "مثال: السادس من أكتوبر + 15 كم."
+
+#: catalog/models.py:119
+msgid "audience preset"
+msgstr "جمهور جاهز"
+
+#: catalog/models.py:120
+msgid "audience presets"
+msgstr "الجماهير الجاهزة"
+
+#: creatives/admin.py:16 creatives/admin.py:73 creatives/models.py:92
+msgid "offer"
+msgstr "العرض"
+
+#: creatives/admin.py:21
+msgid "Expired"
+msgstr "منتهٍ"
+
+#: creatives/admin.py:22
+msgid "Running"
+msgstr "سارٍ"
+
+#: creatives/admin.py:23 creatives/admin.py:79
+#: leadshub/templates/leadshub/library.html:82
+msgid "No end date"
+msgstr "بلا تاريخ انتهاء"
+
+#: creatives/admin.py:53
+msgid "Where it applies"
+msgstr "أين تُستخدم"
+
+#: creatives/admin.py:54
+msgid "Files"
+msgstr "الملفات"
+
+#: creatives/admin.py:55
+msgid "Publishing"
+msgstr "النشر"
+
+#: creatives/admin.py:56
+msgid "Record"
+msgstr "السجل"
+
+#: creatives/admin.py:82
+#, python-format
+msgid "Expired %(date)s"
+msgstr "انتهى في %(date)s"
+
+#: creatives/admin.py:83
+#, python-format
+msgid "Until %(date)s"
+msgstr "حتى %(date)s"
+
+#: creatives/admin.py:89
+msgid "Publish"
+msgstr "نشر"
+
+#: creatives/admin.py:92
+#, python-format
+msgid "Published %(count)d creative."
+msgid_plural "Published %(count)d creatives."
+msgstr[0] "لم تُنشر أي مادة إعلانية."
+msgstr[1] "نُشرت مادة إعلانية واحدة."
+msgstr[2] "نُشرت مادتان إعلانيتان."
+msgstr[3] "نُشرت %(count)d مواد إعلانية."
+msgstr[4] "نُشرت %(count)d مادة إعلانية."
+msgstr[5] "نُشرت %(count)d مادة إعلانية."
+
+#: creatives/admin.py:94
+msgid "Back to draft"
+msgstr "إعادة إلى المسودة"
+
+#: creatives/admin.py:97
+#, python-format
+msgid "Moved %(count)d creative back to draft."
+msgid_plural "Moved %(count)d creatives back to draft."
+msgstr[0] "لم تُعَد أي مادة إلى المسودة."
+msgstr[1] "أُعيدت مادة واحدة إلى المسودة."
+msgstr[2] "أُعيدت مادتان إلى المسودة."
+msgstr[3] "أُعيدت %(count)d مواد إلى المسودة."
+msgstr[4] "أُعيدت %(count)d مادة إلى المسودة."
+msgstr[5] "أُعيدت %(count)d مادة إلى المسودة."
+
+#: creatives/admin.py:99
+msgid "Archive"
+msgstr "أرشفة"
+
+#: creatives/admin.py:102
+#, python-format
+msgid "Archived %(count)d creative."
+msgid_plural "Archived %(count)d creatives."
+msgstr[0] "لم تُؤرشف أي مادة."
+msgstr[1] "أُرشفت مادة واحدة."
+msgstr[2] "أُرشفت مادتان."
+msgstr[3] "أُرشفت %(count)d مواد."
+msgstr[4] "أُرشفت %(count)d مادة."
+msgstr[5] "أُرشفت %(count)d مادة."
+
+#: creatives/apps.py:8 leadshub/context_processors.py:27
+#: leadshub/settings.py:383 leadshub/templates/leadshub/library.html:4
+#: leadshub/templates/leadshub/library.html:9
+msgid "Creative library"
+msgstr "مكتبة المواد الإعلانية"
+
+#: creatives/models.py:29
+msgid "9:16 reel"
+msgstr "ريل 9:16"
+
+#: creatives/models.py:30
+msgid "Carousel"
+msgstr "كاروسيل"
+
+#: creatives/models.py:31
+msgid "Static image"
+msgstr "صورة ثابتة"
+
+#: creatives/models.py:32
+msgid "Landing page"
+msgstr "صفحة هبوط"
+
+#: creatives/models.py:36
+msgid "Arabic"
+msgstr "العربية"
+
+#: creatives/models.py:37
+msgid "English"
+msgstr "الإنجليزية"
+
+#: creatives/models.py:48
+msgid "Draft"
+msgstr "مسودة"
+
+#: creatives/models.py:49
+msgid "Published"
+msgstr "منشور"
+
+#: creatives/models.py:50
+msgid "Archived"
+msgstr "مؤرشف"
+
+#: creatives/models.py:66
+#, python-format
+msgid "The file is larger than %(size)d MB."
+msgstr "حجم الملف أكبر من %(size)d ميجابايت."
+
+#: creatives/models.py:90
+msgid "title"
+msgstr "العنوان"
+
+#: creatives/models.py:95
+msgid "As the ad states it, for example \"5% down payment, 10-year plan\"."
+msgstr "كما يذكره الإعلان، مثل \"مقدم 5% وتقسيط على 10 سنوات\"."
+
+#: creatives/models.py:97
+msgid "type"
+msgstr "النوع"
+
+#: creatives/models.py:100
+msgid "aspect ratio"
+msgstr "نسبة الأبعاد"
+
+#: creatives/models.py:104
+msgid "Leave empty for a landing page."
+msgstr "اتركها فارغة لصفحة الهبوط."
+
+#: creatives/models.py:121
+msgid "Leave empty for an area-wide asset."
+msgstr "اتركه فارغًا لمادة تخص المنطقة كلها."
+
+#: creatives/models.py:129
+msgid "Filled in from the project when one is chosen."
+msgstr "يُملأ من المشروع عند اختياره."
+
+#: creatives/models.py:140
+msgid "offer ends on"
+msgstr "ينتهي العرض في"
+
+#: creatives/models.py:143
+msgid ""
+"The last day of the offer. From the next day, brokers no longer see the "
+"asset."
+msgstr "آخر يوم في العرض. من اليوم التالي لا يرى الوسطاء هذه المادة."
+
+#: creatives/models.py:149
+msgid "file"
+msgstr "الملف"
+
+#: creatives/models.py:153
+msgid "Image, video or zip, up to 100 MB."
+msgstr "صورة أو فيديو أو ملف zip، حتى 100 ميجابايت."
+
+#: creatives/models.py:156
+msgid "preview image"
+msgstr "صورة المعاينة"
+
+#: creatives/models.py:161
+msgid "Shown in the library. Not needed when the file is an image."
+msgstr "تظهر في المكتبة. لا حاجة إليها إذا كان الملف صورة."
+
+#: creatives/models.py:170
+msgid "created by"
+msgstr "أنشأها"
+
+#: creatives/models.py:173
+msgid "updated at"
+msgstr "آخر تحديث"
+
+#: creatives/models.py:178
+msgid "creative"
+msgstr "مادة إعلانية"
+
+#: creatives/models.py:179
+msgid "creatives"
+msgstr "المواد الإعلانية"
+
+#: creatives/models.py:225
+#, python-format
+msgid "This project is in %(area)s."
+msgstr "هذا المشروع في %(area)s."
+
+#: creatives/models.py:229
+#, python-format
+msgid "This project is by %(developer)s."
+msgstr "هذا المشروع من تطوير %(developer)s."
+
+#: creatives/models.py:233
+msgid "Choose an area, or a project."
+msgstr "اختر منطقة أو مشروعًا."
+
+#: creatives/models.py:235
+msgid "Choose the aspect ratio."
+msgstr "اختر نسبة الأبعاد."
+
+#: creatives/models.py:237
+msgid "A reel is 9:16."
+msgstr "الريل بنسبة 9:16."
+
 #
-#: leadshub/settings.py:218 leadshub/settings.py:256
-#: leadshub/templates/leadshub/back_office.html:4
+#: leadshub/context_processors.py:25 leadshub/settings.py:303
+#: leadshub/settings.py:341 leadshub/templates/leadshub/back_office.html:4
 #: leadshub/templates/leadshub/back_office.html:10
 msgid "Back office"
 msgstr "المكتب الخلفي"
 
+#: leadshub/context_processors.py:26
+#: leadshub/templates/leadshub/dashboard.html:4
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: leadshub/context_processors.py:28
+#: leadshub/templates/leadshub/dashboard.html:34
+#: leadshub/templates/leadshub/team.html:4
+#: leadshub/templates/leadshub/team.html:9 leadshub/tests.py:238
+msgid "Team"
+msgstr "الفريق"
+
 #
-#: leadshub/settings.py:258
+#: leadshub/context_processors.py:29
+#: leadshub/templates/leadshub/developer_home.html:4
+#: leadshub/templates/leadshub/developer_home.html:9
+msgid "Developer view"
+msgstr "عرض المطوّر"
+
+#: leadshub/context_processors.py:46
+msgid "Admin"
+msgstr "الإدارة"
+
+#
+#: leadshub/settings.py:343
 msgid "Overview"
 msgstr "نظرة عامة"
 
-#: leadshub/settings.py:259
+#: leadshub/settings.py:344
 msgid "Admin home"
 msgstr "رئيسية الإدارة"
 
-#: leadshub/settings.py:263
+#: leadshub/settings.py:348
 msgid "People and access"
 msgstr "الأشخاص والصلاحيات"
 
-#: leadshub/settings.py:266
+#: leadshub/settings.py:351
 msgid "Users"
 msgstr "المستخدمون"
 
 #
-#: leadshub/settings.py:267
+#: leadshub/settings.py:352
 msgid "Roles"
 msgstr "الأدوار"
 
 #
 #
-#: leadshub/settings.py:269
+#: leadshub/settings.py:354
 msgid "Broker offices"
 msgstr "مكاتب الوساطة"
 
+#: leadshub/settings.py:357
+msgid "Sign-ups to review"
+msgstr "طلبات تسجيل للمراجعة"
+
 #
 #
-#: leadshub/settings.py:277
+#: leadshub/settings.py:371
 msgid "Developers"
 msgstr "المطوّرون"
 
 #
-#: leadshub/settings.py:279
+#: leadshub/settings.py:373
 msgid "Projects"
 msgstr "المشروعات"
 
 #
-#: leadshub/settings.py:281
+#: leadshub/settings.py:375
 msgid "Areas"
 msgstr "المناطق"
 
 #
-#: leadshub/settings.py:282
+#: leadshub/settings.py:376
 msgid "Unit types"
 msgstr "أنواع الوحدات"
+
+#: leadshub/settings.py:378
+msgid "Audience presets"
+msgstr "الجماهير الجاهزة"
+
+#: leadshub/settings.py:386
+msgid "Creatives"
+msgstr "المواد الإعلانية"
+
+#: leadshub/templates/email/base.html:64 leadshub/templates/email/base.txt:3
+msgid "The LeadsHub team"
+msgstr "فريق LeadsHub"
+
+#: leadshub/templates/email/base.html:70 leadshub/templates/email/base.txt:6
+msgid "This email was sent automatically. Please don't reply to it."
+msgstr "أُرسلت هذه الرسالة تلقائيًا، يُرجى عدم الرد عليها."
+
+#: leadshub/templates/email/link_fallback.html:4
+msgid "If the button doesn't work, copy this link into your browser:"
+msgstr "إذا لم يعمل الزر، انسخ هذا الرابط وافتحه في متصفحك:"
 
 #: leadshub/templates/leadshub/back_office.html:11
 msgid "Internal operations. Clients never see this area."
@@ -436,25 +1385,34 @@ msgstr "مستخدم خارق (كل الصلاحيات)"
 msgid "What you can do"
 msgstr "ما يمكنك فعله"
 
-#: leadshub/templates/leadshub/base.html:33
-msgid "Language"
-msgstr "اللغة"
+#: leadshub/templates/leadshub/base.html:37
+msgid "Close menu"
+msgstr "إغلاق القائمة"
 
-#: leadshub/templates/leadshub/base.html:40
-msgid "Change"
-msgstr "تغيير"
+#: leadshub/templates/leadshub/base.html:41
+msgid "Main"
+msgstr "القائمة الرئيسية"
 
-#: leadshub/templates/leadshub/base.html:44
-msgid "Toggle dark mode"
-msgstr "تبديل الوضع الداكن"
-
-#: leadshub/templates/leadshub/base.html:53
+#: leadshub/templates/leadshub/base.html:56
+#: leadshub/templates/leadshub/base.html:105
 msgid "Sign out"
 msgstr "تسجيل الخروج"
 
-#: leadshub/templates/leadshub/dashboard.html:4
-msgid "Dashboard"
-msgstr "لوحة التحكم"
+#: leadshub/templates/leadshub/base.html:69
+msgid "Open menu"
+msgstr "فتح القائمة"
+
+#: leadshub/templates/leadshub/base.html:80
+msgid "Language"
+msgstr "اللغة"
+
+#: leadshub/templates/leadshub/base.html:90
+msgid "Change"
+msgstr "تغيير"
+
+#: leadshub/templates/leadshub/base.html:94
+msgid "Toggle dark mode"
+msgstr "تبديل الوضع الداكن"
 
 #: leadshub/templates/leadshub/dashboard.html:10
 msgid "Your office at a glance."
@@ -480,19 +1438,13 @@ msgstr "فئة الإنفاق"
 msgid "Feedback score"
 msgstr "درجة التقييم"
 
-#: leadshub/templates/leadshub/dashboard.html:33
-msgid "Team"
-msgstr "الفريق"
+#: leadshub/templates/leadshub/dashboard.html:36
+msgid "Manage team"
+msgstr "إدارة الفريق"
 
-#: leadshub/templates/leadshub/dashboard.html:41
+#: leadshub/templates/leadshub/dashboard.html:46
 msgid "No team members yet."
 msgstr "لا يوجد أعضاء في الفريق بعد."
-
-#
-#: leadshub/templates/leadshub/developer_home.html:4
-#: leadshub/templates/leadshub/developer_home.html:9
-msgid "Developer view"
-msgstr "عرض المطوّر"
 
 #: leadshub/templates/leadshub/developer_home.html:10
 msgid "Aggregate project metrics, without broker or customer details."
@@ -501,6 +1453,193 @@ msgstr "مؤشرات المشروعات الإجمالية، دون بيانات
 #: leadshub/templates/leadshub/developer_home.html:13
 msgid "Project metrics will appear here once campaigns are live."
 msgstr "ستظهر مؤشرات المشروعات هنا عند تشغيل الحملات."
+
+#: leadshub/templates/leadshub/library.html:10
+msgid ""
+"Ready-made ads for your campaigns. Offers that have ended are not shown."
+msgstr "إعلانات جاهزة لحملاتك. العروض المنتهية لا تظهر."
+
+#: leadshub/templates/leadshub/library.html:13
+msgid "Filters"
+msgstr "عوامل التصفية"
+
+#
+#: leadshub/templates/leadshub/library.html:16
+msgid "Area"
+msgstr "المنطقة"
+
+#: leadshub/templates/leadshub/library.html:18
+msgid "All areas"
+msgstr "كل المناطق"
+
+#
+#: leadshub/templates/leadshub/library.html:25
+msgid "Project"
+msgstr "المشروع"
+
+#: leadshub/templates/leadshub/library.html:27
+msgid "All projects"
+msgstr "كل المشروعات"
+
+#: leadshub/templates/leadshub/library.html:34
+msgid "Type"
+msgstr "النوع"
+
+#: leadshub/templates/leadshub/library.html:36
+msgid "All types"
+msgstr "كل الأنواع"
+
+#: leadshub/templates/leadshub/library.html:43
+msgid "Language of the ad"
+msgstr "لغة الإعلان"
+
+#: leadshub/templates/leadshub/library.html:45
+msgid "Both languages"
+msgstr "اللغتان"
+
+#: leadshub/templates/leadshub/library.html:53
+msgid "Clear filters"
+msgstr "مسح عوامل التصفية"
+
+#: leadshub/templates/leadshub/library.html:58
+msgid "Assets"
+msgstr "المواد"
+
+#: leadshub/templates/leadshub/library.html:82
+msgid "Offer ends"
+msgstr "ينتهي العرض"
+
+#: leadshub/templates/leadshub/library.html:86
+msgid "Open"
+msgstr "فتح"
+
+#: leadshub/templates/leadshub/library.html:86
+msgid "Download"
+msgstr "تنزيل"
+
+#: leadshub/templates/leadshub/library.html:94
+msgid "Pages"
+msgstr "الصفحات"
+
+#: leadshub/templates/leadshub/library.html:95
+msgid "Previous"
+msgstr "السابق"
+
+#: leadshub/templates/leadshub/library.html:96
+#, python-format
+msgid "Page %(number)s of %(count)s"
+msgstr "صفحة %(number)s من %(count)s"
+
+#: leadshub/templates/leadshub/library.html:97
+msgid "Next"
+msgstr "التالي"
+
+#: leadshub/templates/leadshub/library.html:101
+msgid "No assets match these filters."
+msgstr "لا توجد مواد تطابق عوامل التصفية هذه."
+
+#: leadshub/templates/leadshub/library.html:101
+msgid "The library is empty for now."
+msgstr "المكتبة فارغة حاليًا."
+
+#: leadshub/templates/leadshub/team.html:10
+msgid "Invite people to your office and choose what they can do."
+msgstr "ادعُ أشخاصًا إلى مكتبك وحدّد ما يمكنهم فعله."
+
+#: leadshub/templates/leadshub/team.html:15
+msgid "Invite a team member"
+msgstr "دعوة عضو إلى الفريق"
+
+#: leadshub/templates/leadshub/team.html:16
+msgid ""
+"They get an email with a link to set a password, and sign in with their "
+"email address."
+msgstr ""
+"يصلهم بريد إلكتروني فيه رابط لتعيين كلمة المرور، ويسجّلون الدخول ببريدهم "
+"الإلكتروني."
+
+#: leadshub/templates/leadshub/team.html:21
+msgid "Sending…"
+msgstr "جارٍ الإرسال…"
+
+#: leadshub/templates/leadshub/team.html:21
+msgid "Send invitation"
+msgstr "إرسال الدعوة"
+
+#: leadshub/templates/leadshub/team.html:27
+msgid "People in your office"
+msgstr "الأشخاص في مكتبك"
+
+#: leadshub/templates/leadshub/team.html:38
+msgid "Manages the team"
+msgstr "يدير الفريق"
+
+#: leadshub/templates/leadshub/team.html:41
+msgid "Deactivated"
+msgstr "موقوف"
+
+#: leadshub/templates/leadshub/team.html:43
+msgid "Hasn't accepted the invitation yet"
+msgstr "لم يقبل الدعوة بعد"
+
+#: leadshub/templates/leadshub/team.html:46
+msgid "Can run campaigns"
+msgstr "يمكنه تشغيل الحملات"
+
+#: leadshub/templates/leadshub/team.html:55
+msgid "Send a new invitation"
+msgstr "إرسال دعوة جديدة"
+
+#: leadshub/templates/leadshub/team.html:59
+msgid "Remove campaign access"
+msgstr "إلغاء صلاحية الحملات"
+
+#: leadshub/templates/leadshub/team.html:61
+msgid "Allow campaigns"
+msgstr "السماح بالحملات"
+
+#: leadshub/templates/leadshub/team.html:64
+msgid ""
+"Deactivate this person? They will be signed out and can no longer sign in."
+msgstr "إيقاف حساب هذا الشخص؟ سيُسجَّل خروجه ولن يتمكن من تسجيل الدخول بعد ذلك."
+
+#: leadshub/templates/leadshub/team.html:64
+msgid "Deactivate"
+msgstr "إيقاف الحساب"
+
+#: leadshub/templates/leadshub/team.html:66
+msgid "Reactivate"
+msgstr "إعادة التفعيل"
+
+#: leadshub/views.py:125
+#, python-format
+msgid "Invitation sent to %(email)s."
+msgstr "أُرسلت الدعوة إلى %(email)s."
+
+#: leadshub/views.py:144
+#, python-format
+msgid "A new invitation was sent to %(email)s."
+msgstr "أُرسلت دعوة جديدة إلى %(email)s."
+
+#: leadshub/views.py:152
+#, python-format
+msgid "%(name)s can no longer sign in."
+msgstr "لم يعد بإمكان %(name)s تسجيل الدخول."
+
+#: leadshub/views.py:160
+#, python-format
+msgid "%(name)s can sign in again."
+msgstr "أصبح بإمكان %(name)s تسجيل الدخول مجددًا."
+
+#: leadshub/views.py:170
+#, python-format
+msgid "%(name)s can now create and run campaigns."
+msgstr "أصبح بإمكان %(name)s إنشاء الحملات وتشغيلها."
+
+#: leadshub/views.py:181
+#, python-format
+msgid "%(name)s can no longer create or run campaigns."
+msgstr "لم يعد بإمكان %(name)s إنشاء الحملات أو تشغيلها."
 
 #: templates/403.html:4 templates/403.html:9
 msgid "Access denied"

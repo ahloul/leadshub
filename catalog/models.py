@@ -79,3 +79,49 @@ class Project(BilingualNamed):
                 name="project_commission_rate_0_100",
             ),
         ]
+
+
+class AudiencePreset(BilingualNamed):
+    """A plain-language audience brokers pick in the campaign builder (FR-4.5).
+
+    Brokers see only the name, such as "New Cairo compound buyers, higher
+    income". The Meta targeting behind it is internal and goes into the
+    campaign brief (SRS §4.1). There are no age or gender fields: Meta's
+    housing category doesn't allow those limits (FR-5.14).
+    """
+
+    area = models.ForeignKey(
+        Area,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="audience_presets",
+        verbose_name=_("area"),
+        help_text=_("Leave empty if it suits any area."),
+    )
+    meta_interests = models.TextField(
+        _("Meta interests"), blank=True, help_text=_("One interest per line.")
+    )
+    lookalike_source = models.CharField(
+        _("lookalike source"),
+        max_length=100,
+        blank=True,
+        help_text=_("For example: closed_won_1pct."),
+    )
+    geo_targeting = models.CharField(
+        _("location targeting"),
+        max_length=200,
+        blank=True,
+        help_text=_("For example: 6th of October + 15 km."),
+    )
+
+    class Meta(BilingualNamed.Meta):
+        verbose_name = _("audience preset")
+        verbose_name_plural = _("audience presets")
+        constraints = [
+            models.UniqueConstraint(fields=["name_en"], name="unique_audience_preset_name")
+        ]
+
+    @property
+    def interests(self):
+        return [line.strip() for line in self.meta_interests.splitlines() if line.strip()]

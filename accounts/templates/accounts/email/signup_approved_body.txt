@@ -1,0 +1,8 @@
+{% extends "email/base.txt" %}{% load i18n %}{% block content %}{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with office=office_name %}Good news: we approved {{ office }}. Your LeadsHub account is open.{% endblocktranslate %}
+
+{% translate "Sign in here:" %}
+{{ link }}
+
+{% blocktranslate with name=sign_in_name %}Your sign-in name is {{ name }}.{% endblocktranslate %}{% endblock %}

@@ -108,8 +108,13 @@ SYSTEM_ROLE_AUDIENCE = {
 
 _CATALOG_ADMIN = [
     f"catalog.{action}_{model}"
-    for model in ("developer", "project", "area", "unittype")
+    for model in ("developer", "project", "area", "unittype", "audiencepreset")
     for action in ("view", "add", "change", "delete")
+]
+
+# The creative library in the admin (SRS §2.1 Content Manager, §3.2).
+_CREATIVE_LIBRARY = [
+    f"creatives.{action}_creative" for action in ("view", "add", "change", "delete")
 ]
 
 # Creating roles and giving them to people, in the admin (SRS §2.1 Platform Admin).
@@ -119,7 +124,11 @@ _ROLE_ADMIN = [
     "accounts.change_user",
     *[f"accounts.{action}_roleprofile" for action in ("view", "add", "change", "delete")],
     *[f"accounts.{action}_membership" for action in ("view", "add", "change", "delete")],
+    # Onboarding a brokerage: open its office and invite its owner (ROADMAP M1).
+    # Offices are never deleted from the admin.
     "accounts.view_brokeroffice",
+    "accounts.add_brokeroffice",
+    "accounts.change_brokeroffice",
 ]
 
 # What a role of each audience may be given. Client and developer roles can
@@ -137,6 +146,7 @@ AUDIENCE_PERMISSIONS = {
             "accounts.view_project_metrics",
             "accounts.manage_creative_library",
             *_CATALOG_ADMIN,
+            *_CREATIVE_LIBRARY,
             *_ROLE_ADMIN,
         }
     ),
@@ -165,6 +175,7 @@ ROLE_PERMISSIONS = {
         "accounts.manage_creative_library",
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
+        *_CREATIVE_LIBRARY,
         *_ROLE_ADMIN,
     ],
     # Plus everything a Media Buyer has (ROLE_INCLUDES).
@@ -180,6 +191,7 @@ ROLE_PERMISSIONS = {
     ],
     Role.CONTENT_MANAGER: [
         "accounts.manage_creative_library",
+        *_CREATIVE_LIBRARY,
     ],
     Role.FINANCE_MANAGER: [
         "accounts.view_internal_financials",

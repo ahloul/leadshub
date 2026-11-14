@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with office=office_name %}You're invited to {{ office }} on LeadsHub{% endblocktranslate %}{% endautoescape %}

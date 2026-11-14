@@ -1,0 +1,76 @@
+{% extends "leadshub/base.html" %}
+{% load i18n live_tags %}
+
+{% block title %}{% translate "Team" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="leadshub.views.TeamView" class="space-y-6 sm:space-y-8">
+    <section>
+        <h1 class="text-2xl font-bold sm:text-3xl">{% translate "Team" %}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Invite people to your office and choose what they can do." %}</p>
+    </section>
+
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        <section class="card" aria-labelledby="invite-heading">
+            <h2 id="invite-heading" class="text-lg font-semibold">{% translate "Invite a team member" %}</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{% translate "They get an email with a link to set a password, and sign in with their email address." %}</p>
+
+            <form dj-submit="submit_form" class="mt-4 space-y-4" novalidate>
+                {% csrf_token %}
+                {% live_form view %}
+                <button type="submit" class="btn-primary w-full sm:w-auto" dj-disable-with="{% translate 'Sending…' %}">{% translate "Send invitation" %}</button>
+                <p role="status" class="text-sm font-medium text-emerald-700 dark:text-emerald-400">{{ success_message }}</p>
+            </form>
+        </section>
+
+        <section class="card lg:col-span-2" aria-labelledby="members-heading">
+            <h2 id="members-heading" class="text-lg font-semibold">{% translate "People in your office" %}</h2>
+            <p role="status" class="mt-1 text-sm font-medium {% if notice_is_error %}text-red-700 dark:text-red-400{% else %}text-emerald-700 dark:text-emerald-400{% endif %}">{{ notice }}</p>
+
+            <ul class="mt-2 divide-y divide-slate-200 dark:divide-slate-800">
+                {% for member in members %}
+                <li data-key="{{ member.pk }}" class="flex flex-col gap-3 py-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0">
+                        <p id="member-{{ member.pk }}" class="font-medium">{{ member.get_full_name|default:member.username }}</p>
+                        <p class="break-all text-sm text-slate-500 dark:text-slate-400"><span dir="ltr">{{ member.email }}</span></p>
+                        <ul class="mt-2 flex flex-wrap gap-2 text-xs font-medium">
+                            {% if member.manages_team %}
+                            <li class="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{% translate "Manages the team" %}</li>
+                            {% endif %}
+                            {% if not member.is_active %}
+                            <li class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300">{% translate "Deactivated" %}</li>
+                            {% elif member.invitation_pending %}
+                            <li class="rounded-full bg-amber-50 px-2 py-0.5 text-amber-800 dark:bg-amber-950 dark:text-amber-300">{% translate "Hasn't accepted the invitation yet" %}</li>
+                            {% endif %}
+                            {% if member.campaigns_from_role or member.campaigns_granted %}
+                            <li class="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">{% translate "Can run campaigns" %}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    {% if not member.manages_team %}
+                    <div class="flex flex-wrap gap-2 sm:justify-end">
+                        {% if member.is_active %}
+                            {% if member.invitation_pending %}
+                            <button type="button" class="btn-secondary" dj-click="resend_invitation" data-member-id="{{ member.pk }}" aria-describedby="member-{{ member.pk }}">{% translate "Send a new invitation" %}</button>
+                            {% endif %}
+                            {% if not member.campaigns_from_role %}
+                                {% if member.campaigns_granted %}
+                                <button type="button" class="btn-secondary" dj-click="revoke_campaigns" data-member-id="{{ member.pk }}" aria-describedby="member-{{ member.pk }}">{% translate "Remove campaign access" %}</button>
+                                {% elif can_give_campaigns %}
+                                <button type="button" class="btn-secondary" dj-click="allow_campaigns" data-member-id="{{ member.pk }}" aria-describedby="member-{{ member.pk }}">{% translate "Allow campaigns" %}</button>
+                                {% endif %}
+                            {% endif %}
+                            <button type="button" class="btn-danger" dj-click="deactivate_member" data-member-id="{{ member.pk }}" aria-describedby="member-{{ member.pk }}" dj-confirm="{% translate 'Deactivate this person? They will be signed out and can no longer sign in.' %}">{% translate "Deactivate" %}</button>
+                        {% else %}
+                            <button type="button" class="btn-secondary" dj-click="reactivate_member" data-member-id="{{ member.pk }}" aria-describedby="member-{{ member.pk }}">{% translate "Reactivate" %}</button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</div>
+{% endblock %}

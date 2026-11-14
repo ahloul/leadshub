@@ -1,9 +1,16 @@
-# Local test environment. NOT for production: debug is on and the
-# secrets below are throwaway values.
+# Local development and test environment. NOT for production: debug is on
+# and the secrets below are throwaway values.
 #
 #   make docker-up      app on http://localhost:8000 (+ demo login)
+#   make docker-logs    follow the app and CSS watcher logs
 #   make docker-test    run the test suite against PostgreSQL
 #   make docker-down    stop everything (add -v to drop the database)
+#   make docker-build   rebuild the image (only after requirements.txt or
+#                       the Dockerfile change)
+#
+# The project folder is mounted into the containers, so code, templates,
+# CSS and translations are live: the server restarts itself on a change and
+# the css service rebuilds Tailwind. No image rebuild is needed for those.
 
 # djust 1.2.8 ships Linux wheels for x86_64 only, so the app image is amd64
 # (emulated on Apple Silicon). Drop this once djust publishes arm64 wheels.
@@ -18,6 +25,18 @@ x-app-env: &app-env
   DB_PASSWORD: leadshub
   DB_HOST: db
   DB_PORT: "5432"
+
+# Uploads go to the storage service below (S3 API). The test service leaves
+# these out: tests keep uploads in a temporary folder.
+#
+# Values set here win over the mounted .env (settings only fill in what the
+# environment lacks), so the host's DB_HOST=localhost doesn't apply inside.
+x-storage-env: &storage-env
+  AWS_STORAGE_BUCKET_NAME: leadshub
+  AWS_S3_ENDPOINT_URL: http://storage:9000
+  AWS_S3_REGION_NAME: us-east-1
+  AWS_ACCESS_KEY_ID: rustfsadmin
+  AWS_SECRET_ACCESS_KEY: rustfsadmin
 
 services:
   db:
@@ -34,20 +53,65 @@ services:
       timeout: 3s
       retries: 20
 
+  # S3-compatible storage for uploads, the local stand-in for S3. RustFS,
+  # because MinIO no longer publishes its server images. Console on
+  # http://localhost:9001, login rustfsadmin / rustfsadmin (its defaults).
+  storage:
+    image: rustfs/rustfs:1.0.4
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - storagedata:/data
+
   web:
     build: .
     platform: *app-platform
-    environment: *app-env
+    environment:
+      <<: [*app-env, *storage-env]
+      # Polling, because file events don't always cross the Mac bind mount
+      # and the amd64 emulation. It only watches the folders listed below.
+      WATCHFILES_FORCE_POLLING: "true"
+    volumes:
+      - .:/app
+    # Restart on Python, template and compiled-translation changes. Migrations
+    # aren't run here: `make docker-up` and `make docker-migrate` run them.
+    command: >-
+      uvicorn leadshub.asgi:application --host 0.0.0.0 --port 8000
+      --reload
+      --reload-dir accounts --reload-dir catalog --reload-dir creatives
+      --reload-dir leadshub --reload-dir templates --reload-dir locale
+      --reload-include "*.html" --reload-include "*.mo"
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+      storage:
+        condition: service_started
+      css:
+        condition: service_started
+
+  # Rebuilds static/css/output.css (in the mounted folder) when a template or
+  # input.css changes. Its node_modules is a volume: the host's are built
+  # for macOS, and Tailwind's engine is a native binary.
+  css:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    command: sh -c "npm ci --no-audit --no-fund && npx tailwindcss -i static/css/input.css -o static/css/output.css --watch=always --poll"
 
   test:
     build: .
     platform: *app-platform
-    environment: *app-env
+    environment:
+      <<: *app-env
+      # Keep the host .env's bucket out: tests store uploads on disk.
+      AWS_STORAGE_BUCKET_NAME: ""
+    volumes:
+      - .:/app
     command: python manage.py test
     depends_on:
       db:
@@ -56,3 +120,5 @@ services:
 
 volumes:
   pgdata:
+  storagedata:
+  node_modules:

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "css": "tailwindcss -i static/css/input.css -o static/css/output.css --minify",
-    "css:watch": "tailwindcss -i static/css/input.css -o static/css/output.css --watch"
+    "css:watch": "tailwindcss -i static/css/input.css -o static/css/output.css --watch=always"
   },
   "devDependencies": {
     "@tailwindcss/cli": "4.3.3",

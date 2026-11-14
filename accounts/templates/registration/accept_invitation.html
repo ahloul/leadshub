@@ -1,0 +1,49 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Set your password" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-sm sm:mt-10">
+    <div class="card">
+        {% if validlink %}
+        <h1 class="text-xl font-bold">{% translate "Set your password" %}</h1>
+        <dl class="mt-4 text-sm">
+            <dt class="text-slate-500 dark:text-slate-400">{% translate "Your sign-in name" %}</dt>
+            <dd class="mt-1 break-all font-medium"><span dir="ltr">{{ sign_in_name }}</span></dd>
+        </dl>
+
+        <form method="post" class="mt-6 space-y-4" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+            {% endif %}
+
+            {# djust templates iterate a bare form as field names; use visible_fields. #}
+            {% for field in form.visible_fields %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+
+            {% if password_rules %}
+            <ul class="list-disc space-y-1 ps-5 text-sm text-slate-500 dark:text-slate-400">
+                {% for rule in password_rules %}<li>{{ rule }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+
+            <button type="submit" class="btn-primary w-full">{% translate "Set password and sign in" %}</button>
+        </form>
+        {% else %}
+        <h1 class="text-xl font-bold">{% translate "This link no longer works" %}</h1>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% translate "An invitation link works once and only for a few days. Ask the person who invited you to send a new one." %}</p>
+        <a href="{% url 'login' %}" class="btn-secondary mt-6">{% translate "Go to sign in" %}</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

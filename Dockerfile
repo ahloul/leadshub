@@ -30,10 +30,20 @@ RUN pip install -r requirements.txt
 
 COPY . .
 COPY --from=css /app/static/css/output.css ./static/css/output.css
-RUN python manage.py compilemessages --ignore=.venv --ignore=node_modules
+# Build steps load the settings but need no real secret, so they get a
+# throwaway key (production refuses to start without SECRET_KEY).
+# collectstatic fills /app/staticfiles, which Fly serves directly
+# ([[statics]] in fly.toml).
+RUN SECRET_KEY=build-only python manage.py compilemessages --ignore=.venv --ignore=node_modules \
+    && SECRET_KEY=build-only python manage.py collectstatic --noinput
 
 RUN useradd --create-home app && chown -R app /app
 USER app
 
 EXPOSE 8000
-CMD ["sh", "-c", "python manage.py migrate --noinput && uvicorn leadshub.asgi:application --host 0.0.0.0 --port 8000"]
+# Migrations run once per deploy (release_command in fly.toml; `make
+# docker-up` locally), not on every start. --proxy-headers takes the client
+# IP from Fly's proxy, which axes needs to lock out the right address.
+# One process per machine; for more, add machines with REDIS_URL set
+# (docs/DEPLOY.md), which shares djust's page state and the channel layer.
+CMD ["uvicorn", "leadshub.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

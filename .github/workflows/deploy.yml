@@ -1,0 +1,75 @@
+# Test every push and pull request; deploy master to Fly.io (docs/DEPLOY.md)
+# once the tests pass. A merged pull request is a push to master, so it
+# deploys too.
+#
+# Needs the repository secret FLY_API_TOKEN: a deploy token for the app,
+# made with `fly tokens create deploy -a leadshub`.
+name: Test and deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Fly Managed Postgres runs 17.
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: leadshub
+          POSTGRES_USER: leadshub
+          POSTGRES_PASSWORD: leadshub
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U leadshub -d leadshub"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    env:
+      # Like the Docker test service: throwaway values, uploads on disk.
+      DEBUG: "True"
+      SECRET_KEY: ci-only-not-a-real-secret
+      DB_NAME: leadshub
+      DB_USER: leadshub
+      DB_PASSWORD: leadshub
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DJUST_NO_UPDATE_CHECK: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Migrations match the models
+        run: python manage.py makemigrations --check --dry-run
+      - name: Django and djust checks
+        run: python manage.py djust_check
+      - name: Tests
+        run: python manage.py test
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    # One deploy at a time; a newer push waits rather than cancelling one
+    # that is halfway through its migrations.
+    concurrency:
+      group: fly-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: superfly/flyctl-actions/setup-flyctl@1.5
+      # Fly's builder makes the image; migrations run as its release command.
+      # --ha=false keeps a first deploy to one machine (Makefile fly-deploy).
+      - run: flyctl deploy --remote-only --ha=false
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 
 from django.urls import reverse_lazy
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,26 +31,81 @@ def _load_dotenv(path):
         os.environ.setdefault(key.strip(), value.strip())
 
 
+def _first_env(*names, default=None):
+    """The value of the first of ``names`` set (non-empty) in the environment.
+
+    Lets one setting accept the names a platform sets by itself, for example
+    Fly's Tigris storage (``BUCKET_NAME``) besides ``AWS_STORAGE_BUCKET_NAME``.
+    """
+    for name in names:
+        if os.environ.get(name):
+            return os.environ[name]
+    return default
+
+
+def _database_from_url(url):
+    """Django database settings from a ``postgres://user:pass@host:port/name`` URL.
+
+    Fly Postgres hands the app a ``DATABASE_URL``. Parsed here rather than
+    with dj-database-url, since one URL shape needs no new dependency. Query
+    parameters (``sslmode=disable``) become connection options.
+    """
+    from urllib.parse import parse_qsl, unquote, urlsplit
+
+    parts = urlsplit(url)
+    if parts.scheme not in ("postgres", "postgresql"):
+        raise ValueError(f"DATABASE_URL must be a PostgreSQL URL, not {parts.scheme!r}")
+    return {
+        "NAME": unquote(parts.path.lstrip("/")),
+        "USER": unquote(parts.username or ""),
+        "PASSWORD": unquote(parts.password or ""),
+        "HOST": parts.hostname or "",
+        "PORT": str(parts.port or 5432),
+        "OPTIONS": dict(parse_qsl(parts.query)),
+    }
+
+
 # Load a ``.env`` next to BASE_DIR (if present) so local development picks up
 # ``DEBUG=True`` + a real ``SECRET_KEY`` without exporting them by hand. An
 # unconfigured deploy (no ``.env``) still fails safe to ``DEBUG=False``.
 _load_dotenv(BASE_DIR / ".env")
-
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-5Kz85LNBPLvufqwi98q_CvnxenBPsx3Rlhwr7Wqdz967fONoMXb3ucc_FQyDojUTFPw",
-)  # noqa: S105
 
 # Fails safe: defaults to False when the env var is unset so production
 # deployments don't accidentally ship with full tracebacks and lax security.
 # Copy ``.env.example`` to ``.env`` for local development.
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    if not DEBUG:
+        # A deploy without its own key would sign sessions and invitation
+        # links with the public one below.
+        from django.core.exceptions import ImproperlyConfigured
+
+        raise ImproperlyConfigured("Set SECRET_KEY when DEBUG is off (fly secrets set SECRET_KEY=...).")
+    SECRET_KEY = "django-insecure-5Kz85LNBPLvufqwi98q_CvnxenBPsx3Rlhwr7Wqdz967fONoMXb3ucc_FQyDojUTFPw"  # noqa: S105
+
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     if host.strip()
 ]
+# Full origins (https://leadshub.fly.dev) allowed to post forms, for hosts
+# whose scheme Django can't see by itself.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
+
+if not DEBUG:
+    # Behind Fly's proxy, which ends HTTPS and sends X-Forwarded-Proto (and
+    # redirects plain HTTP itself: force_https in fly.toml).
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", "3600"))
 
 INSTALLED_APPS = [
     "channels",
@@ -66,6 +122,7 @@ INSTALLED_APPS = [
     "leadshub",
     "accounts",
     "catalog",
+    "creatives",
     # Locks out repeated failed logins on /login/ and /admin/ (djust.A030).
     "axes",
 ]
@@ -100,6 +157,36 @@ AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 1  # hours
 AXES_LOCKOUT_PARAMETERS = ["ip_address", "username"]
 
+# Invited people choose their own password (accounts.views.AcceptInvitationView).
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+# Email: team invitations and sign-up confirmations (accounts.services). With
+# DEBUG on, messages are printed to the console. Otherwise they go to the SMTP
+# server below, so a deployment that forgets to configure email fails instead
+# of logging links. In development, point the SMTP values at a Mailtrap
+# sandbox inbox to see the real emails (.env.example). Tests always use
+# Django's in-memory backend (django.core.mail.outbox), whatever is set here.
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend"
+    if DEBUG
+    else "django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "25"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "False").lower() in ("true", "1", "yes")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "LeadsHub <no-reply@localhost>")
+# Seconds to wait for the SMTP server, so a slow one fails the send instead
+# of holding the request that sends it.
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", "10"))
+
 ROOT_URLCONF = "leadshub.urls"
 
 TEMPLATES = [
@@ -125,10 +212,13 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # Header links to the pages the person may open.
+                "leadshub.context_processors.navigation",
             ],
         },
     },
-    # Django's own engine: the admin's (Unfold's) templates (djust.C016).
+    # Django's own engine: the admin's (Unfold's) templates (djust.C016) and
+    # plain-text emails (accounts.services).
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
@@ -147,13 +237,24 @@ TEMPLATES = [
 
 ASGI_APPLICATION = "leadshub.asgi.application"
 
+# One process (local, tests): in memory. Several machines (REDIS_URL set,
+# docs/DEPLOY.md): Redis, so a message sent on one machine reaches live pages
+# open on another. Pub/sub rather than channels_redis' list layer, which polls
+# Redis non-stop (billed per command on Upstash).
+REDIS_URL = os.environ.get("REDIS_URL", "")
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
+    "default": (
+        {
+            "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+            "CONFIG": {"hosts": [REDIS_URL]},
+        }
+        if REDIS_URL
+        else {"BACKEND": "channels.layers.InMemoryChannelLayer"}
+    ),
 }
 
-# PostgreSQL, configured from the environment (see .env.example).
+# PostgreSQL, configured from the environment (see .env.example): either
+# DATABASE_URL (Fly Postgres sets it when attached) or the DB_* values.
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -162,10 +263,18 @@ DATABASES = {
         "PASSWORD": os.environ.get("DB_PASSWORD", ""),
         "HOST": os.environ.get("DB_HOST", "localhost"),
         "PORT": os.environ.get("DB_PORT", "5432"),
+        **(_database_from_url(os.environ["DATABASE_URL"]) if os.environ.get("DATABASE_URL") else {}),
         "CONN_MAX_AGE": int(os.environ.get("DB_CONN_MAX_AGE", "60")),
         "CONN_HEALTH_CHECKS": True,
     }
 }
+# Behind a pool that hands out connections per transaction (Fly Managed
+# Postgres' PgBouncer; DB_TRANSACTION_POOLING in fly.toml), a server-side
+# cursor or a prepared statement can outlive its transaction and land on
+# another client's connection, so both are turned off.
+if os.environ.get("DB_TRANSACTION_POOLING", "False").lower() in ("true", "1", "yes"):
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
+    DATABASES["default"].setdefault("OPTIONS", {})["prepare_threshold"] = None
 
 # English and Arabic (Arabic renders right-to-left). URLs carry the language
 # prefix (/en/, /ar/); see leadshub/urls.py.
@@ -181,6 +290,38 @@ TIME_ZONE = "Africa/Cairo"
 USE_I18N = True
 USE_TZ = True
 
+# Uploads (the creative library; later Project X contracts) are private:
+# their URLs go through leadshub.files.PrivateFileView, which checks permission
+# on every request, and no MEDIA_URL is served. With AWS_STORAGE_BUCKET_NAME
+# set they go to that S3 bucket: S3 in production, an S3-compatible server
+# locally (RustFS: `make storage-up`). Without it they stay in MEDIA_ROOT on
+# disk (tests and quick runs). On Fly, `fly storage create` (Tigris) sets
+# BUCKET_NAME, AWS_ENDPOINT_URL_S3 and AWS_REGION, read as fallbacks below.
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", BASE_DIR / "media"))
+_bucket = _first_env("AWS_STORAGE_BUCKET_NAME", "BUCKET_NAME")
+if _bucket:
+    _uploads = {
+        "BACKEND": "leadshub.files.PrivateS3Storage",
+        "OPTIONS": {
+            "bucket_name": _bucket,
+            # Empty means AWS; set it for an S3-compatible server.
+            "endpoint_url": _first_env("AWS_S3_ENDPOINT_URL", "AWS_ENDPOINT_URL_S3"),
+            "region_name": _first_env("AWS_S3_REGION_NAME", "AWS_REGION"),
+            "access_key": os.environ.get("AWS_ACCESS_KEY_ID") or None,
+            "secret_key": os.environ.get("AWS_SECRET_ACCESS_KEY") or None,
+            "addressing_style": os.environ.get("AWS_S3_ADDRESSING_STYLE", "path"),
+            "signature_version": "s3v4",
+            "default_acl": "private",
+            "file_overwrite": False,
+        },
+    }
+else:
+    _uploads = {"BACKEND": "leadshub.files.PrivateFileSystemStorage"}
+STORAGES = {
+    "default": _uploads,
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # static/css/output.css is built by Tailwind: `make css` (see Makefile).
@@ -192,12 +333,36 @@ DJUST_CONFIG = {
     "TENANT_RESOLVER": "custom",
     "TENANT_CUSTOM_RESOLVER": "accounts.tenancy.resolve_office",
     "TENANT_REQUIRED": False,
+    # djust keeps each live page's rendered state between the HTTP render and
+    # the WebSocket mount (and across reconnects). In memory it only exists
+    # on the machine that rendered it; in Redis every machine finds it.
+    **({"STATE_BACKEND": "redis", "REDIS_URL": REDIS_URL} if REDIS_URL else {}),
 }
 
 LIVEVIEW_CONFIG = {
     # Re-check the view's permission_required on every live event, so taking a
     # role away takes effect at once rather than when the socket reconnects.
     "reauth_on_event": True,
+    # {% live_form %} draws fields with the project's component classes
+    # (static/css/input.css), through leadshub.live.LiveFormAdapter.
+    "css_framework": "leadshub",
+    "leadshub": {
+        "field_wrapper_class": "field",
+        "label_class": "field-label",
+        "field_class": "input",
+        "field_class_invalid": "input input-invalid",
+        "select_class": "input",
+        "error_class": "field-error",
+        "error_class_block": "field-error",
+        "checkbox_wrapper_class": "field-check",
+        "checkbox_class": "field-checkbox",
+        "checkbox_label_class": "field-check-label",
+        "radio_wrapper_class": "field-check",
+        "radio_class": "field-checkbox",
+        "radio_label_class": "field-check-label",
+        "button_primary_class": "btn-primary",
+        "button_secondary_class": "btn-secondary",
+    },
 }
 
 # Django admin look (django-unfold, Tailwind). Colours match the app:
@@ -268,6 +433,15 @@ UNFOLD = {
                          "accounts.view_roleprofile"),
                     _nav(_("Broker offices"), "apartment", "admin:accounts_brokeroffice_changelist",
                          "accounts.view_brokeroffice"),
+                    {
+                        **_nav(_("Sign-ups to review"), "how_to_reg",
+                               "admin:accounts_brokeroffice_changelist", "accounts.change_brokeroffice"),
+                        "link": format_lazy(
+                            "{}?status__exact=pending",
+                            reverse_lazy("admin:accounts_brokeroffice_changelist"),
+                        ),
+                        "badge": "accounts.admin.pending_signups_badge",
+                    },
                 ],
             },
             {
@@ -281,6 +455,16 @@ UNFOLD = {
                     _nav(_("Areas"), "map", "admin:catalog_area_changelist", "catalog.view_area"),
                     _nav(_("Unit types"), "category", "admin:catalog_unittype_changelist",
                          "catalog.view_unittype"),
+                    _nav(_("Audience presets"), "groups", "admin:catalog_audiencepreset_changelist",
+                         "catalog.view_audiencepreset"),
+                ],
+            },
+            {
+                "title": _("Creative library"),
+                "collapsible": True,
+                "items": [
+                    _nav(_("Creatives"), "photo_library", "admin:creatives_creative_changelist",
+                         "creatives.view_creative"),
                 ],
             },
         ],

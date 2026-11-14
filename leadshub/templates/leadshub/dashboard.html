@@ -30,12 +30,17 @@
     </section>
 
     <section class="card">
-        <h2 class="text-lg font-semibold">{% translate "Team" %}</h2>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-lg font-semibold">{% translate "Team" %}</h2>
+            {% if can_manage_team %}
+            <a href="{% url 'team' %}" dj-navigate="{% url 'team' %}" class="btn-secondary">{% translate "Manage team" %}</a>
+            {% endif %}
+        </div>
         <ul class="mt-4 divide-y divide-slate-200 dark:divide-slate-800">
             {% for member in members %}
             <li class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
-                <span class="font-medium">{{ member.user.get_full_name|default:member.user.username }}</span>
-                <span class="text-sm text-slate-500 dark:text-slate-400" dir="ltr">{{ member.user.email }}</span>
+                <span class="font-medium">{{ member.get_full_name|default:member.username }}</span>
+                <span class="break-all text-sm text-slate-500 dark:text-slate-400"><span dir="ltr">{{ member.email }}</span></span>
             </li>
             {% empty %}
             <li class="py-3 text-slate-500 dark:text-slate-400">{% translate "No team members yet." %}</li>

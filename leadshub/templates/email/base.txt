@@ -1,0 +1,7 @@
+{% load i18n %}{% autoescape off %}{% block content %}{% endblock %}
+
+{% translate "The LeadsHub team" %}
+
+--
+{% translate "This email was sent automatically. Please don't reply to it." %}
+{% endautoescape %}
