@@ -1,5 +1,5 @@
 from django.test import RequestFactory, TestCase, TransactionTestCase
-from django.utils import translation
+from django.utils import timezone, translation
 from djust import LiveView
 from djust.testing import LiveViewTestClient
 
@@ -300,9 +300,16 @@ INTERNAL = {
 }
 PAGE_AUDIENCES = {
     "/en/back-office/": INTERNAL,
+    # The review queue: who may decide campaign tasks (SRS §2.2).
+    "/en/back-office/queue/": {Role.PLATFORM_ADMIN, Role.MEDIA_BUYING_LEAD, Role.MEDIA_BUYER},
     "/en/portal/": {Role.BROKER_OWNER, Role.BROKER_TEAM_MEMBER},
     "/en/portal/team/": {Role.BROKER_OWNER},
     "/en/portal/library/": {Role.BROKER_OWNER, Role.BROKER_TEAM_MEMBER},
+    # Team members see campaigns; building one needs run_campaigns (ROADMAP Q7).
+    "/en/portal/campaigns/": {Role.BROKER_OWNER, Role.BROKER_TEAM_MEMBER},
+    "/en/portal/campaigns/new/": {Role.BROKER_OWNER},
+    # The office's own pages and ad accounts (SRS §2.1: the owner controls them).
+    "/en/portal/pages/": {Role.BROKER_OWNER},
     "/en/developer/": {Role.DEVELOPER_VIEW},
 }
 
@@ -331,13 +338,20 @@ class PageAccessTests(TestCase):
         from django.core.exceptions import PermissionDenied
         from djust.auth.core import check_view_auth
 
+        from campaigns.views import CampaignListView, ConnectedAccountsView, TypeStepView
+        from reviews.views import ReviewQueueView
+
         from .views import BackOfficeView, DashboardView, DeveloperHomeView, LibraryView, TeamView
 
         views = {
             "/en/back-office/": BackOfficeView,
+            "/en/back-office/queue/": ReviewQueueView,
             "/en/portal/": DashboardView,
             "/en/portal/team/": TeamView,
             "/en/portal/library/": LibraryView,
+            "/en/portal/campaigns/": CampaignListView,
+            "/en/portal/campaigns/new/": TypeStepView,
+            "/en/portal/pages/": ConnectedAccountsView,
             "/en/developer/": DeveloperHomeView,
         }
         self.assertEqual(set(views), set(PAGE_AUDIENCES))
@@ -755,15 +769,64 @@ class NavigationTests(TestCase):
         self.assertIn('href="/en/portal/library/" dj-navigate="/en/portal/library/"', nav)
         self.assertNotIn("/en/portal/team/", nav)
 
-    def test_internal_staff_see_the_back_office_and_admin_when_they_have_sections(self):
+    def test_internal_staff_see_their_pages_and_admin_screens_in_one_menu(self):
         nav = self.nav(make_user("buyer", Role.MEDIA_BUYER), "/en/back-office/")
         self.assertIn('href="/en/back-office/" dj-navigate="/en/back-office/"', nav)
-        self.assertNotIn("/en/admin/", nav)  # no admin sections for a Media Buyer
+        self.assertIn('href="/en/back-office/queue/" dj-navigate="/en/back-office/queue/"', nav)
+        self.assertNotIn("/en/admin/", nav)  # no admin screens for a Media Buyer
         self.assertNotIn("/en/portal/", nav)
 
-        nav = self.nav(make_user("lead", Role.MEDIA_BUYING_LEAD), "/en/back-office/")
-        self.assertIn('href="/en/admin/"', nav)
-        self.assertNotIn('dj-navigate="/en/admin/"', nav)  # not a live page
+        nav = self.nav(make_user("lead", Role.MEDIA_BUYER, Role.MEDIA_BUYING_LEAD), "/en/back-office/")
+        # The admin screens themselves, under their section titles, not one "Admin" link.
+        self.assertIn('href="/en/admin/catalog/project/"', nav)
+        self.assertNotIn('dj-navigate="/en/admin/', nav)  # not live pages
+        self.assertNotIn('href="/en/admin/"', nav)
+        # Titled sections fold, as in the admin, closed unless they hold this page.
+        self.assertIn('<details class="group/section">', nav)
+        self.assertIn('<span class="min-w-0 flex-1 truncate">Master data</span>', nav)
+        self.assertNotIn("<details class=\"group/section\" open>", nav)
+        html = self.client.get("/en/admin/").content.decode()
+        self.assertIn('x-on:click="navigationOpen = !navigationOpen"', html)  # Unfold's folding
+        self.assertNotIn("/en/admin/accounts/user/", nav)  # the lead doesn't manage users
+
+    def test_the_admin_shows_the_same_menu(self):
+        """leadshub.navigation.MENU draws both sidebars."""
+        import re
+
+        links = re.compile(r'href="(/en/[^"]+)"')
+        for user in (make_user("platform", Role.PLATFORM_ADMIN),
+                     make_user("lead", Role.MEDIA_BUYER, Role.MEDIA_BUYING_LEAD),
+                     make_user("buyer", Role.MEDIA_BUYER)):
+            with self.subTest(user=user.username):
+                app = set(links.findall(self.nav(user, "/en/back-office/")))
+                html = self.client.get("/en/admin/").content.decode()
+                sidebar = html[html.index('id="nav-sidebar-inner"'):]
+                sidebar = sidebar[:sidebar.index("</nav>")]
+                admin = {link.replace("&amp;", "&") for link in links.findall(sidebar)}
+                self.assertTrue(app)
+                self.assertLessEqual(app, admin)
+                # Beyond the menu, the admin's sidebar has only its own header and user links.
+                self.assertLessEqual({link for link in admin - app if "/admin/" in link and link.count("/") > 4},
+                                     set())
+
+    def test_every_menu_icon_has_a_drawing(self):
+        from leadshub.icons import PATHS
+        from leadshub.navigation import MENU
+
+        for _title, items in MENU:
+            for item in items:
+                with self.subTest(icon=item["icon"]):
+                    self.assertTrue(PATHS[item["icon"]].startswith("M"))
+
+    def test_sign_up_badge_shows_in_the_app_menu(self):
+        from accounts.models import BrokerOffice, OfficeRegistration, OfficeStatus
+
+        office = BrokerOffice.objects.create(company_name="Delta", status=OfficeStatus.PENDING)
+        applicant = make_user("applicant")
+        OfficeRegistration.objects.create(office=office, applicant=applicant, phone_number="01012345678",
+                                          language="en", email_confirmed_at=timezone.now())
+        nav = self.nav(make_user("platform", Role.PLATFORM_ADMIN), "/en/back-office/")
+        self.assertRegex(nav, r'status__exact=pending"[^>]*>.*?Sign-ups to review</span>(<!--[^>]*-->)?<span[^>]*>1</span>')
 
     def test_developer_sees_the_developer_view(self):
         from catalog.models import Developer
@@ -776,8 +839,8 @@ class NavigationTests(TestCase):
     def test_labels_in_arabic(self):
         owner = make_user("owner", Role.BROKER_OWNER, office=make_office())
         nav = self.nav(owner, "/ar/portal/")
-        self.assertIn(">لوحة التحكم</a>", nav)
-        self.assertIn(">الفريق</a>", nav)
+        self.assertIn(">لوحة التحكم</span>", nav)
+        self.assertIn(">الفريق</span>", nav)
 
     def test_no_navigation_when_signed_out(self):
         html = self.client.get("/en/login/").content.decode()
@@ -787,14 +850,15 @@ class NavigationTests(TestCase):
         self.assertNotIn('class="lg:ps-64"', html)
 
     def test_links_sit_in_a_sidebar_opened_from_the_header_on_small_screens(self):
-        from leadshub.context_processors import ICONS
-
         owner = make_user("owner", Role.BROKER_OWNER, office=make_office())
         self.client.force_login(owner)
         html = self.client.get("/en/portal/").content.decode()
         sidebar = html[html.find('<aside id="sidebar"'):html.find("</aside>")]
         self.assertIn('<nav aria-label="Main"', sidebar)
-        self.assertIn(f'<path d="{ICONS["team"]}"/>', sidebar)
+        from leadshub.icons import PATHS
+
+        self.assertIn(f'<path d="{PATHS["group"]}"/>', sidebar)
+        self.assertNotIn("material-symbols", html)  # icons are SVG: no icon names as text
         self.assertIn('<div class="lg:ps-64">', html)
         self.assertIn('data-sidebar-open aria-controls="sidebar" aria-expanded="false"', html)
         self.assertIn('aria-label="Open menu"', html)
@@ -1100,6 +1164,100 @@ class TestEmailTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ["someone@example.com"])
+
+
+class BackgroundJobsTests(TestCase):
+    """The task queue and scheduled jobs (django-q2, leadshub/jobs.py)."""
+
+    def test_tests_run_queued_tasks_at_once(self):
+        from django.conf import settings
+
+        self.assertTrue(settings.Q_CLUSTER["sync"])
+        self.assertEqual(settings.Q_CLUSTER["orm"], "default")
+
+    def test_emails_are_queued_after_commit(self):
+        from unittest import mock
+
+        from django.core import mail
+
+        from .emails import send_after_commit
+
+        with mock.patch("leadshub.jobs.enqueue") as enqueue:
+            with self.captureOnCommitCallbacks(execute=False) as callbacks:
+                send_after_commit("accounts/email/confirm_email", EmailLayoutTests.CONTEXT, ["mona@example.com"])
+            enqueue.assert_not_called()  # not before the commit
+            for callback in callbacks:
+                callback()
+        func, subject, text, html, recipients = enqueue.call_args.args
+        self.assertEqual(func, "leadshub.emails.deliver")
+        self.assertEqual(recipients, ["mona@example.com"])
+        self.assertIn("<html", html)
+        self.assertEqual(mail.outbox, [])  # the queued task sends it
+
+    def test_the_queued_task_sends_the_email(self):
+        from django.core import mail
+
+        from .emails import deliver
+
+        deliver("Subject", "Text", "<p>HTML</p>", ["mona@example.com"])
+        self.assertEqual(mail.outbox[0].subject, "Subject")
+        self.assertEqual(mail.outbox[0].alternatives[0][0], "<p>HTML</p>")
+
+    def test_no_recipients_queues_nothing(self):
+        from .emails import send_after_commit
+
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            send_after_commit("accounts/email/confirm_email", EmailLayoutTests.CONTEXT, [])
+        self.assertEqual(callbacks, [])
+
+    def test_schedules_follow_the_code(self):
+        from unittest import mock
+
+        from django_q.models import Schedule
+
+        from . import jobs
+
+        Schedule.objects.create(name="made by hand", func="math.floor", schedule_type="D")
+        declared = {
+            "nightly": {"func": "math.ceil", "schedule_type": "C", "cron": "0 2 * * *"},
+        }
+        with mock.patch.dict(jobs.SCHEDULES, declared, clear=True):
+            jobs.sync_schedules()
+            nightly = Schedule.objects.get(name=jobs.PREFIX + "nightly")
+            self.assertEqual((nightly.func, nightly.cron, nightly.repeats), ("math.ceil", "0 2 * * *", -1))
+            self.assertIsNotNone(nightly.next_run)
+            declared["nightly"]["cron"] = "0 3 * * *"
+            jobs.sync_schedules()
+            self.assertEqual(Schedule.objects.get(name=jobs.PREFIX + "nightly").cron, "0 3 * * *")
+        # The real list again: "nightly" is gone; schedules made by hand stay.
+        jobs.sync_schedules()
+        names = set(Schedule.objects.values_list("name", flat=True))
+        self.assertNotIn(jobs.PREFIX + "nightly", names)
+        self.assertIn("made by hand", names)
+        self.assertIn(jobs.PREFIX + "review SLA escalation", names)
+
+    def test_admin_screens(self):
+        from django_q.models import Failure, Schedule
+
+        admin_user = make_user("platform", Role.PLATFORM_ADMIN)
+        buyer = make_user("buyer", Role.MEDIA_BUYER)
+        schedule = Schedule.objects.first()
+        Failure.objects.create(id="a" * 32, name="t", func="leadshub.emails.deliver",
+                               started=timezone.now(), stopped=timezone.now(), success=False)
+        pages = ["schedule", "failure", "success", "ormq"]
+        self.client.force_login(admin_user)
+        for page in pages:
+            with self.subTest(page=page):
+                self.assertEqual(self.client.get(f"/en/admin/django_q/{page}/").status_code, 200)
+        # Schedules come from leadshub/jobs.py: read-only here.
+        response = self.client.get(f"/en/admin/django_q/schedule/{schedule.pk}/change/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="_save"')
+        self.assertContains(self.client.get("/en/admin/django_q/failure/"), "_resubmit")
+        self.client.force_login(buyer)
+        for page in pages:
+            with self.subTest(page=page, user="buyer"):
+                self.assertEqual(self.client.get(f"/en/admin/django_q/{page}/").status_code, 403)
 
 
 class EmailLayoutTests(TestCase):

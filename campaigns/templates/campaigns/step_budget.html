@@ -1,0 +1,61 @@
+{% extends "leadshub/base.html" %}
+{% load i18n live_tags %}
+
+{% block title %}{% translate "Campaign budget" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.BudgetStepView" class="space-y-6">
+    {% include "campaigns/_step_header.html" %}
+
+    {% if not locked_message %}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+        <form dj-submit="submit_form" class="space-y-6 lg:col-span-2" novalidate>
+            {% csrf_token %}
+            <section class="card space-y-5" aria-labelledby="budget-heading">
+                <div>
+                    <h2 id="budget-heading" class="section-title">{% translate "Budget and schedule" %}</h2>
+                    <p class="section-text">{% translate "In US dollars. A daily budget runs until its end date, or until you stop it." %}</p>
+                </div>
+                <fieldset>
+                    <legend class="field-label">{% translate "Budget type" %}</legend>
+                    <div class="segmented mt-2">
+                        {% for o in budget_kinds %}
+                        <label class="segmented-option">
+                            <input type="radio" name="{{ o.name }}" value="{{ o.value }}" class="sr-only" dj-change="validate_field"{% if o.selected %} checked{% endif %}>
+                            {{ o.label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {% live_field view "budget_usd" %}
+                    {% live_field view "starts_on" %}
+                    {% live_field view "ends_on" %}
+                </div>
+            </section>
+
+            <section class="card" aria-labelledby="run-heading">
+                <h2 id="run-heading" class="section-title">{% translate "What happens when you press Run" %}</h2>
+                <ol class="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <li class="flex gap-2"><span class="font-semibold text-indigo-600 dark:text-indigo-400">1.</span>{% translate "The campaign goes to our media team as AI Building. They usually review it within 4 hours." %}</li>
+                    <li class="flex gap-2"><span class="font-semibold text-indigo-600 dark:text-indigo-400">2.</span>{% translate "Once approved, it goes Live and leads start arriving in your CRM." %}</li>
+                    <li class="flex gap-2"><span class="font-semibold text-indigo-600 dark:text-indigo-400">3.</span>{% translate "If something needs fixing, it comes back as Needs Changes with the reason." %}</li>
+                </ol>
+            </section>
+
+            <div class="space-y-3">
+                <p role="alert" class="text-sm font-medium text-red-700 dark:text-red-400">{{ error_message }}</p>
+                <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <a href="{{ previous_url }}" dj-navigate="{{ previous_url }}" class="btn-secondary gap-1.5"><span aria-hidden="true" class="inline-block rtl:-scale-x-100">←</span> {% translate "Back" %}</a>
+                    <div class="flex flex-col-reverse gap-3 sm:flex-row">
+                        <button type="submit" name="save_draft" class="btn-secondary" dj-disable-with="{% translate 'Saving…' %}">{% translate "Save draft" %}</button>
+                        <button type="submit" name="run" class="btn-primary" dj-disable-with="{% translate 'Sending…' %}">{% translate "Run campaign" %}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% include "campaigns/_summary.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

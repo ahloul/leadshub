@@ -24,12 +24,23 @@ primary_region = "fra"
   DB_TRANSACTION_POOLING = "True"
   ALLOWED_HOSTS = "leadshub.fly.dev"
   CSRF_TRUSTED_ORIGINS = "https://leadshub.fly.dev"
+  # Links in emails sent by scheduled jobs (no request to take the host from).
+  SITE_BASE_URL = "https://leadshub.fly.dev"
   # Tigris answers on <bucket>.fly.storage.tigris.dev.
   AWS_S3_ADDRESSING_STYLE = "virtual"
   EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
   EMAIL_USE_TLS = "True"
 
+# Two process groups from the same image: the web app, and django-q2's
+# cluster (leadshub/jobs.py), which runs the queued tasks (emails) and the
+# scheduled jobs (the review SLA escalation). Keep one jobs machine: the
+# scheduler should run once.
+[processes]
+  app = "uvicorn leadshub.asgi:application --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips *"
+  jobs = "python manage.py qcluster"
+
 [http_service]
+  processes = ["app"]
   internal_port = 8000
   force_https = true
   # Stay up: live pages hold a WebSocket, and a cold start takes seconds.
@@ -50,5 +61,11 @@ primary_region = "fra"
   url_prefix = "/static/"
 
 [[vm]]
+  processes = ["app"]
   size = "shared-cpu-1x"
   memory = "1gb"
+
+[[vm]]
+  processes = ["jobs"]
+  size = "shared-cpu-1x"
+  memory = "512mb"

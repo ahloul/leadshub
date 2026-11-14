@@ -26,6 +26,7 @@ All Python runs from `.venv` (`.venv/bin/python`). Settings read `.env`.
 | One app / class / test | `.venv/bin/python manage.py test accounts.tests.CustomRoleTests.test_names_must_be_unique` |
 | djust and Django checks | `make check`. The `djust.C401` watchdog warning is known and dev-only. |
 | Extract and compile Arabic translations | `make messages` (then fill the empty `msgstr` in `locale/ar/LC_MESSAGES/django.po` and run it again) |
+| Task queue and scheduled jobs (django-q2; `leadshub/jobs.py`) | `make jobs` (`manage.py qcluster`). With `DEBUG` on, queued tasks run at once without it (`Q_SYNC`); the schedules need it. |
 | Demo data (idempotent) | `.venv/bin/python manage.py seed_demo`: every login uses `demo-pass-123`. Brokers: `demo`, `sara`. Internal: `platform`, `lead`, `buyer`, `content`, `finance`. |
 | Send a test email through the configured SMTP server (Mailtrap sandbox in development; settings in `.env.example`) | `make test-email TO=you@example.com` |
 | Deploy to Fly.io by hand (pushes to `master` deploy through `.github/workflows/deploy.yml` after the tests pass; setup in `docs/DEPLOY.md`) | `make fly-deploy` |
@@ -33,7 +34,7 @@ All Python runs from `.venv` (`.venv/bin/python`). Settings read `.env`.
 | Create the uploads bucket if missing (local S3 servers only) | `.venv/bin/python manage.py ensure_storage_bucket` |
 | Tests against PostgreSQL in Docker | `make docker-test` |
 | App in Docker on :8000 (migrate, seed, serve) | `make docker-up` / `make docker-down` |
-| Docker after `requirements.txt` / `Dockerfile` changes (code is mounted and reloads by itself) | `make docker-build` |
+| Docker image rebuild (automatic in `docker-up`, `docker-test` and `docker-migrate` when `requirements.txt` or the `Dockerfile` changed; code is mounted and reloads by itself) | `make docker-build` |
 | Docker: apply new migrations / follow server and CSS logs | `make docker-migrate` / `make docker-logs` |
 
 Tests need a local PostgreSQL database `leadshub` (`createdb leadshub`).
@@ -44,7 +45,7 @@ Django creates `test_leadshub` itself.
 Django 5.2 with djust 1.2.8. Pages are djust LiveViews, rendered first over
 HTTP and then kept live over a WebSocket (channels, served by uvicorn from
 `leadshub/asgi.py`). The project package is `leadshub/`, which also holds the
-live views and base templates. There are two domain apps:
+live views and base templates. The domain apps:
 
 - **`accounts/`**: users, tenants and access control.
   - `User` (custom `AUTH_USER_MODEL`).
@@ -72,11 +73,42 @@ live views and base templates. There are two domain apps:
 - **`catalog/`**: bilingual master data (Developer, Area, UnitType, Project,
   AudiencePreset) on the abstract `BilingualNamed` (`name_en`/`name_ar`,
   `display_name`). Other apps read it through `catalog/selectors.py`.
+- **`campaigns/`**: the campaign builder (SRS §3.1, ROADMAP M3).
+  - `Campaign` belongs to an office. Its six states change only through
+    model methods listed in `TRANSITIONS` (`submit()`, `go_live()`, …); any
+    other change raises `InvalidTransition`.
+  - `services.py` holds the rules; each takes the person acting, refuses
+    another office's campaign (`PermissionDenied`) and needs `run_campaigns`
+    to change one. Only Draft and Needs Changes campaigns change.
+  - The builder is one live view per step (`campaigns/views.py`), so the
+    step is in the URL and every step saves the draft. Steps follow the
+    product prototype: type, target (with channel and destination),
+    creative, audience (with goal), budget and run.
+  - `ConnectedAccount`: the office's own Instagram, Facebook and Google
+    accounts, managed on `/portal/pages/` (`manage_connected_accounts`).
+  - Meta and Google plug in at `campaigns/integrations/` through
+    `settings.AD_PLATFORM_CLIENTS`; until then a manual client makes no
+    calls. See `docs/INTEGRATIONS.md`.
+- **`reviews/`**: the back-office review queue (SRS §4.1, ROADMAP M4).
+  - Run (`campaigns.services.run_campaign`) opens a `ReviewTask`, due in
+    four hours (FR-6.7). `services.py` holds who may assign, take, approve,
+    reject and mark deployed; it calls `campaigns.services.send_back` and
+    `mark_live` to move the campaign.
+  - Approving writes an immutable `Brief` (`briefs.build`, the §4.1 keys).
+  - `escalate_near_breach` runs every minute as a django-q2 schedule
+    (`leadshub/jobs.py`).
+  - Pages: `/back-office/queue/` and `/back-office/queue/<id>/`. Countdowns
+    run in the browser (`static/js/countdown.js`).
 - **`creatives/`**: the creative library (SRS §3.2).
   - `Creative.objects.usable()` is what brokers may see: published, with the
     offer still on.
   - The admin is for Content Managers.
   - `services.may_open_file` decides who opens a creative's file.
+- **Background work** (`leadshub/jobs.py`, django-q2): `enqueue()` queues a
+  task; `SCHEDULES` lists the scheduled jobs, written to the database after
+  every `migrate`. Tasks wait in PostgreSQL; `manage.py qcluster` (the `jobs`
+  process on Fly) runs them and the schedules. Tests run tasks at once
+  (`Q_CLUSTER["sync"]`). Staff see schedules and failed tasks in the admin.
 - **Emails** (`leadshub/emails.py`): `send_after_commit()` sends every email
   in the LeadsHub layout (`leadshub/templates/email/`), as HTML with a
   plain-text copy, in the reader's language. AGENTS.md says how to add one.
@@ -112,11 +144,14 @@ live views and base templates. There are two domain apps:
   Handlers that change data also carry `@live.permission_required(...)`.
 - **Navigation:** `/` (`accounts.views.home`) and login both use
   `landing_url()` to send each audience to its own home:
-  `/back-office/`, `/portal/` or `/developer/`. The sidebar links come from
-  `leadshub.context_processors.navigation`, which lists the live pages the
-  person's capabilities open, as `dj-navigate` links. Each link has an icon
-  (`ICONS` there). The sidebar is in `base.html`, always shown on laptops and
-  a drawer on smaller screens (`static/js/sidebar.js`).
+  `/back-office/`, `/portal/` or `/developer/`. One menu,
+  `leadshub/navigation.py` (`MENU`), draws both the app's sidebar
+  (`leadshub.context_processors.navigation`, live pages as `dj-navigate`
+  links) and the admin's (`UNFOLD["SIDEBAR"]`): flat sections, each item
+  shown to people who hold its capabilities, with Material Symbols icons
+  (the admin's font, loaded by the app too). The app's sidebar is in
+  `base.html`, always shown on laptops and a drawer on smaller screens
+  (`static/js/sidebar.js`).
 - **Admin** (`accounts/admin_site.py`): the admin site replaces the
   `django.contrib.admin` entry in `INSTALLED_APPS`. It lets users in by
   `access_back_office`, not `is_staff`, and sends sign-in to the app's login

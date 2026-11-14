@@ -1,0 +1,13 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with code=code %}Campaign {{ code }} needs changes{% endblocktranslate %}{% endblock %}
+{% block preheader %}{% translate "A few changes are needed before your campaign can go live." %}{% endblock %}
+{% block heading %}{% translate "Your campaign needs changes" %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 4px;">{% blocktranslate with code=code target=target %}Our team reviewed campaign {{ code }} ({{ target }}) and needs a few changes before it can go live:{% endblocktranslate %}</p>
+{% include "email/details.html" with rows=details %}
+<p style="margin:0 0 16px;white-space:pre-line;" dir="auto">{{ reasons }}</p>
+<p style="margin:0;">{% translate "Make the changes, then press Run again." %}</p>
+{% translate "Open the campaign" as label %}{% include "email/button.html" with url=link label=label %}
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}
+{% block footer %}<p style="margin:0 0 8px;">{% translate "You get this email because you can run campaigns for your office on LeadsHub." %}</p>{% endblock %}

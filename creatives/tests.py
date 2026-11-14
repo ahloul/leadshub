@@ -170,7 +170,12 @@ class FileAccessTests(TemporaryUploadsMixin, TestCase):
 
         viewer = make_user("dev", Role.DEVELOPER_VIEW, developer=Developer.objects.create(name_en="X"))
         self.assertEqual(self.open_as(viewer).status_code, 404)
-        self.assertEqual(self.open_as(make_user("buyer", Role.MEDIA_BUYER)).status_code, 404)
+        self.assertEqual(self.open_as(make_user("finance", Role.FINANCE_MANAGER)).status_code, 404)
+
+    def test_media_buyers_open_any_asset(self):
+        """They check creatives in review and hand them to the AI agent (SRS §2.1, §4.1)."""
+        Creative.objects.filter(pk=self.creative.pk).update(status=Status.DRAFT)
+        self.assertEqual(self.open_as(make_user("buyer", Role.MEDIA_BUYER)).status_code, 200)
 
     def test_zip_files_are_downloaded(self):
         bundle = make_creative("Bundle", filename="carousel.zip", content=b"PK zip")

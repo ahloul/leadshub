@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <script src="{% static 'js/theme.js' %}" defer></script>
     <script src="{% static 'js/sidebar.js' %}" defer></script>
+    <script src="{% static 'js/countdown.js' %}" defer></script>
     <title>{% block title %}LeadsHub{% endblock %}</title>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
@@ -36,15 +37,24 @@
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
             </button>
         </div>
-        <nav aria-label="{% translate 'Main' %}" class="flex-1 overflow-y-auto p-3">
-            <ul class="space-y-1">
-                {% for link in nav_links %}
-                <li>
-                    <a href="{{ link.url }}"{% if link.live %} dj-navigate="{{ link.url }}"{% endif %}{% if link.current %} aria-current="page"{% endif %}
-                       class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 aria-[current=page]:bg-indigo-50 aria-[current=page]:text-indigo-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white dark:aria-[current=page]:bg-indigo-950 dark:aria-[current=page]:text-indigo-300"><svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{ link.icon }}"/></svg>{{ link.label }}</a>
-                </li>
-                {% endfor %}
-            </ul>
+        {% comment %}The same menu as the admin's sidebar (leadshub/navigation.py): the
+           live pages, then the admin screens in sections that fold like the admin's,
+           open when they hold the current page.{% endcomment %}
+        <nav aria-label="{% translate 'Main' %}" class="flex-1 space-y-1 overflow-y-auto p-3">
+            {% for section in nav_sections %}
+            {% if section.title %}
+            <details class="group/section"{% if section.open %} open{% endif %}>
+                <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 select-none hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800 [&::-webkit-details-marker]:hidden">
+                    <span class="min-w-0 flex-1 truncate">{{ section.title }}</span>
+                    {% if section.badge %}<span class="rounded-full bg-indigo-600 px-2 py-0.5 text-xs font-semibold text-white tabular-nums group-open/section:hidden">{{ section.badge }}</span>{% endif %}
+                    <svg class="h-5 w-5 shrink-0 fill-current text-slate-400 transition-[rotate] rtl:-scale-x-100 group-open/section:rotate-90 rtl:group-open/section:-rotate-90 dark:text-slate-500" viewBox="{{ nav_icon_viewbox }}" aria-hidden="true"><path d="{{ nav_chevron }}"/></svg>
+                </summary>
+                {% include "leadshub/_nav_links.html" with links=section.links %}
+            </details>
+            {% else %}
+            <div class="pb-2">{% include "leadshub/_nav_links.html" with links=section.links %}</div>
+            {% endif %}
+            {% endfor %}
         </nav>
         {% if user.is_authenticated %}
         <div class="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 p-4 dark:border-slate-800">

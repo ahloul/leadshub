@@ -4,7 +4,8 @@ This is the build plan for the requirements in [SRS.md](SRS.md): what to build
 next, in what order, what each milestone delivers, and which questions the
 business still has to answer.
 
-- **Last updated:** 2026-11-12. M1 and M2 are built; M3 is next.
+- **Last updated:** 2026-11-14. M1, M2 and M3 are built; M4 is built except
+  edits to Live campaigns and broker media uploads.
 - **The SRS decides what the product does. This file decides the order.**
   Where the SRS states a rule, the build follows it as written. Where the SRS
   is silent, this file proposes a default and marks it for the business to
@@ -45,9 +46,14 @@ all.
   invitations, and opening an office with its owner in the admin (M1).
 - Brokerage self sign-up with email confirmation and staff approval
   (Q6, decided 2026-11-14).
+- The creative library and audience presets (M2).
+- The campaign builder, campaign list and campaign page, without the parts
+  that wait on Q2 (M3, 2026-11-14).
+- The review queue with its 4-hour SLA, escalation to the lead, briefs and
+  "Mark deployed", and the scheduled job runner (M4, 2026-11-14).
 
-**Not built:** everything in SRS §3 to §5 (campaigns, creatives, leads, wallet,
-review queue, routing, scores, ad accounts, Project X) and the developer
+**Not built:** the rest of SRS §3 to §5 (leads, wallet, review queue,
+routing, scores, ad accounts, Project X) and the developer
 metrics.
 
 **Gaps the first milestones close:**
@@ -59,7 +65,7 @@ metrics.
 | ~~No live view has an event handler yet, so the pattern for guarded actions is not set~~ | M1, done |
 | ~~No email settings~~ | M1, done |
 | ~~No file storage settings~~ | M2, done |
-| No background job runner or scheduler | M4 |
+| ~~No background job runner or scheduler~~ | M4, done |
 | The channel layer is in-memory, so a worker process can't push updates to browsers | M5 |
 | No production deployment; the Docker setup is for testing only | before real brokers |
 
@@ -72,7 +78,7 @@ Sizes are relative (S, M, L), not time estimates.
 | M1 | Navigation, office onboarding and team management (**built 2026-11-12**; self sign-up 2026-11-14) | §2.1, §2.2 | — | S | Confirm Q7, Q28 |
 | M2 | Creative library and audience presets (**built 2026-11-12**) | §3.2 | — | M | Confirm Q29 |
 | M3 | Campaign builder | §3.1 | M2 | L | **Open: Q2.** Confirm Q7 to Q11 |
-| M4 | Review queue, 4-hour SLA and briefs | §4.1 | M3 | L | **Open: Q2.** Confirm Q12, Q13, Q20 |
+| M4 | Review queue, 4-hour SLA and briefs (**built 2026-11-14**, except Live edits and media uploads) | §4.1 | M3 | L | **Open: Q2.** Confirm Q12, Q13, Q20 |
 | M5 | CRM pipeline and organic lead upload | §3.3 | — | M | Confirm Q14, Q15 |
 | M6 | Wallet, daily charging and FX | §3.4, §4.4 | M3 | L | **Open: Q1, Q2, Q3, Q4.** Confirm Q9, Q16 to Q19 |
 | M7 | Pools, Meta webhook and weighted-draw routing | §4.3, §6.1 | M4, M5, M6 | L | **Open: Q4.** Confirm Q10, Q21 |
@@ -299,8 +305,13 @@ SRS §3.1, FR-4.1 to FR-4.7. Size L. Needs M2.
      (FR-4.6, FR-4.7).
 - "Run" checks wallet coverage and moves the campaign from Draft to AI
   Building.
-- A campaign list and a detail page, with the status filter in the URL. A
-  campaign can be edited while it is Draft or Needs Changes.
+- A campaign list and a detail page. The list follows the product
+  prototype: search (project, developer, area, unit type or code) and
+  filters for status, channel, goal, developer and project, all in the URL;
+  a table on laptops and cards on smaller screens; Edit (a draft, at its
+  first missing step), Fix (Needs Changes) or Open on each row. Its Leads,
+  Interested, No answer and CPL columns show "—" until leads arrive (M5,
+  M7). A campaign can be edited while it is Draft or Needs Changes.
 - Guards: the list and detail pages need `access_client_portal`. The builder
   and every action also need `run_campaigns`. Every handler checks that the
   campaign belongs to the user's office.
@@ -322,6 +333,71 @@ SRS §3.1, FR-4.1 to FR-4.7. Size L. Needs M2.
 > benchmark table that staff keep; coverage follows the rule in Q9; a
 > dark-page campaign has one creative; a connected page is a typed handle
 > that staff verify.
+
+**Status:** built 2026-11-14 without the parts that wait on Q2, with tests,
+and checked in headless Chrome over the live WebSocket: every step, Run,
+the locked builder after Run, phone and tablet widths, Arabic and dark mode.
+Reworked the same day to follow the product prototype
+(leadshub.creatures.click, "Build a campaign") in the app's own colours.
+
+Where it lives:
+
+- `campaigns/`: the `Campaign` model and its state machine (`TRANSITIONS`,
+  one method per change), the rules in `services.py` (each takes the person
+  acting; another office's campaign raises `PermissionDenied`), reads in
+  `selectors.py`, the step forms, the live views and their templates.
+- The builder, in the prototype's order: type (specific or general), target
+  (developer and project, or any two of area, developer and unit type; the
+  channel, Meta or Google; and where the ads appear: platform dark page,
+  platform landing page, or the office's own account; and the "get more
+  leads" options), creative, audience (with the optimization goal), budget
+  and run. Each step is its own live view at `/portal/campaigns/<id>/<step>/`
+  (`/portal/campaigns/new/` for the first), so the step is in the URL and
+  each save stores the draft. A summary of the choices sits beside it.
+- `/portal/campaigns/` (list, `?status=&page=`) and
+  `/portal/campaigns/<id>/` (Run, Discard draft).
+- `/portal/pages/`: the office's own Instagram accounts, Facebook pages and
+  Google Ads accounts (FR-4.4), guarded by the new
+  `manage_connected_accounts` capability (Broker Owner; data migration
+  `campaigns.0003` grants it to existing databases). Staff who manage ad
+  accounts (Platform Admin, Media Buying Lead) verify them in the admin.
+- The Meta and Google integration plugs in at `campaigns/integrations/`
+  (docs/INTEGRATIONS.md). Until then every channel uses a manual client that
+  makes no calls.
+- Creatives a campaign may use: `creatives.selectors.for_campaign()`. A
+  specific campaign takes the project's assets and its area's area-wide
+  ones; a general campaign takes every asset matching its area, developer
+  and unit type.
+- Demo data: `seed_demo` adds the office's Instagram account, a half-built
+  draft and one in AI Building.
+
+Not built yet:
+
+- The wallet coverage check on Run, the cost-per-lead and lead estimates
+  (FR-4.7) and the prototype's "AI suggestion" beside the budget: they wait
+  on Q2. The place for the check is marked in `campaigns.services.run_campaign`.
+- Any call to Meta or Google, and signing in with them (docs/INTEGRATIONS.md).
+- Moving a campaign to Live, Needs Changes, Paused or Ended: the model
+  methods exist and are tested; the review queue (M4) and wallet jobs (M6)
+  will call them.
+- The prototype's "this creative is already live in another campaign" tip:
+  it needs pools (M7).
+
+Choices made while building (no SRS rule):
+
+- Budgets are in US dollars, like the pools' combined budget (§6.2).
+- A general campaign needs at least two of area, developer and unit type,
+  as the prototype says. The SRS example (FR-4.1) is area plus unit type.
+- The dark page runs on Meta only; Google campaigns use the platform landing
+  page or the office's Google Ads account.
+- Accounts added by hand can be used before staff verify them; the campaign
+  page says so, and review checks them (Q11).
+- djust's `WizardMixin` isn't used: it keeps answers in the live view
+  rather than in a saved draft, and doesn't put the step in the URL.
+- Creatives are picked with one click per card, saved at once: djust's
+  form submit sends only one value per field name, so checkboxes can't
+  carry several.
+- Only a Draft can be discarded. A campaign that was sent to review is kept.
 
 ### M4. Review queue, 4-hour SLA and briefs
 
@@ -365,6 +441,38 @@ SRS §4.1, FR-6.1, FR-6.2, FR-6.7, FR-7.6. Size L. Needs M3.
 > the buyer records the ad set ID; media uploads are decided by the people
 > who manage the creative library; escalation happens when one hour is left;
 > notices go out in the app and by email.
+
+**Built (2026-11-14), in `reviews/`:**
+
+- `ReviewTask` (`TSK-0001`) opens on Run, due four hours later. A task sent
+  again after changes is "Campaign sent again" and links the earlier
+  reviews. Campaigns already in AI Building got a task in a data migration.
+- `/back-office/queue/`: open tasks with live countdowns (Silver and higher
+  first, then by deadline), filters (mine, unassigned, near breach), the
+  open, near-breach and past-limit counts, the median decision time and the
+  share within 4 hours over 30 days, and approved campaigns waiting for
+  launch. It refreshes every 15 seconds.
+- `/back-office/queue/<id>/`: the campaign with the internal targeting and
+  creatives; assign (the lead), take, approve, or send back with reasons;
+  then the brief (copy or download as JSON) and "Mark deployed".
+- Who decides (a default, **CONFIRM** with Q13): a buyer decides tasks
+  assigned to them or to nobody (deciding takes it); a buyer can take an
+  unassigned task; whoever can assign tasks can decide any.
+- Rejecting emails the office's people who can run campaigns, in the
+  office's language. The SLA escalation emails everyone who can assign
+  tasks, once per task, from a django-q2 schedule (every minute).
+- Media buyers can open creative files (they check them and hand them to the
+  agent).
+
+**Not built yet:**
+
+- Edits to a Live campaign and broker private uploads (FR-5.8, FR-5.9) in
+  the queue: neither exists yet. The task `Kind` has room for both.
+- In-app notices (Q20): email only for now.
+- The list of Business Managers and ad accounts: "Mark deployed" takes the
+  ad account as text and stores it in `Campaign.platform_data` (M9 adds the
+  list). The ad set mapping M7 routes by is `Campaign.external_id`.
+- The budget in the brief is the broker's figure as entered, until Q2.
 
 ### M5. CRM pipeline and organic lead upload
 
@@ -995,11 +1103,19 @@ draw, which allows a pilot without the 60-second delivery.
 |---|---|---|
 | Email backend | M1 (done) | Invitations and notices |
 | File storage, with private files behind a permission check | M2 (done) | Creatives, broker uploads and sale contracts |
-| Job runner and scheduler | M4 | SLA escalation first; later expiry, coverage, the daily charge, tiers and payout maturity |
+| Job runner and scheduler (done, django-q2) | M4 | SLA escalation first; later expiry, coverage, the daily charge, tiers and payout maturity |
 | Production deployment | before real brokers | The Docker setup is for testing only |
 
-- **Job runner:** Redis with Celery is the proposal, because Redis is needed
-  for the channel layer anyway. Decide at M4.
+- **Job runner (decided at M4):** django-q2, for both the task queue and
+  the scheduled jobs (`leadshub/jobs.py`). Tasks wait in PostgreSQL (the
+  ORM broker), so no Redis commands are spent polling: Celery was the
+  first proposal, but its worker and beat poll Redis without pause, and
+  Upstash bills per command. One `manage.py qcluster` process runs the
+  workers and the scheduler: the `jobs` process on Fly, the `jobs`
+  service in Docker, `make jobs` locally. Emails already go through the
+  queue. Each task must be safe to run twice (failed tasks are retried).
+  If the queue outgrows PostgreSQL, django-q2 switches to Redis in
+  settings (`Q_CLUSTER`).
 - **djust built-ins to check before writing helpers** (AGENTS.md, "New
   helpers"): `WizardMixin`, `UploadMixin`, `push_to_view` and the tenant
   managers all ship in the installed 1.2.8.

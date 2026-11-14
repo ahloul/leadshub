@@ -1,0 +1,11 @@
+{# djust:partial #}
+{% load i18n %}
+{% comment %}The one action a row of the campaign list offers. Expects "campaign" and "can_run".
+Drafts carry on at the first step still missing; a campaign that needs changes opens on its page, which shows the reasons.{% endcomment %}
+{% if can_run and campaign.status == 'draft' %}
+<a href="{{ campaign.builder_url }}" dj-navigate="{{ campaign.builder_url }}" class="btn-secondary whitespace-nowrap px-3 py-1 text-xs">{% translate "Edit" %}<span class="sr-only"> {{ campaign.code }}</span></a>
+{% elif can_run and campaign.status == 'needs_changes' %}
+<a href="{% url 'campaign' campaign.pk %}" dj-navigate="{% url 'campaign' campaign.pk %}" class="btn-primary whitespace-nowrap px-3 py-1 text-xs">{% translate "Fix" %}<span class="sr-only"> {{ campaign.code }}</span></a>
+{% else %}
+<a href="{% url 'campaign' campaign.pk %}" dj-navigate="{% url 'campaign' campaign.pk %}" class="btn-ghost whitespace-nowrap px-3 py-1 text-xs">{% translate "Open" %}<span class="sr-only"> {{ campaign.code }}</span></a>
+{% endif %}

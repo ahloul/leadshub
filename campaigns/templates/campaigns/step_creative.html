@@ -1,0 +1,83 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Campaign creative" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.CreativeStepView" class="space-y-6">
+    {% include "campaigns/_step_header.html" %}
+
+    {% if not locked_message %}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+    <section class="card space-y-5 lg:col-span-2" aria-labelledby="creatives-heading">
+        <div>
+            <h2 id="creatives-heading" class="text-lg font-semibold">{% if pooled %}{% translate "Choose one creative" %}{% else %}{% translate "Choose one or more creatives" %}{% endif %}</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{% translate "Ready-made ads from the library that fit your target. Offers that have ended are not shown." %}</p>
+        </div>
+        {% if target_missing %}
+        <p class="tip">{% translate "Choose the target first." %} <a href="{{ target_url }}" dj-navigate="{{ target_url }}" class="font-medium underline">{% translate "Go to Target" %}</a></p>
+        {% endif %}
+        <p role="status" class="text-sm font-medium text-red-700 dark:text-red-400">{{ notice }}</p>
+
+        {% if unavailable %}
+        <div class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+            <p>{% translate "These creatives can no longer be used. Remove them and choose another:" %}</p>
+            <ul class="mt-2 space-y-2">
+                {% for creative in unavailable %}
+                <li data-key="gone-{{ creative.pk }}" class="flex flex-wrap items-center justify-between gap-2">
+                    <span dir="auto">{{ creative.title }} · <span dir="ltr">{{ creative.code }}</span></span>
+                    <button type="button" class="btn-secondary" dj-click="remove_creative" data-creative-id="{{ creative.pk }}">{% translate "Remove" %}</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if creatives %}
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {% for creative in creatives %}
+            <li data-key="{{ creative.pk }}" class="flex flex-col overflow-hidden rounded-xl border-2 bg-white dark:bg-slate-900 {% if creative.pk in chosen_ids %}border-indigo-600 dark:border-indigo-400{% else %}border-slate-200 dark:border-slate-800{% endif %}">
+                <div class="flex aspect-video items-center justify-center bg-slate-100 dark:bg-slate-800">
+                    {% if creative.image_url %}
+                    <img src="{{ creative.image_url }}" alt="{{ creative.title }}" loading="lazy" class="h-full w-full object-contain">
+                    {% else %}
+                    <span class="text-sm text-slate-500 dark:text-slate-400">{{ creative.get_asset_type_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex flex-1 flex-col gap-2 p-4">
+                    <h3 id="creative-{{ creative.pk }}" class="font-semibold" dir="auto">{{ creative.title }}</h3>
+                    {% if creative.offer %}<p class="text-sm" dir="auto">{{ creative.offer }}</p>{% endif %}
+                    <ul class="flex flex-wrap gap-1.5 text-xs font-medium">
+                        <li class="rounded-md bg-indigo-50 px-2 py-0.5 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{{ creative.get_asset_type_display }}{% if creative.aspect_ratio %} · <span dir="ltr">{{ creative.aspect_ratio }}</span>{% endif %}</li>
+                        <li class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ creative.language|upper }}</li>
+                        <li class="rounded-md bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300" dir="ltr">{{ creative.code }}</li>
+                    </ul>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">{% if creative.project %}{{ creative.project.display_name }} · {% endif %}{{ creative.area.display_name }}{% if creative.offer_expires_on %} · {% translate "Offer ends" %} <span dir="ltr">{{ creative.offer_expires_on|date:"Y-m-d" }}</span>{% endif %}</p>
+                    <div class="mt-auto pt-2">
+                        {% if creative.pk in chosen_ids %}
+                        <button type="button" class="btn-secondary w-full" dj-click="remove_creative" data-creative-id="{{ creative.pk }}" aria-describedby="creative-{{ creative.pk }}" aria-pressed="true">✓ {% translate "Chosen. Remove" %}</button>
+                        {% else %}
+                        <button type="button" class="btn-primary w-full" dj-click="choose_creative" data-creative-id="{{ creative.pk }}" aria-describedby="creative-{{ creative.pk }}" aria-pressed="false">{% translate "Choose" %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">{% translate "The library has no creatives for this target yet. Choose another target, or contact LeadsHub." %}</p>
+        {% endif %}
+
+        <div class="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+            <a href="{{ previous_url }}" dj-navigate="{{ previous_url }}" class="btn-secondary gap-1.5"><span aria-hidden="true" class="inline-block rtl:-scale-x-100">←</span> {% translate "Back" %}</a>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <span class="text-sm text-slate-500 dark:text-slate-400">{% blocktranslate count counter=chosen_count %}{{ counter }} chosen{% plural %}{{ counter }} chosen{% endblocktranslate %}</span>
+                <button type="button" class="btn-primary" dj-click="continue_to_next">{% translate "Next" %} <span aria-hidden="true" class="ms-1.5 inline-block rtl:-scale-x-100">→</span></button>
+            </div>
+        </div>
+    </section>
+    {% include "campaigns/_summary.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

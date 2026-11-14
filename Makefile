@@ -1,4 +1,4 @@
-.PHONY: dev test test-email migrate check install collectstatic css css-watch messages storage-up docker-up docker-build docker-migrate docker-logs docker-test docker-down fly-deploy
+.PHONY: dev jobs test test-email migrate check install collectstatic css css-watch messages storage-up docker-up docker-build docker-migrate docker-logs docker-test docker-down fly-deploy
 
 # The project's own environment, so no activation is needed. An exported
 # PYTHON variable does not override this; `make dev PYTHON=python` does.
@@ -6,6 +6,13 @@ PYTHON = .venv/bin/python
 
 dev: css
 	$(PYTHON) -m uvicorn leadshub.asgi:application --host 127.0.0.1 --port 8000 --reload
+
+# The task queue and scheduled jobs (django-q2, leadshub/jobs.py). With
+# DEBUG on, queued tasks such as emails run at once without it (Q_SYNC);
+# run it beside `make dev` for the schedules (the review SLA escalation),
+# or with Q_SYNC=0 to try the real queue. On Fly it is the "jobs" process.
+jobs:
+	$(PYTHON) manage.py qcluster
 
 test:
 	$(PYTHON) manage.py test
@@ -48,28 +55,37 @@ storage-up:
 	$(PYTHON) manage.py ensure_storage_bucket
 
 # Docker environment (see docker-compose.yml). The source is mounted, so
-# code changes need no rebuild; the image is built only if it is missing.
-docker-up:
+# code changes need no rebuild. The images are rebuilt by themselves when
+# requirements.txt or the Dockerfile is newer than the last build
+# (.docker-images marks it).
+DOCKER_IMAGES = .docker-images
+
+$(DOCKER_IMAGES): requirements.txt Dockerfile
+	docker compose --profile test build web jobs test
+	touch $(DOCKER_IMAGES)
+
+docker-up: $(DOCKER_IMAGES)
 	docker compose up -d --wait db
 	docker compose up -d storage
 	docker compose run --rm web python manage.py migrate --noinput
 	docker compose run --rm web python manage.py ensure_storage_bucket
 	docker compose run --rm web python manage.py seed_demo
-	docker compose up -d web
+	docker compose up -d web jobs
 	@echo "Open http://localhost:8000 (storage console: http://localhost:9001)"
 
-# Only needed after requirements.txt or the Dockerfile change.
+# Rebuild now (docker-up and docker-test already do when needed).
 docker-build:
-	docker compose build web test
+	docker compose --profile test build web jobs test
+	touch $(DOCKER_IMAGES)
 
 # After pulling or adding migrations.
-docker-migrate:
+docker-migrate: $(DOCKER_IMAGES)
 	docker compose run --rm web python manage.py migrate --noinput
 
 docker-logs:
-	docker compose logs -f web css
+	docker compose logs -f web jobs css
 
-docker-test:
+docker-test: $(DOCKER_IMAGES)
 	docker compose --profile test run --rm test
 
 docker-down:

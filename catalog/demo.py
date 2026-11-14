@@ -29,10 +29,22 @@ def seed_catalog():
         name_en="New Cairo compound buyers, higher income",
         defaults={
             "name_ar": "مشترو الكمبوندات في القاهرة الجديدة، دخل أعلى",
+            "description_en": "People showing intent for compound units in and around New Cairo, "
+            "with higher-income signals.",
+            "description_ar": "مهتمون بوحدات الكمبوندات في القاهرة الجديدة وما حولها، بمؤشرات دخل أعلى.",
             "area": new_cairo,
             "meta_interests": "Real estate\nCompounds\nLuxury",
             "lookalike_source": "closed_won_1pct",
             "geo_targeting": "New Cairo + 10 km",
+        },
+    )
+    AudiencePreset.objects.get_or_create(
+        name_en="First-home buyers, flexible installments",
+        defaults={
+            "name_ar": "مشترو المنزل الأول، تقسيط مرن",
+            "description_en": "Interest in long installment plans and lower down payments.",
+            "description_ar": "اهتمام بخطط التقسيط الطويلة والمقدمات الأقل.",
+            "meta_interests": "First home\nInstallments",
         },
     )
     return {"palm_hills_new_cairo": phnc, "o_west": o_west}

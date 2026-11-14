@@ -41,6 +41,10 @@ class PageLanguageMixin:
             handler = inspect.getattr_static(cls, name, None)
             if is_event_handler(handler) and not getattr(handler, "_in_page_language", False):
                 setattr(cls, name, _in_page_language(handler))
+        # Every mount() gets the page URL's parameters (see _with_url_kwargs).
+        mount = cls.__dict__.get("mount")
+        if mount is not None and not getattr(mount, "_with_url_kwargs", False):
+            cls.mount = _with_url_kwargs(mount)
         # Set on each view class: djust's LoginRequiredLiveViewMixin comes
         # first in the bases and declares login_url = None.
         if "login_url" not in cls.__dict__:
@@ -69,6 +73,38 @@ class PageLanguageMixin:
 
     def _language_for_render(self):
         return getattr(self, "_page_language", None) or translation.get_language()
+
+
+def _url_kwargs(request):
+    """The page URL's own parameters (``pk`` …), resolved in the page's language."""
+    from django.urls import Resolver404, resolve
+
+    language = translation.get_language_from_path(request.path)
+    try:
+        with translation.override(language or translation.get_language()):
+            return dict(resolve(request.path).kwargs)
+    except Resolver404:
+        return {}
+
+
+def _with_url_kwargs(mount):
+    """Give ``mount`` the page URL's parameters that djust left out.
+
+    Workaround for a djust 1.2.8 gap: for the WebSocket mount it resolves the
+    page URL in the default language, so on an /ar/ page the language prefix
+    doesn't match, the error is swallowed and mount() gets no URL parameters.
+    /ar/portal/campaigns/5/target/ mounted without its campaign. Parameters
+    djust did pass win. Covered by
+    ``campaigns.tests.CampaignPagesOverTheSocketTests``; check after each
+    djust upgrade whether it's still needed.
+    """
+
+    @functools.wraps(mount)
+    def wrapper(self, request, *args, **kwargs):
+        return mount(self, request, *args, **{**_url_kwargs(request), **kwargs})
+
+    wrapper._with_url_kwargs = True
+    return wrapper
 
 
 def _login_url_in_page_language(view):
@@ -129,3 +165,26 @@ class LiveFormAdapter(TailwindAdapter):
 
     required_marker = ' <span class="field-required" aria-hidden="true">*</span>'
     help_text_class = "field-help"
+
+    def _render_select(self, field, field_name, value, has_errors, attrs):
+        """A select with one blank choice, not two.
+
+        djust 1.2.8 adds a "---------" option to every optional select, and a
+        Django ``ModelChoiceField`` already starts its choices with its own
+        ``empty_label``, so model selects showed two blank options. When the
+        field's choices already begin with a blank, that one is kept (it can
+        carry a label such as "Every kind of unit").
+        """
+        from django.utils.html import escape
+
+        choices = list(field.choices)
+        if field.required or (choices and str(choices[0][0]) == ""):
+            options = ""
+        else:
+            options = '<option value="">---------</option>'
+        for choice_value, choice_label in choices:
+            selected = " selected" if str(value) == str(choice_value) else ""
+            options += (
+                f'<option value="{escape(str(choice_value))}"{selected}>{escape(str(choice_label))}</option>'
+            )
+        return self._build_tag("select", attrs, options)

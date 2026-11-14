@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate count counter=count %}{{ counter }} review task is near its 4-hour limit{% plural %}{{ counter }} review tasks are near their 4-hour limit{% endblocktranslate %}{% endautoescape %}

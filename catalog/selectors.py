@@ -2,7 +2,7 @@
 
 from django.db.models import Q
 
-from .models import Area, AudiencePreset, Project
+from .models import Area, AudiencePreset, Developer, Project, UnitType
 
 
 def areas(*, ids=None):
@@ -13,14 +13,36 @@ def areas(*, ids=None):
     return found.order_by("name_en")
 
 
-def projects(*, ids=None, area_id=None):
-    """Active projects, optionally only ``ids`` and those in ``area_id``."""
-    found = Project.objects.filter(is_active=True).select_related("developer", "area")
+def developers(*, ids=None, active_only=True):
+    """Active developers, for the campaign builder (FR-4.1), optionally only ``ids``.
+
+    ``active_only=False`` keeps retired ones, for filtering records that name them.
+    """
+    found = Developer.objects.filter(is_active=True) if active_only else Developer.objects.all()
+    if ids is not None:
+        found = found.filter(pk__in=ids)
+    return found.order_by("name_en")
+
+
+def projects(*, ids=None, area_id=None, developer_id=None, active_only=True):
+    """Active projects, optionally only ``ids``, those in ``area_id`` or by ``developer_id``.
+
+    ``active_only=False`` keeps retired ones, for filtering records that name them.
+    """
+    found = Project.objects.filter(is_active=True) if active_only else Project.objects.all()
+    found = found.select_related("developer", "area")
     if ids is not None:
         found = found.filter(pk__in=ids)
     if area_id:
         found = found.filter(area_id=area_id)
+    if developer_id:
+        found = found.filter(developer_id=developer_id)
     return found.order_by("name_en")
+
+
+def unit_types():
+    """Active unit types, for a category campaign (FR-4.1)."""
+    return UnitType.objects.filter(is_active=True).order_by("name_en")
 
 
 def audience_presets(*, area_id=None):

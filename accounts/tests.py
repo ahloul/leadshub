@@ -537,8 +537,29 @@ class SeedDemoCommandTests(TemporaryUploadsMixin, TestCase):
         call_command("seed_demo", stdout=StringIO())  # idempotent
         self.assertEqual(Creative.objects.count(), 4)
         self.assertEqual(Creative.objects.usable().count(), 2)  # one ended, one draft
-        self.assertEqual(AudiencePreset.objects.count(), 1)
+        self.assertEqual(AudiencePreset.objects.count(), 2)
         self.assertTrue(all(c.file.storage.exists(c.file.name) for c in Creative.objects.all()))
+
+    def test_creates_demo_campaigns_once(self):
+        """ROADMAP M3: a half-built draft and a complete one in the review queue."""
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        from campaigns.models import Campaign, Channel, Goal, Status
+
+        call_command("seed_demo", stdout=StringIO())
+        call_command("seed_demo", stdout=StringIO())  # idempotent
+        campaigns = Campaign.objects.filter(office__company_name="Nour Realty")
+        # One in each status, both channels and every goal, for the campaign list.
+        self.assertEqual(set(campaigns.values_list("status", flat=True)), set(Status.values))
+        self.assertEqual(campaigns.count(), len(Status.values))
+        self.assertEqual(set(campaigns.values_list("channel", flat=True)), set(Channel.values))
+        self.assertEqual(set(campaigns.values_list("goal", flat=True)), set(Goal.values))
+        for campaign in campaigns.exclude(status=Status.DRAFT):
+            with self.subTest(campaign=campaign.code):
+                self.assertEqual(campaign.missing_steps(), [])
+        self.assertTrue(campaigns.get(status=Status.NEEDS_CHANGES).change_reasons)
 
 
 class AdminLookTests(TestCase):
@@ -816,6 +837,8 @@ class InvitationTests(TestCase):
         self.assertContains(form_page, "عيّن كلمة المرور")
 
     def test_mail_failure_keeps_the_account(self):
+        """In production the queue retries a failed email (leadshub.jobs). Tests run tasks at
+        once (Q_SYNC), where the failure reaches the after-commit callback, which logs it."""
         from unittest import mock
 
         with mock.patch("leadshub.emails.EmailMultiAlternatives.send", side_effect=OSError("mail server down")):

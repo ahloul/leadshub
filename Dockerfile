@@ -9,6 +9,8 @@ RUN npm ci
 COPY static ./static
 COPY leadshub/templates ./leadshub/templates
 COPY accounts/templates ./accounts/templates
+COPY campaigns/templates ./campaigns/templates
+COPY reviews/templates ./reviews/templates
 COPY templates ./templates
 RUN npm run css
 

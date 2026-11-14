@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.contrib.auth.models import Permission
 from django.db.models import BooleanField, Exists, ExpressionWrapper, OuterRef, Q
 
-from .models import BrokerOffice, OfficeRegistration, OfficeStatus, User
+from .models import BrokerOffice, Membership, OfficeRegistration, OfficeStatus, User
 
 MANAGE_TEAM = "accounts.manage_team"
 RUN_CAMPAIGNS = "accounts.run_campaigns"
@@ -17,6 +17,13 @@ RUN_CAMPAIGNS = "accounts.run_campaigns"
 def office(office_id):
     """The broker office with this id."""
     return BrokerOffice.objects.get(pk=office_id)
+
+
+def office_id_of(user):
+    """The id of the broker office ``user`` belongs to, or None (staff, developers, no office yet)."""
+    if not getattr(user, "is_authenticated", False):
+        return None
+    return Membership.objects.filter(user_id=user.pk).values_list("office_id", flat=True).first()
 
 
 def _permission(name):
@@ -74,3 +81,38 @@ def pending_registration_count():
     return BrokerOffice.objects.filter(
         status=OfficeStatus.PENDING, registration__email_confirmed_at__isnull=False
     ).count()
+
+
+_MODEL_BACKEND = "django.contrib.auth.backends.ModelBackend"
+ACCESS_BACK_OFFICE = "accounts.access_back_office"
+
+
+def staff_with(perm):
+    """Active internal staff who hold ``perm`` (through a role or directly), by name.
+
+    For example the media buyers a task can be assigned to, or the leads an
+    SLA escalation goes to. Superusers count only if they're internal staff.
+    """
+    internal = User.objects.with_perm(ACCESS_BACK_OFFICE, backend=_MODEL_BACKEND)
+    return (
+        User.objects.with_perm(perm, backend=_MODEL_BACKEND)
+        .filter(is_active=True, pk__in=internal.values("pk"))
+        .order_by("first_name", "last_name", "username")
+    )
+
+
+def office_people_with(office_id, perm):
+    """Active people of an office who hold ``perm`` and have an email address."""
+    return (
+        User.objects.with_perm(perm, backend=_MODEL_BACKEND)
+        .filter(is_active=True, membership__office_id=office_id)
+        .exclude(email="")
+    )
+
+
+def office_language(office_id, default):
+    """The language an office signed up in, for emails sent outside its requests."""
+    language = (
+        OfficeRegistration.objects.filter(office_id=office_id).values_list("language", flat=True).first()
+    )
+    return language or default

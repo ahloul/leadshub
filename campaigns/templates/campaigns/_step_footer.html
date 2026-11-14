@@ -1,0 +1,10 @@
+{% load i18n %}
+<p role="alert" class="text-sm font-medium text-red-700 dark:text-red-400">{{ error_message }}</p>
+<div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between{% if not bare %} border-t border-slate-200 pt-4 dark:border-slate-800{% endif %}">
+    {% if previous_url %}
+    <a href="{{ previous_url }}" dj-navigate="{{ previous_url }}" class="btn-secondary gap-1.5"><span aria-hidden="true" class="inline-block rtl:-scale-x-100">←</span> {% translate "Back" %}</a>
+    {% else %}
+    <a href="{% url 'campaigns' %}" dj-navigate="{% url 'campaigns' %}" class="btn-secondary">{% translate "Cancel" %}</a>
+    {% endif %}
+    <button type="submit" class="btn-primary" dj-disable-with="{% translate 'Saving…' %}">{% translate "Next" %} <span aria-hidden="true" class="ms-1.5 inline-block rtl:-scale-x-100">→</span></button>
+</div>

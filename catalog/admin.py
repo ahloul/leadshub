@@ -34,6 +34,6 @@ class AudiencePresetAdmin(BilingualNamedAdmin):
     list_select_related = ["area"]
     autocomplete_fields = ["area"]
     fieldsets = (
-        (None, {"fields": ["name_en", "name_ar", "area", "is_active"]}),
+        (None, {"fields": ["name_en", "name_ar", "description_en", "description_ar", "area", "is_active"]}),
         (_("Meta targeting (internal)"), {"fields": ["meta_interests", "lookalike_source", "geo_targeting"]}),
     )

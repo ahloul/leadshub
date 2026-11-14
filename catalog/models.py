@@ -99,6 +99,14 @@ class AudiencePreset(BilingualNamed):
         verbose_name=_("area"),
         help_text=_("Leave empty if it suits any area."),
     )
+    # What brokers read under the name, in plain language.
+    description_en = models.CharField(
+        _("description (English)"),
+        max_length=255,
+        blank=True,
+        help_text=_("Shown to brokers, e.g. \"Families researching villas and townhouses in West Cairo.\""),
+    )
+    description_ar = models.CharField(_("description (Arabic)"), max_length=255, blank=True)
     meta_interests = models.TextField(
         _("Meta interests"), blank=True, help_text=_("One interest per line.")
     )
@@ -121,6 +129,12 @@ class AudiencePreset(BilingualNamed):
         constraints = [
             models.UniqueConstraint(fields=["name_en"], name="unique_audience_preset_name")
         ]
+
+    @property
+    def display_description(self):
+        if self.description_ar and (get_language() or "").startswith("ar"):
+            return self.description_ar
+        return self.description_en
 
     @property
     def interests(self):

@@ -1,0 +1,84 @@
+{% extends "leadshub/base.html" %}
+{% load i18n live_tags %}
+
+{% block title %}{% translate "Campaign target" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.TargetStepView" class="space-y-6">
+    {% include "campaigns/_step_header.html" %}
+
+    {% if not locked_message %}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+        <form dj-submit="submit_form" class="space-y-6 lg:col-span-2" novalidate>
+            {% csrf_token %}
+            <section class="card space-y-4" aria-labelledby="what-heading">
+                {% if specific %}
+                <div>
+                    <h2 id="what-heading" class="section-title">{% translate "Developer and project" %}</h2>
+                    <p class="section-text">{% translate "Pick the developer, then one of its projects." %}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {% live_field view "developer" %}
+                    {% live_field view "project" %}
+                </div>
+                {% if project %}
+                <p class="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600 dark:bg-slate-800/60 dark:text-slate-300">{% blocktranslate with developer=project.developer.display_name project=project.display_name area=project.area.display_name %}{{ project }} by {{ developer }}, in {{ area }}. Every campaign, creative and lead is attributed to this developer, project and area.{% endblocktranslate %}</p>
+                {% endif %}
+                {% else %}
+                <div>
+                    <h2 id="what-heading" class="section-title">{% translate "General campaign" %}</h2>
+                    <p class="section-text">{% translate "Choose any two or more, and leave the rest as Any. We advertise across every project that matches." %}</p>
+                </div>
+                {% include "campaigns/_chips.html" with group=area_chips legend=area_legend %}
+                <div class="sm:max-w-sm">{% live_field view "developer" %}</div>
+                {% include "campaigns/_chips.html" with group=unit_type_chips legend=unit_type_legend %}
+                
+                {% endif %}
+            </section>
+
+            <section class="card space-y-4" aria-labelledby="channel-heading">
+                <div>
+                    <h2 id="channel-heading" class="section-title">{% translate "Channel" %}</h2>
+                    <p class="section-text">{% translate "Where people see the ads." %}</p>
+                </div>
+                {% include "campaigns/_choice_cards.html" with group=channel_cards two_columns=True %}
+            </section>
+
+            <section class="card space-y-4" aria-labelledby="identity-heading">
+                <div>
+                    <h2 id="identity-heading" class="section-title">{% translate "Destination and identity" %}</h2>
+                    <p class="section-text">{% translate "Whose name the ads carry, and where the leads come in." %}</p>
+                </div>
+                <div class="tip">
+                    <span aria-hidden="true">💡</span>
+                    <p>{% translate "Tip: on the platform dark page your budget can join other brokers' budgets for the same project, creative and audience. That usually means a lower cost per lead." %}</p>
+                </div>
+                {% include "campaigns/_choice_cards.html" with group=identity_cards %}
+                {% for message in field_errors.identity %}<p class="field-error">{{ message }}</p>{% endfor %}
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {% blocktranslate with platforms=own_platforms %}To run under your own {{ platforms }}, add it to your office's pages first.{% endblocktranslate %}
+                    {% if can_add_accounts %}<a href="{% url 'connected_accounts' %}" dj-navigate="{% url 'connected_accounts' %}" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{% translate "Manage your pages" %}</a>{% endif %}
+                </p>
+
+                <div class="border-t border-slate-200 pt-4 dark:border-slate-800">
+                <fieldset class="space-y-2">
+                    <legend class="section-title">{% translate "Get more, better-quality leads" %}</legend>
+                    <p class="section-text">{% translate "When their quality is better, we can also send you leads from:" %}</p>
+                    {% for option in lead_options %}
+                    <label class="option-card py-3">
+                        <input type="checkbox" name="{{ option.name }}" class="sr-only" dj-change="validate_field"{% if option.checked %} checked{% endif %}>
+                        <span class="option-card-mark option-card-mark-square" aria-hidden="true"></span>
+                        <span class="option-card-title font-medium">{{ option.label }}</span>
+                    </label>
+                    {% endfor %}
+                </fieldset>
+                </div>
+            </section>
+
+            <div>{% include "campaigns/_step_footer.html" with bare=True %}</div>
+        </form>
+        {% include "campaigns/_summary.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

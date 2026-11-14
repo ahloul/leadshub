@@ -17,3 +17,5 @@ node_modules/
 static/css/output.css
 .playwright-mcp/
 media/
+# Makefile: when the Docker images were last built.
+.docker-images

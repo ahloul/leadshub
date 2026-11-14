@@ -15,8 +15,8 @@ passing ``language``; the layout turns right-to-left for Arabic. Values in the
 context are escaped in the HTML, so names people type are safe to pass.
 
 Why not ``send_mail(html_message=...)``: it can't wait for the transaction to
-commit, render in another language or add the layout's own context, which every
-caller would otherwise repeat.
+commit, render in another language, add the layout's own context or go
+through the task queue, which every caller would otherwise repeat.
 """
 
 from django.core.mail import EmailMultiAlternatives
@@ -46,17 +46,28 @@ def render_email(name, context, *, language=None):
 def send_after_commit(name, context, recipients, *, language=None):
     """Email ``recipients`` the email ``name`` once the transaction commits.
 
-    A mail server failure is logged (``robust``) and doesn't break the page;
-    callers offer a way to send the email again.
+    The email is rendered now, in ``language``, and sent by the task queue
+    (``deliver``, leadshub/jobs.py), so the page never waits for the mail
+    server. A failed send is tried again by the queue, then kept under Failed
+    tasks in the admin.
     """
     subject, text, html = render_email(name, context, language=language)
     recipients = list(recipients)
+    if not recipients:
+        return
 
-    # A named function, not functools.partial: Django logs a robust callback's
-    # failure by its __qualname__, which a partial doesn't have.
-    def send_email():
-        message = EmailMultiAlternatives(subject, text, None, recipients)
-        message.attach_alternative(html, "text/html")
-        message.send()
+    # A named function: Django logs a robust callback's failure by its
+    # __qualname__. Robust, so a queue failure never breaks the page.
+    def queue_email():
+        from .jobs import enqueue
 
-    transaction.on_commit(send_email, robust=True)
+        enqueue("leadshub.emails.deliver", subject, text, html, recipients)
+
+    transaction.on_commit(queue_email, robust=True)
+
+
+def deliver(subject, text, html, recipients):
+    """Send one rendered email (a queued task). Raises on failure, so the queue retries it."""
+    message = EmailMultiAlternatives(subject, text, None, recipients)
+    message.attach_alternative(html, "text/html")
+    message.send()

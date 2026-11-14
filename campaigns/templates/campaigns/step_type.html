@@ -1,0 +1,25 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "New campaign" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.TypeStepView" class="space-y-6">
+    {% include "campaigns/_step_header.html" %}
+
+    {% if not locked_message %}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+        <form dj-submit="submit_form" class="card space-y-5 lg:col-span-2" novalidate>
+            {% csrf_token %}
+            <div>
+                <h2 class="section-title">{% translate "What kind of campaign?" %}</h2>
+                <p class="section-text">{% translate "Advertise one specific project, or a broader category across many projects." %}</p>
+            </div>
+            {% include "campaigns/_choice_cards.html" with group=kind_cards two_columns=True %}
+            {% include "campaigns/_step_footer.html" %}
+        </form>
+        {% include "campaigns/_summary.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

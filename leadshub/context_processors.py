@@ -1,50 +1,47 @@
 """Sidebar navigation: the pages the signed-in person may open (ROADMAP M1).
 
-The sidebar sits outside ``dj-root``, so it is rendered once over HTTP. djust
-keeps ``aria-current`` on its ``dj-navigate`` links in step as the person moves
-between live pages.
+The menu itself is ``leadshub.navigation.MENU``, shared with the admin's
+sidebar. The sidebar sits outside ``dj-root``, so it is rendered once over
+HTTP. djust keeps ``aria-current`` on its ``dj-navigate`` links in step as
+the person moves between live pages.
 """
 
-from django.contrib import admin
-from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.module_loading import import_string
 
-# Outline icons (24x24 SVG path data, drawn with a 2px stroke).
-ICONS = {
-    "office": "M4 21V5h10v16M14 9h6v12M2 21h20M8 9h2M8 13h2M8 17h2",
-    "dashboard": "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z",
-    "library": "M4 5h16v14H4zM4 15l4-4 5 5 3-3 4 4M15 9h.01",
-    "team": "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M16 5.5a3 3 0 0 1 0 5.5M21 20a6 6 0 0 0-4-5.6",
-    "developer": "M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-5h4v5",
-    "admin": "M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1M15 4v4M9 10v4M17 16v4",
-}
-
-# Live pages: (label, URL name, icon, capabilities needed). A link shows only
-# to people who hold every capability, the same ones the page requires.
-LIVE_PAGES = [
-    (_("Back office"), "back_office", "office", ["accounts.access_back_office"]),
-    (_("Dashboard"), "dashboard", "dashboard", ["accounts.access_client_portal"]),
-    (_("Creative library"), "library", "library", ["accounts.access_client_portal"]),
-    (_("Team"), "team", "team", ["accounts.access_client_portal", "accounts.manage_team"]),
-    (_("Developer view"), "developer_home", "developer", ["accounts.access_developer_view"]),
-]
+from .icons import PATHS, VIEWBOX
+from .navigation import menu_for
 
 
 def navigation(request):
     user = getattr(request, "user", None)
-    if user is None or not user.is_authenticated:
-        return {"nav_links": []}
-    links = [
-        {"label": label, "url": reverse(name), "icon": ICONS[icon], "live": True}
-        for label, name, icon, perms in LIVE_PAGES
-        if user.has_perms(perms)
-    ]
-    # The admin isn't a live page: an ordinary link. Shown, as on the back
-    # office page, only to people with at least one admin section.
-    if user.has_perm("accounts.access_back_office") and admin.site.get_app_list(request):
-        links.append(
-            {"label": _("Admin"), "url": reverse("admin:index"), "icon": ICONS["admin"], "live": False}
+    sections = []
+    for title, items in menu_for(user):
+        links = []
+        for item in items:
+            url = str(item["url"])
+            badge = import_string(item["badge"])(request) if item.get("badge") else None
+            links.append(
+                {
+                    "label": item["label"],
+                    "url": url,
+                    "icon": PATHS[item["icon"]],
+                    "live": item["live"],
+                    "badge": badge,
+                    "current": url == request.path,
+                }
+            )
+        sections.append(
+            {
+                "title": title,
+                "links": links,
+                "open": any(link["current"] for link in links),
+                # Shown on a folded section's title, e.g. sign-ups waiting.
+                "badge": sum(link["badge"] or 0 for link in links) or None,
+            }
         )
-    for link in links:
-        link["current"] = link["url"] == request.path
-    return {"nav_links": links}
+    return {
+        "nav_icon_viewbox": VIEWBOX,
+        "nav_chevron": PATHS["chevron_right"],
+        "nav_sections": sections,
+        "nav_links": [link for section in sections for link in section["links"]],
+    }

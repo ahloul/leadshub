@@ -25,6 +25,8 @@ x-app-env: &app-env
   DB_PASSWORD: leadshub
   DB_HOST: db
   DB_PORT: "5432"
+  # Queued tasks (emails) go through the jobs service, as in production.
+  Q_SYNC: "0"
 
 # Uploads go to the storage service below (S3 API). The test service leaves
 # these out: tests keep uploads in a temporary folder.
@@ -80,6 +82,7 @@ services:
       uvicorn leadshub.asgi:application --host 0.0.0.0 --port 8000
       --reload
       --reload-dir accounts --reload-dir catalog --reload-dir creatives
+      --reload-dir campaigns --reload-dir reviews
       --reload-dir leadshub --reload-dir templates --reload-dir locale
       --reload-include "*.html" --reload-include "*.mo"
     ports:
@@ -91,6 +94,21 @@ services:
         condition: service_started
       css:
         condition: service_started
+
+  # The task queue and scheduled jobs (django-q2, leadshub/jobs.py): emails
+  # and the review SLA escalation. Restart it (docker compose restart jobs)
+  # after changing a task's code.
+  jobs:
+    build: .
+    platform: *app-platform
+    environment:
+      <<: [*app-env, *storage-env]
+    volumes:
+      - .:/app
+    command: python manage.py qcluster
+    depends_on:
+      db:
+        condition: service_healthy
 
   # Rebuilds static/css/output.css (in the mounted folder) when a template or
   # input.css changes. Its node_modules is a volume: the host's are built

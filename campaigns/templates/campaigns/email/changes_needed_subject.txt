@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with code=code %}Campaign {{ code }} needs changes{% endblocktranslate %}{% endautoescape %}

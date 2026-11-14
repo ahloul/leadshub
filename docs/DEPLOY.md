@@ -82,11 +82,30 @@ PostgreSQL, uploads in Tigris. A WebSocket stays on the machine it opened on.
 fly redis create -n leadshub-redis -r fra
 fly secrets set -a leadshub REDIS_URL=<the redis:// URL it printed>
 
-# Then add machines (two in fra, or one more in another region).
-fly scale count 2 -a leadshub
+# Then add web machines (two in fra, or one more in another region). Name
+# the process group: the jobs machine stays at one.
+fly scale count app=2 -a leadshub
 ```
 
-To go back to one machine: `fly scale count 1`. `REDIS_URL` can stay.
+To go back to one web machine: `fly scale count app=1`. `REDIS_URL` can stay.
+
+## Background jobs
+
+`fly.toml` has two process groups from the same image: `app` (the web
+server) and `jobs` (`manage.py qcluster`, django-q2). The jobs machine runs
+the queued tasks (every email) and the scheduled jobs in
+`leadshub/jobs.py`, starting with the review SLA escalation every minute.
+Tasks wait in PostgreSQL, so no other service is needed.
+
+- The first deploy with it creates one 512 MB `jobs` machine. Keep it at
+  one: the scheduler should run once.
+- **Without the jobs machine no email goes out**: emails queue and wait.
+  If it stops, `fly machine start` it; the queue then catches up.
+- Scheduled jobs send emails with links, so `SITE_BASE_URL` (in
+  `fly.toml`) must be the site's address.
+- Platform Admins see the schedules, failed tasks (with a retry action)
+  and what is waiting in the admin, under Background jobs.
+- `fly logs -a leadshub` shows both groups.
 
 ## Every deploy
 

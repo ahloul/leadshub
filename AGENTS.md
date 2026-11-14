@@ -44,9 +44,10 @@ business has answered.
   - The project folder is mounted into the containers. The server restarts
     on changes to Python, templates and compiled translations, and the `css`
     service rebuilds Tailwind, so code changes need no image rebuild.
-  - Run `make docker-build` only after `requirements.txt` or the
-    `Dockerfile` changes, and `make docker-migrate` after adding migrations.
-    `make docker-logs` follows the server and CSS logs.
+  - `make docker-up`, `docker-test` and `docker-migrate` rebuild the images
+    by themselves when `requirements.txt` or the `Dockerfile` changed
+    (`make docker-build` forces it). Run `make docker-migrate` after adding
+    migrations. `make docker-logs` follows the server, jobs and CSS logs.
 
 ## UI: responsive, bilingual, light and dark
 
@@ -100,8 +101,9 @@ business has answered.
   roles work everywhere.
 - **Admin UI is django-unfold (Tailwind).** Admin classes subclass
   `unfold.admin.ModelAdmin` / `StackedInline` / `TabularInline` (users:
-  Unfold's user forms). Add new admin screens to the sidebar in
-  `UNFOLD["SIDEBAR"]` (settings) with the matching view permission. Unfold's
+  Unfold's user forms). Add new admin screens and new pages to the one menu
+  in `leadshub/navigation.py` (`MENU`), with the capabilities the page
+  requires: the app's sidebar and the admin's both draw it. Unfold's
   own strings have Arabic in `locale/unfold/` (outside `make messages`).
 - **Template engines:** djust's engine searches only the folders listed in
   `TEMPLATES[0]["DIRS"]` (no `APP_DIRS`), so the admin's templates go to
@@ -212,6 +214,12 @@ Follow these steps every time a page, event handler or admin screen is added.
 - **Event handlers:** use `@event_handler()`. Validate parameters, and check the
   user may change the object at the moment of the change. Run long work with
   `start_async()` or `@background`.
+- **Background work** goes through django-q2 (`leadshub/jobs.py`): queue
+  work that needn't finish within the request (emails, calls to other
+  services) with `enqueue("app.module.function", ids...)`, and add periodic
+  work to `SCHEDULES` there, never a cron of its own. Pass ids, not model
+  instances, and make each task safe to run twice (failures are retried).
+  Test them directly; tests run queued tasks at once.
 - **Templates:** pass authorized models and querysets, not hand-built
   dictionaries. Reuse existing templates and components. Never render
   sensitive fields.
