@@ -2,8 +2,10 @@
 
 Access follows model permissions (AGENTS.md, permission step 6):
 
-- Platform Admin: create, list, update and delete both, and run Sync,
-  Recheck token, Deactivate and the launch switches. Ad accounts get in only
+- Platform Admin: connect Business Managers with Facebook Login for
+  Business (no typed tokens), list, rename and delete them, and run Sync,
+  Recheck token, Deactivate and the launch switches. Ad accounts are
+  created, listed, updated and deleted here. Ad accounts get in only
   two ways: added by hand here, or by Sync. Nothing runs on a schedule.
 - Media Buying Lead: view only. Django's admin renders the forms read-only
   and hides every action (``permissions=["change"]``) and delete.
@@ -27,10 +29,9 @@ from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
-from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
+from django.views.decorators.debug import sensitive_variables
 from unfold.admin import ModelAdmin
 from unfold.decorators import action, display
-from unfold.widgets import UnfoldAdminPasswordWidget
 
 from .meta_ads import sync as meta_sync
 from .models import MetaAdAccount, MetaBusinessManager
@@ -43,63 +44,12 @@ _TOKEN_LABELS = {
 
 
 class MetaBusinessManagerForm(forms.ModelForm):
-    """Name, Meta business ID and a write-only token, checked with Meta on save (criteria 1 to 6)."""
-
-    token = forms.CharField(
-        label=_("System user token"),
-        # Never sent back to the browser, not even after a failed save (criterion 5).
-        widget=UnfoldAdminPasswordWidget(render_value=False, attrs={"autocomplete": "off"}),
-        strip=True,
-    )
+    """Only the name is edited here. The business ID and token come from
+    Facebook Login for Business (connect_view), so nobody types a token."""
 
     class Meta:
         model = MetaBusinessManager
-        fields = ["name", "meta_business_id"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance.pk:
-            self.fields["token"].required = False
-            self.fields["token"].help_text = _(
-                "Current token: %(masked)s. Leave blank to keep it; a new one is checked with "
-                "Meta before it replaces the old one."
-            ) % {"masked": self.instance.masked_token}
-        if "meta_business_id" in self.fields:  # Absent on read-only (view permission) pages.
-            self.fields["meta_business_id"].widget.attrs["dir"] = "ltr"
-
-    def clean_meta_business_id(self):
-        value = self.cleaned_data["meta_business_id"].strip()
-        if not value.isdigit():
-            raise ValidationError(_("Enter the numeric Meta business ID."))
-        return value
-
-    def clean(self):
-        cleaned = super().clean()
-        business_id = cleaned.get("meta_business_id")
-        token = cleaned.get("token")
-        if self.errors or not business_id:
-            return cleaned  # Duplicate or malformed ID: don't call Meta (criterion 3).
-        if MetaBusinessManager.objects.filter(meta_business_id=business_id).exclude(pk=self.instance.pk).exists():
-            return cleaned  # validate_unique() reports it next.
-        id_changed = "meta_business_id" in self.changed_data
-        if token or id_changed:
-            stored = None if token else self.instance.get_token()
-            if problem := meta_sync.check_token(business_id, token or stored):
-                raise ValidationError(_("Meta refused this token: %(reason)s") % {"reason": problem})
-            self._checked = True
-        return cleaned
-
-    def save(self, commit=True):
-        bm = super().save(commit=False)
-        if token := self.cleaned_data.get("token"):
-            bm.set_token(token)
-        if getattr(self, "_checked", False):
-            bm.token_status = MetaBusinessManager.TokenStatus.VALID
-            bm.token_error = ""
-            bm.token_checked_at = timezone.now()
-        if commit:
-            bm.save()
-        return bm
+        fields = ["name"]
 
 
 # Session key for one Facebook Login round trip: the CSRF state, the
@@ -123,6 +73,7 @@ class MetaBusinessManagerAdmin(ModelAdmin):
     list_filter = ["is_active", "token_status"]
     search_fields = ["name", "meta_business_id"]
     readonly_fields = [
+        "meta_business_id",
         "masked_token",
         "token_status",
         "token_checked_at",
@@ -133,6 +84,10 @@ class MetaBusinessManagerAdmin(ModelAdmin):
         "last_sync_error",
     ]
     actions = ["sync_accounts", "recheck_tokens", "deactivate", "reactivate", "delete_selected"]
+    # Business Managers are added with "Connect with Facebook", not the Add form.
+    show_add_link = False
+    actions_list = ["connect_with_facebook"]
+    actions_detail = ["reconnect_with_facebook"]
     # A "Save and sync" button on the edit page (POST, like Save).
     actions_submit_line = ["save_and_sync"]
 
@@ -219,7 +174,12 @@ class MetaBusinessManagerAdmin(ModelAdmin):
             self.message_user(request, _("Facebook login was cancelled. Nothing was changed."), messages.WARNING)
             return HttpResponseRedirect(back)
         try:
-            connected, created = meta_sync.connect_business(code, self._callback_uri(request), expected=bm)
+            connected, created = meta_sync.connect_business(
+                code,
+                self._callback_uri(request),
+                expected=bm,
+                may_replace=lambda existing: self.has_change_permission(request, existing),
+            )
         except meta_sync.ConnectError as error:
             self.message_user(request, str(error), messages.ERROR)
             return HttpResponseRedirect(back)
@@ -230,16 +190,33 @@ class MetaBusinessManagerAdmin(ModelAdmin):
         self.message_user(request, _("Connected %(bm)s.") % {"bm": connected}, messages.SUCCESS)
         return HttpResponseRedirect(self._url("change", connected.pk, lang=lang))
 
+    def add_view(self, request, form_url="", extra_context=None):
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        return HttpResponseRedirect(self._url("connect"))
+
+    def has_connect_permission(self, request):
+        return self.has_add_permission(request) and self.login_configured()
+
+    def has_reconnect_permission(self, request, object_id):
+        bm = self.get_object(request, object_id)
+        return bm is not None and self.has_change_permission(request, bm) and self.login_configured()
+
+    @action(description=_("Connect with Facebook"), permissions=["connect"], icon="add")
+    def connect_with_facebook(self, request):
+        return HttpResponseRedirect(self._url("connect"))
+
+    @action(description=_("Reconnect with Facebook"), permissions=["reconnect"], icon="sync_lock")
+    def reconnect_with_facebook(self, request, object_id):
+        bm = self.get_object(request, object_id)
+        if bm is None:
+            raise Http404
+        return HttpResponseRedirect(f"{self._url('connect')}?{urlencode({'bm': bm.pk})}")
+
     def get_fieldsets(self, request, obj=None):
-        details = (None, {"fields": ["name", "meta_business_id"]})
-        if obj is None:
-            return [(None, {"fields": ["name", "meta_business_id", "token"]})]
-        token_fields = ["masked_token", "token_status", "token_checked_at", "token_error"]
-        if self.has_change_permission(request, obj):
-            token_fields.insert(0, "token")
         return [
-            details,
-            (_("Token"), {"fields": token_fields}),
+            (None, {"fields": ["name", "meta_business_id"]}),
+            (_("Token"), {"fields": ["masked_token", "token_status", "token_checked_at", "token_error"]}),
             (_("Sync"), {"fields": ["is_active", "last_synced_at", "last_sync_failed_at", "last_sync_error"]}),
         ]
 
@@ -255,11 +232,6 @@ class MetaBusinessManagerAdmin(ModelAdmin):
                 ),
             )
         )
-
-    @method_decorator(sensitive_post_parameters("token"))
-    def changeform_view(self, *args, **kwargs):
-        # Keeps the token out of Django's error reports (criterion 7).
-        return super().changeform_view(*args, **kwargs)
 
     @display(description=_("token"))
     def masked_token(self, obj):

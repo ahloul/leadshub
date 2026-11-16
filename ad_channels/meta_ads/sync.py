@@ -45,14 +45,20 @@ def exchange_code(code: str, redirect_uri: str) -> str:
 
 @sensitive_variables("code", "token")
 def connect_business(
-    code: str, redirect_uri: str, *, expected: MetaBusinessManager | None = None
+    code: str,
+    redirect_uri: str,
+    *,
+    expected: MetaBusinessManager | None = None,
+    may_replace=lambda bm: True,
 ) -> tuple[MetaBusinessManager, bool]:
     """Save the Business Manager a Facebook Login for Business code grants (FR-6.10).
 
     Creates it, or replaces the token of the one with the same Meta business
     ID. ``expected`` is the Business Manager being reconnected: the login
-    must be for that same business. Every Meta call happens before any write,
-    so a failure saves nothing.
+    must be for that same business. ``may_replace(bm)`` says whether the
+    caller may replace an existing Business Manager's token (the admin's
+    change permission), so adding can't be used to overwrite one. Every Meta
+    call happens before any write, so a failure saves nothing.
     """
     try:
         token = exchange_code(code, redirect_uri)
@@ -69,6 +75,10 @@ def connect_business(
     with transaction.atomic():
         bm = MetaBusinessManager.objects.select_for_update().filter(meta_business_id=business_id).first()
         created = bm is None
+        if not created and not may_replace(bm):
+            raise ConnectError(
+                _("%(bm)s is already connected, and you may not change it. Nothing was changed.") % {"bm": bm}
+            )
         if created:
             bm = MetaBusinessManager(name=name, meta_business_id=business_id)
         bm.set_token(token)

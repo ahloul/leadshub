@@ -121,96 +121,71 @@ class TokenStorageTests(MetaTestCase):
         return settings.META_TOKEN_KEYS
 
 
-class AddBusinessManagerTests(MetaTestCase):
-    """Criteria 1, 2, 3, 6, 7."""
-
-    def setUp(self):
-        super().setUp()
-        self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
-
-    def add(self, token=TOKEN, business_id="111"):
-        return self.client.post(f"{BM_URL}add/", {"name": "BM One", "meta_business_id": business_id, "token": token})
-
-    def test_valid_token_is_saved_as_valid(self):
-        response = self.add()
-        self.assertEqual(response.status_code, 302)
-        bm = MetaBusinessManager.objects.get()
-        self.assertEqual(bm.token_status, MetaBusinessManager.TokenStatus.VALID)
-        self.assertIsNotNone(bm.token_checked_at)
-        self.assertEqual(bm.get_token(), TOKEN)
-        self.assertEqual(self.meta.tokens, [TOKEN])
-
-    def test_rejected_token_is_not_saved_and_the_reason_is_shown(self):
-        self.meta.check_error = MetaError("Token is missing permissions: ads_management.", token_rejected=True)
-        response = self.add()
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(MetaBusinessManager.objects.exists())
-        self.assertContains(response, "missing permissions: ads_management")
-        self.assertNotContains(response, TOKEN)  # Not even echoed back into the field.
-
-    def test_business_id_must_be_numeric(self):
-        response = self.add(business_id="act_111")
-        self.assertContains(response, "numeric Meta business ID")
-        self.assertEqual(self.meta.tokens, [])
-
-    def test_same_business_id_twice_is_rejected_without_calling_meta(self):
-        make_bm(business_id="111")
-        response = self.add(business_id="111")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(MetaBusinessManager.objects.count(), 1)
-        self.assertEqual(self.meta.tokens, [])
-
-    def test_token_never_appears_in_pages_or_history(self):
-        self.add()
-        bm = MetaBusinessManager.objects.get()
-        for url in (BM_URL, f"{BM_URL}{bm.pk}/change/", f"{BM_URL}{bm.pk}/history/"):
-            with self.subTest(url=url):
-                response = self.client.get(url)
-                self.assertEqual(response.status_code, 200)
-                self.assertNotContains(response, TOKEN)
-                self.assertNotContains(response, bm.token_ciphertext)
-        self.assertContains(self.client.get(f"{BM_URL}{bm.pk}/change/"), "••••1234")
-        for entry in LogEntry.objects.all():
-            self.assertNotIn(TOKEN, entry.change_message)
-
-
-class ReplaceTokenTests(MetaTestCase):
-    """Criterion 6."""
+@override_settings(META_APP_ID="1", META_LOGIN_CONFIG_ID="cfg-9")
+class BusinessManagerPageTests(MetaTestCase):
+    """Business Managers come only from Facebook Login; nobody types a token (US-META-01)."""
 
     def setUp(self):
         super().setUp()
         self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
         self.bm = make_bm()
+        self.change_url = f"{BM_URL}{self.bm.pk}/change/"
 
-    def change(self, token="", **fields):
-        data = {"name": "BM One", "meta_business_id": "111", "token": token, **fields}
-        return self.client.post(f"{BM_URL}{self.bm.pk}/change/", data)
+    def test_add_url_redirects_to_connect(self):
+        response = self.client.get(f"{BM_URL}add/")
+        self.assertRedirects(response, f"{BM_URL}connect/", fetch_redirect_response=False)
 
-    def test_blank_token_keeps_the_current_one_without_calling_meta(self):
-        self.assertEqual(self.change(name="Renamed").status_code, 302)
+    def test_changelist_shows_connect_button_not_add(self):
+        page = self.client.get(BM_URL)
+        self.assertContains(page, "Connect with Facebook")
+        self.assertContains(page, f"{BM_URL}connect_with_facebook/")
+        self.assertNotContains(page, f'href="{BM_URL}add/"')
+        response = self.client.get(f"{BM_URL}connect_with_facebook/")
+        self.assertRedirects(response, f"{BM_URL}connect/", fetch_redirect_response=False)
+
+    def test_change_page_shows_reconnect_and_no_token_input(self):
+        page = self.client.get(self.change_url)
+        self.assertContains(page, "Reconnect with Facebook")
+        self.assertNotContains(page, 'name="token"')
+        self.assertContains(page, "••••1234")
+
+    def test_reconnect_button_starts_the_login_for_this_bm(self):
+        page = self.client.get(self.change_url)
+        self.assertContains(page, f"{BM_URL}{self.bm.pk}/reconnect_with_facebook/")
+        response = self.client.get(f"{BM_URL}{self.bm.pk}/reconnect_with_facebook/")
+        self.assertRedirects(response, f"{BM_URL}connect/?bm={self.bm.pk}", fetch_redirect_response=False)
+
+    def test_business_id_is_read_only(self):
+        self.client.post(self.change_url, {"name": "BM One", "meta_business_id": "222"})
+        self.bm.refresh_from_db()
+        self.assertEqual(self.bm.meta_business_id, "111")
+
+    def test_name_edit_saves_without_calling_meta(self):
+        self.assertEqual(self.client.post(self.change_url, {"name": "Renamed"}).status_code, 302)
         self.bm.refresh_from_db()
         self.assertEqual((self.bm.name, self.bm.get_token()), ("Renamed", TOKEN))
         self.assertEqual(self.meta.tokens, [])
 
-    def test_new_valid_token_replaces_the_old_one(self):
-        self.assertEqual(self.change(NEW_TOKEN).status_code, 302)
-        self.bm.refresh_from_db()
-        self.assertEqual(self.bm.get_token(), NEW_TOKEN)
-        self.assertEqual(self.bm.masked_token, "••••9876")
+    def test_media_buying_lead_sees_no_buttons(self):
+        self.client.force_login(make_user("lead", Role.MEDIA_BUYING_LEAD))
+        self.assertNotContains(self.client.get(BM_URL), "Connect with Facebook")
+        self.assertNotContains(self.client.get(self.change_url), "Reconnect with Facebook")
+        self.assertEqual(self.client.get(f"{BM_URL}{self.bm.pk}/reconnect_with_facebook/").status_code, 403)
 
-    def test_rejected_new_token_keeps_the_old_one(self):
-        self.meta.check_error = REJECTED
-        response = self.change(NEW_TOKEN)
-        self.assertContains(response, "Error validating access token")
-        self.bm.refresh_from_db()
-        self.assertEqual(self.bm.get_token(), TOKEN)
+    @override_settings(META_LOGIN_CONFIG_ID=None)
+    def test_buttons_hidden_when_not_configured(self):
+        self.assertNotContains(self.client.get(BM_URL), "Connect with Facebook")
+        self.assertNotContains(self.client.get(self.change_url), "Reconnect with Facebook")
 
-    def test_changing_the_business_id_rechecks_the_stored_token(self):
-        self.meta.check_error = REJECTED
-        self.change(meta_business_id="222")
-        self.bm.refresh_from_db()
-        self.assertEqual(self.bm.meta_business_id, "111")
-        self.assertEqual(self.meta.tokens, [TOKEN])
+    def test_token_never_appears_in_pages_or_history(self):
+        for url in (BM_URL, self.change_url, f"{self.change_url}../history/"):
+            with self.subTest(url=url):
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.status_code, 200)
+                self.assertNotContains(response, TOKEN)
+                self.assertNotContains(response, self.bm.token_ciphertext)
+        for entry in LogEntry.objects.all():
+            self.assertNotIn(TOKEN, entry.change_message)
 
 
 class SyncTests(MetaTestCase):
@@ -551,9 +526,7 @@ class AccessTests(MetaTestCase):
         self.assertEqual(self.client.get(f"{BM_URL}add/").status_code, 403)
         self.assertEqual(self.client.get(f"{ACCOUNT_URL}add/").status_code, 403)
         self.assertEqual(
-            self.client.post(
-                f"{BM_URL}{self.bm.pk}/change/", {"name": "x", "meta_business_id": "111", "token": NEW_TOKEN}
-            ).status_code,
+            self.client.post(f"{BM_URL}{self.bm.pk}/change/", {"name": "x"}).status_code,
             403,
         )
         self.client.post(BM_URL, {"action": "sync_accounts", "_selected_action": [self.bm.pk]})
@@ -577,7 +550,7 @@ class AccessTests(MetaTestCase):
         self.meta.accounts["111"].append(account("act_2"))
         response = self.client.post(
             f"{BM_URL}{self.bm.pk}/change/",
-            {"name": "Renamed", "meta_business_id": "111", "token": "", "ad_channels_metabusinessmanager_save_and_sync": ""},
+            {"name": "Renamed", "ad_channels_metabusinessmanager_save_and_sync": ""},
             follow=True,
         )
         self.assertContains(response, "1 new, 1 updated, 0 removed")
@@ -855,6 +828,20 @@ class ConnectViewTests(MetaTestCase):
         bm.refresh_from_db()
         self.assertEqual(bm.get_token(), NEW_TOKEN)
         self.assertEqual(MetaBusinessManager.objects.count(), 1)
+
+    def test_add_only_user_cannot_replace_an_existing_token(self):
+        from django.contrib.auth.models import Permission
+
+        bm = make_bm(token=NEW_TOKEN)
+        user = make_user("adder", Role.MEDIA_BUYING_LEAD)  # Views Business Managers, can't change them.
+        user.user_permissions.add(Permission.objects.get(codename="add_metabusinessmanager"))
+        self.client.force_login(user)
+        self.start()
+        response = self.finish()
+        self.assertRedirects(response, BM_URL, fetch_redirect_response=False)
+        self.assertContains(self.client.get(BM_URL), "already connected")
+        bm.refresh_from_db()
+        self.assertEqual(bm.get_token(), NEW_TOKEN)
 
     def test_reconnect_unknown_bm_is_404(self):
         self.assertEqual(self.client.get(f"{self.CONNECT}?bm=999").status_code, 404)
