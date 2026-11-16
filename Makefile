@@ -1,6 +1,5 @@
-.PHONY: dev test migrate check install collectstatic css css-watch messages docker-up docker-test docker-down \
-	docker-dev-up docker-dev-logs docker-dev-test docker-dev-shell docker-dev-down docker-dev-clean
-.PHONY: dev jobs test test-email migrate check install collectstatic css css-watch messages storage-up docker-up docker-build docker-migrate docker-logs docker-test docker-down fly-deploy
+.PHONY: dev test jobs test-email migrate check install collectstatic css css-watch messages storage-up docker-up docker-test docker-down \
+	docker-dev-up docker-dev-logs docker-dev-test docker-dev-shell docker-dev-down docker-dev-clean fly-deploy docker-build docker-migrate docker-logs docker-test docker-down
 
 # The project's own environment, so no activation is needed. An exported
 # PYTHON variable does not override this; `make dev PYTHON=python` does.
