@@ -149,6 +149,9 @@ class BusinessManagerPageTests(MetaTestCase):
         self.assertNotContains(page, 'name="token"')
         self.assertContains(page, "••••1234")
 
+    def test_no_save_and_add_another_button(self):
+        self.assertNotContains(self.client.get(self.change_url), 'name="_addanother"')
+
     def test_reconnect_button_starts_the_login_for_this_bm(self):
         page = self.client.get(self.change_url)
         self.assertContains(page, f"{BM_URL}{self.bm.pk}/reconnect_with_facebook/")

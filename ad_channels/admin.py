@@ -195,6 +195,11 @@ class MetaBusinessManagerAdmin(ModelAdmin):
             raise PermissionDenied
         return HttpResponseRedirect(self._url("connect"))
 
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        # "Save and add another" would lead to the add page, which is now Facebook Login.
+        extra_context = {**(extra_context or {}), "show_save_and_add_another": False}
+        return super().changeform_view(request, object_id, form_url, extra_context)
+
     def has_connect_permission(self, request):
         return self.has_add_permission(request) and self.login_configured()
 
