@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 03:42+0200\n"
+"POT-Creation-Date: 2026-11-16 03:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -325,95 +325,96 @@ msgstr "تسجيل الدخول"
 msgid "Sign in to LeadsHub"
 msgstr "تسجيل الدخول إلى LeadsHub"
 
-#: ad_channels/admin.py:141
+#: ad_channels/admin.py:143
 msgid "Facebook Login isn't set up: set META_APP_ID and META_LOGIN_CONFIG_ID."
-msgstr "تسجيل الدخول عبر فيسبوك غير مُعدّ: اضبط META_APP_ID و META_LOGIN_CONFIG_ID."
+msgstr ""
+"تسجيل الدخول عبر فيسبوك غير مُعدّ: اضبط META_APP_ID و META_LOGIN_CONFIG_ID."
 
-#: ad_channels/admin.py:174
+#: ad_channels/admin.py:184
 msgid "Facebook login was cancelled. Nothing was changed."
 msgstr "أُلغي تسجيل الدخول عبر فيسبوك. لم يتغيّر شيء."
 
-#: ad_channels/admin.py:190
+#: ad_channels/admin.py:200
 #, python-format
 msgid "Connected %(bm)s."
 msgstr "تم ربط %(bm)s."
 
-#: ad_channels/admin.py:205
+#: ad_channels/admin.py:220
 msgid "Connect with Facebook"
 msgstr "الربط عبر فيسبوك"
 
-#: ad_channels/admin.py:209
+#: ad_channels/admin.py:224
 msgid "Reconnect with Facebook"
 msgstr "إعادة الربط عبر فيسبوك"
 
-#: ad_channels/admin.py:219
+#: ad_channels/admin.py:234
 msgid "Token"
 msgstr "الرمز"
 
-#: ad_channels/admin.py:220
+#: ad_channels/admin.py:235
 msgid "Sync"
 msgstr "المزامنة"
 
-#: ad_channels/admin.py:236
+#: ad_channels/admin.py:251
 msgid "token"
 msgstr "الرمز"
 
-#: ad_channels/admin.py:240 ad_channels/models.py:53
+#: ad_channels/admin.py:255 ad_channels/models.py:53
 msgid "token status"
 msgstr "حالة الرمز"
 
-#: ad_channels/admin.py:244
+#: ad_channels/admin.py:259
 msgid "ad accounts (enabled / total)"
 msgstr "الحسابات الإعلانية (المفعّلة / الإجمالي)"
 
-#: ad_channels/admin.py:248
+#: ad_channels/admin.py:263
 msgid "last sync"
 msgstr "آخر مزامنة"
 
-#: ad_channels/admin.py:252
+#: ad_channels/admin.py:267
 msgid "Failed"
 msgstr "فشلت"
 
-#: ad_channels/admin.py:254
+#: ad_channels/admin.py:269
 msgid "OK"
 msgstr "ناجحة"
 
-#: ad_channels/admin.py:255
+#: ad_channels/admin.py:270
 msgid "Never synced"
 msgstr "لم تتم المزامنة بعد"
 
-#: ad_channels/admin.py:257
+#: ad_channels/admin.py:272
 msgid "Sync ad accounts from Meta"
 msgstr "مزامنة الحسابات الإعلانية من Meta"
 
-#: ad_channels/admin.py:262
+#: ad_channels/admin.py:277
 msgid "Save and sync"
 msgstr "حفظ ومزامنة"
 
-#: ad_channels/admin.py:273
+#: ad_channels/admin.py:288
 #, python-format
 msgid "%(bm)s: sync failed: %(reason)s"
 msgstr "%(bm)s: فشلت المزامنة: %(reason)s"
 
-#: ad_channels/admin.py:279
+#: ad_channels/admin.py:294
 #, python-format
 msgid "%(bm)s: %(new)d new, %(updated)d updated, %(removed)d removed."
 msgstr "%(bm)s: %(new)d جديد، %(updated)d محدَّث، %(removed)d محذوف."
 
-#: ad_channels/admin.py:284
+#: ad_channels/admin.py:299
 msgid "Recheck token with Meta"
 msgstr "إعادة التحقق من الرمز مع Meta"
 
-#: ad_channels/admin.py:289
+#: ad_channels/admin.py:304
 #, python-format
 msgid "%(bm)s: token is %(status)s."
 msgstr "%(bm)s: حالة الرمز %(status)s."
 
-#: ad_channels/admin.py:294
+#: ad_channels/admin.py:309
 msgid "Deactivate (stop all launches)"
 msgstr "إلغاء التفعيل (إيقاف كل الإطلاقات)"
 
-#: ad_channels/admin.py:300
+#: ad_channels/admin.py:315
 #, python-format
 msgid ""
 "%(count)d Business Manager deactivated; its ad accounts are no longer "
@@ -440,11 +441,11 @@ msgstr[5] ""
 "تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
 "للإطلاق."
 
-#: ad_channels/admin.py:307
+#: ad_channels/admin.py:322
 msgid "Reactivate"
 msgstr "إعادة التفعيل"
 
-#: ad_channels/admin.py:312
+#: ad_channels/admin.py:327
 #, python-format
 msgid "%(count)d Business Manager reactivated."
 msgid_plural "%(count)d Business Managers reactivated."
@@ -455,35 +456,35 @@ msgstr[3] "تمت إعادة تفعيل %(count)d من مديري الأعمال
 msgstr[4] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 msgstr[5] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 
-#: ad_channels/admin.py:320 ad_channels/admin.py:386
+#: ad_channels/admin.py:335 ad_channels/admin.py:401
 msgid "launch"
 msgstr "الإطلاق"
 
-#: ad_channels/admin.py:324
+#: ad_channels/admin.py:339
 msgid "Available for launch"
 msgstr "متاح للإطلاق"
 
-#: ad_channels/admin.py:324
+#: ad_channels/admin.py:339
 msgid "Enabled but blocked"
 msgstr "مفعّل لكنه محظور"
 
-#: ad_channels/admin.py:377 ad_channels/models.py:145
+#: ad_channels/admin.py:392 ad_channels/models.py:145
 msgid "Meta status"
 msgstr "الحالة في Meta"
 
-#: ad_channels/admin.py:391
+#: ad_channels/admin.py:406
 msgid "Available"
 msgstr "متاح"
 
-#: ad_channels/admin.py:392
+#: ad_channels/admin.py:407
 msgid "Not enabled"
 msgstr "غير مفعّل"
 
-#: ad_channels/admin.py:394
+#: ad_channels/admin.py:409
 msgid "Enable for launch"
 msgstr "تفعيل للإطلاق"
 
-#: ad_channels/admin.py:411
+#: ad_channels/admin.py:426
 #, python-format
 msgid "%(count)d ad account enabled."
 msgid_plural "%(count)d ad accounts enabled."
@@ -494,11 +495,11 @@ msgstr[3] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[4] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[5] "تم تفعيل %(count)d من الحسابات الإعلانية."
 
-#: ad_channels/admin.py:416
+#: ad_channels/admin.py:431
 msgid "Disable for launch"
 msgstr "إيقاف عن الإطلاق"
 
-#: ad_channels/admin.py:421
+#: ad_channels/admin.py:436
 #, python-format
 msgid "%(count)d ad account disabled."
 msgid_plural "%(count)d ad accounts disabled."
@@ -509,7 +510,7 @@ msgstr[3] "تم إيقاف %(count)d من الحسابات الإعلانية."
 msgstr[4] "تم إيقاف %(count)d من الحسابات الإعلانية."
 msgstr[5] "تم إيقاف %(count)d من الحسابات الإعلانية."
 
-#: ad_channels/apps.py:9 leadshub/settings.py:313
+#: ad_channels/apps.py:9 leadshub/settings.py:317
 msgid "Meta ads"
 msgstr "إعلانات Meta"
 
@@ -518,12 +519,12 @@ msgstr "إعلانات Meta"
 msgid "You picked a different business than %(bm)s. Nothing was changed."
 msgstr "اخترت نشاطًا تجاريًا غير %(bm)s. لم يتغيّر شيء."
 
-#: ad_channels/meta_ads/sync.py:73
+#: ad_channels/meta_ads/sync.py:75
 #, python-format
 msgid "Meta refused the connection: %(reason)s"
 msgstr "رفضت Meta الربط: %(reason)s"
 
-#: ad_channels/meta_ads/sync.py:80
+#: ad_channels/meta_ads/sync.py:82
 #, python-format
 msgid ""
 "%(bm)s is already connected, and you may not change it. Nothing was changed."
@@ -585,7 +586,7 @@ msgstr "تاريخ التحديث"
 msgid "Business Manager"
 msgstr "مدير الأعمال"
 
-#: ad_channels/models.py:76 leadshub/settings.py:316
+#: ad_channels/models.py:76 leadshub/settings.py:320
 msgid "Business Managers"
 msgstr "مديرو الأعمال"
 
@@ -706,7 +707,7 @@ msgstr "أدخل act_ متبوعًا بالمعرّف الرقمي للحساب.
 msgid "Can't enable for launch: %(reasons)s."
 msgstr "لا يمكن التفعيل للإطلاق: %(reasons)s."
 
-#: catalog/apps.py:8 leadshub/settings.py:299
+#: catalog/apps.py:8 leadshub/settings.py:303
 msgid "Master data"
 msgstr "البيانات الرئيسية"
 
@@ -743,62 +744,62 @@ msgid "projects"
 msgstr "المشروعات"
 
 #
-#: leadshub/settings.py:243 leadshub/settings.py:281
+#: leadshub/settings.py:247 leadshub/settings.py:285
 #: leadshub/templates/leadshub/back_office.html:4
 #: leadshub/templates/leadshub/back_office.html:10
 msgid "Back office"
 msgstr "المكتب الخلفي"
 
 #
-#: leadshub/settings.py:283
+#: leadshub/settings.py:287
 msgid "Overview"
 msgstr "نظرة عامة"
 
-#: leadshub/settings.py:284
+#: leadshub/settings.py:288
 msgid "Admin home"
 msgstr "رئيسية الإدارة"
 
-#: leadshub/settings.py:288
+#: leadshub/settings.py:292
 msgid "People and access"
 msgstr "الأشخاص والصلاحيات"
 
-#: leadshub/settings.py:291
+#: leadshub/settings.py:295
 msgid "Users"
 msgstr "المستخدمون"
 
 #
-#: leadshub/settings.py:292
+#: leadshub/settings.py:296
 msgid "Roles"
 msgstr "الأدوار"
 
 #
 #
-#: leadshub/settings.py:294
+#: leadshub/settings.py:298
 msgid "Broker offices"
 msgstr "مكاتب الوساطة"
 
 #
 #
-#: leadshub/settings.py:302
+#: leadshub/settings.py:306
 msgid "Developers"
 msgstr "المطوّرون"
 
 #
-#: leadshub/settings.py:304
+#: leadshub/settings.py:308
 msgid "Projects"
 msgstr "المشروعات"
 
 #
-#: leadshub/settings.py:306
+#: leadshub/settings.py:310
 msgid "Areas"
 msgstr "المناطق"
 
 #
-#: leadshub/settings.py:307
+#: leadshub/settings.py:311
 msgid "Unit types"
 msgstr "أنواع الوحدات"
 
-#: leadshub/settings.py:318
+#: leadshub/settings.py:322
 msgid "Ad accounts"
 msgstr "الحسابات الإعلانية"
 

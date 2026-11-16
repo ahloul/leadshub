@@ -70,6 +70,8 @@ def connect_business(
             )
         meta.check_access(business_id)
     except MetaError as error:
+        if not error.token_rejected:  # Network, outage or rate limit: not a refusal.
+            raise ConnectError(str(error)) from None
         raise ConnectError(_("Meta refused the connection: %(reason)s") % {"reason": error}) from None
 
     with transaction.atomic():

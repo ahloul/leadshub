@@ -170,7 +170,7 @@ def scrub(text: str, token: str) -> str:
     return text.replace(token, "[token]") if token else text
 
 
-@sensitive_variables("code")
+@sensitive_variables()  # All locals: the code, the app secret and the token.
 def exchange_code(code: str, redirect_uri: str) -> str:
     """Trade a Facebook Login for Business code for its system-user token (US-META-01).
 
@@ -186,14 +186,17 @@ def exchange_code(code: str, redirect_uri: str) -> str:
     }
     secrets_ = [code, settings.META_APP_SECRET or ""]
     try:
-        response = requests.get(url, params=params, timeout=10)
+        # POST, so the app secret isn't in a URL that proxies or logs record.
+        response = requests.post(url, data=params, timeout=10)
         body = response.json()
     except (requests.RequestException, ValueError):
         raise MetaError("Couldn't reach Meta; try again later.") from None
     token = body.get("access_token") if isinstance(body, dict) else None
     if response.ok and token:
         return token
-    error = body.get("error", {}) if isinstance(body, dict) else {}
+    error = body.get("error") if isinstance(body, dict) else None
+    if not isinstance(error, dict):
+        error = {}
     message = error.get("message") or "Meta refused the login code."
     text = f"{message} (Meta error {error['code']})" if error.get("code") else message
     for secret in secrets_:

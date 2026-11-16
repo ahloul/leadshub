@@ -690,19 +690,20 @@ class ExchangeCodeTests(TestCase):
         return r
 
     def test_returns_access_token_and_sends_params(self):
-        with mock.patch.object(meta_client.requests, "get", return_value=self.response(200, {"access_token": TOKEN})) as get:
+        with mock.patch.object(meta_client.requests, "post", return_value=self.response(200, {"access_token": TOKEN})) as post:
             self.assertEqual(meta_client.exchange_code("the-code", "https://x/cb/"), TOKEN)
-        args, kwargs = get.call_args
+        args, kwargs = post.call_args
         self.assertEqual(args[0], "https://graph.facebook.com/v25.0/oauth/access_token")
+        self.assertNotIn("params", kwargs)  # The secret stays out of the URL and its logs.
         self.assertEqual(
-            kwargs["params"],
+            kwargs["data"],
             {"client_id": "1", "client_secret": "app-secret-xyz", "redirect_uri": "https://x/cb/", "code": "the-code"},
         )
         self.assertTrue(kwargs["timeout"])
 
     def test_graph_error_is_scrubbed(self):
         body = {"error": {"message": "Bad code the-code for secret app-secret-xyz", "code": 100}}
-        with mock.patch.object(meta_client.requests, "get", return_value=self.response(400, body)):
+        with mock.patch.object(meta_client.requests, "post", return_value=self.response(400, body)):
             with self.assertRaises(MetaError) as caught:
                 meta_client.exchange_code("the-code", "u")
         text = str(caught.exception)
@@ -714,9 +715,20 @@ class ExchangeCodeTests(TestCase):
     def test_exchange_network_error_is_scrubbed(self):
         import requests
 
-        with mock.patch.object(meta_client.requests, "get", side_effect=requests.ConnectionError("x?code=the-code")):
+        with mock.patch.object(meta_client.requests, "post", side_effect=requests.ConnectionError("x?code=the-code")):
             with self.assertRaisesMessage(MetaError, "Couldn't reach Meta; try again later."):
                 meta_client.exchange_code("the-code", "u")
+
+    def test_unexpected_error_body_is_a_meta_error(self):
+        with mock.patch.object(meta_client.requests, "post", return_value=self.response(400, {"error": "string"})):
+            with self.assertRaisesMessage(MetaError, "Meta refused the login code."):
+                meta_client.exchange_code("the-code", "u")
+
+    def test_exchange_hides_all_locals_from_error_reports(self):
+        with mock.patch.object(meta_client.requests, "post", return_value=self.response(200, {"access_token": TOKEN})):
+            meta_client.exchange_code("the-code", "u")
+        # Django sets this on the wrapper when it runs; "__ALL__" hides the app secret too.
+        self.assertEqual(meta_client.exchange_code.sensitive_variables, "__ALL__")
 
     def test_business_for_token_reads_id_and_name(self):
         with mock.patch.object(meta_client.User, "api_get", return_value={"client_business_id": "111"}), \
@@ -845,6 +857,31 @@ class ConnectViewTests(MetaTestCase):
         self.assertContains(self.client.get(BM_URL), "already connected")
         bm.refresh_from_db()
         self.assertEqual(bm.get_token(), NEW_TOKEN)
+
+    @override_settings(META_LOGIN_REDIRECT_URI="https://app.example.com/en/admin/ad_channels/metabusinessmanager/connect/callback/")
+    def test_redirect_uri_setting_wins_behind_a_proxy(self):
+        uri = "https://app.example.com/en/admin/ad_channels/metabusinessmanager/connect/callback/"
+        self.assertEqual(self.start()["redirect_uri"], [uri])
+        self.finish()
+        self.assertEqual(self.meta.exchanged[0][1], uri)
+
+    def test_arabic_admin_gets_arabic_messages(self):
+        self.start(self.CONNECT.replace("/en/", "/ar/"))
+        response = self.finish()
+        self.assertContains(self.client.get(response["Location"]), "تم ربط")
+
+    def test_arabic_admin_gets_arabic_cancel_message(self):
+        self.start(self.CONNECT.replace("/en/", "/ar/"))
+        response = self.finish(code="", error="access_denied")
+        self.assertContains(self.client.get(response["Location"]), "أُلغي تسجيل الدخول")
+
+    def test_network_failure_is_not_called_a_refusal(self):
+        self.meta.exchange_error = MetaError("Couldn't reach Meta; try again later.")
+        self.start()
+        page = self.client.get(self.finish()["Location"])
+        self.assertContains(page, "Couldn&#x27;t reach Meta")
+        self.assertNotContains(page, "Meta refused the connection")
+        self.assertEqual(MetaBusinessManager.objects.count(), 0)
 
     def test_reconnect_unknown_bm_is_404(self):
         self.assertEqual(self.client.get(f"{self.CONNECT}?bm=999").status_code, 404)

@@ -177,6 +177,10 @@ META_APP_SECRET = os.environ.get("META_APP_SECRET") or None
 # The Facebook Login for Business configuration that hands out Business
 # Manager system-user tokens. Unset hides "Connect with Facebook".
 META_LOGIN_CONFIG_ID = os.environ.get("META_LOGIN_CONFIG_ID") or None
+# The exact callback URL registered in the Meta app. Set it behind a proxy or
+# load balancer, where the request looks like plain http; unset builds it
+# from the request (fine for http://localhost:8000).
+META_LOGIN_REDIRECT_URI = os.environ.get("META_LOGIN_REDIRECT_URI") or None
 META_API_VERSION = os.environ.get("META_API_VERSION", "v25.0")
 
 # Fernet keys that encrypt the Business Manager tokens at rest (US-META-01 #4).

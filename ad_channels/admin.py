@@ -116,6 +116,8 @@ class MetaBusinessManagerAdmin(ModelAdmin):
     def _callback_uri(self, request):
         # Meta matches redirect_uri exactly, so it is the same whatever the
         # admin's language: register only the /en/ one in the Meta app.
+        if settings.META_LOGIN_REDIRECT_URI:  # Behind a proxy the request looks like http.
+            return settings.META_LOGIN_REDIRECT_URI
         return request.build_absolute_uri(self._url("connect_callback", lang="en"))
 
     def _target(self, request, pk):
@@ -166,12 +168,20 @@ class MetaBusinessManagerAdmin(ModelAdmin):
         state = request.GET.get("state", "")
         if not pending or not state or not secrets.compare_digest(state, pending["state"]):
             raise PermissionDenied
+        # The callback always arrives on /en/ (one registered URL), so answer
+        # in the language the admin started in.
+        with translation.override(pending.get("lang") or translation.get_language()):
+            return self._finish_connect(request, pending)
+
+    @method_decorator(sensitive_variables("code"))
+    def _finish_connect(self, request, pending):
         bm = self._target(request, pending["bm"])
-        lang = pending.get("lang")
+        lang = translation.get_language()
         back = self._url("change", bm.pk, lang=lang) if bm else self._url("changelist", lang=lang)
         code = request.GET.get("code", "")
         if request.GET.get("error") or not code:
-            self.message_user(request, _("Facebook login was cancelled. Nothing was changed."), messages.WARNING)
+            # str() now: lazy text would be rendered later, outside the language override.
+            self.message_user(request, str(_("Facebook login was cancelled. Nothing was changed.")), messages.WARNING)
             return HttpResponseRedirect(back)
         try:
             connected, created = meta_sync.connect_business(
