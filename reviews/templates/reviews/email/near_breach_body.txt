@@ -1,0 +1,6 @@
+{% extends "email/base.txt" %}{% load i18n %}{% block content %}{% translate "These review tasks have an hour or less left before the 4-hour limit. Assign or decide them now:" %}
+
+{% for code, text in rows %}{{ code }}: {{ text }}
+{% endfor %}
+{% translate "Open the queue:" %}
+{{ link }}{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "email/base.txt" %}{% load i18n %}{% block content %}{% blocktranslate with office=office_name %}{{ office }} signed up for LeadsHub and confirmed its email address.{% endblocktranslate %}
+
+{% translate "Applicant:" %} {{ applicant_name }}
+{% translate "Email:" %} {{ applicant_email }}
+{% translate "Mobile:" %} {{ phone_number }}
+
+{% translate "Review it, then approve or reject it from the broker offices list:" %}
+{{ link }}{% endblock %}

@@ -1,0 +1,13 @@
+{# djust:partial #}
+{% comment %}Radio choices drawn as chips. Expects "group": [{name, value, label, selected}] and "legend".{% endcomment %}
+<fieldset>
+    <legend class="field-label">{{ legend }}</legend>
+    <div class="mt-2 flex flex-wrap gap-2">
+        {% for o in group %}
+        <label class="chip-option">
+            <input type="radio" name="{{ o.name }}" value="{{ o.value }}" class="sr-only" dj-change="validate_field"{% if o.selected %} checked{% endif %}>
+            <span dir="auto">{{ o.label }}</span>
+        </label>
+        {% endfor %}
+    </div>
+</fieldset>

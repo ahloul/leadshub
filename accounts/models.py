@@ -4,7 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, RegexValidator
 from django.db import models
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
@@ -49,6 +49,15 @@ class SpendTier(models.TextChoices):
     PLATINUM = "platinum", _("Platinum")
 
 
+class OfficeStatus(models.TextChoices):
+    """Where an office stands. Offices opened by staff start active; a
+    brokerage that signs up itself waits for staff review (ROADMAP Q6)."""
+
+    PENDING = "pending", _("Pending review")
+    ACTIVE = "active", _("Active")
+    REJECTED = "rejected", _("Rejected")
+
+
 class BrokerOffice(models.Model):
     """A brokerage organization: the tenant every client-side record belongs to."""
 
@@ -65,6 +74,13 @@ class BrokerOffice(models.Model):
     )
     feedback_score = models.PositiveSmallIntegerField(
         _("feedback score"), default=0, validators=[MaxValueValidator(100)]
+    )
+    status = models.CharField(
+        _("status"),
+        max_length=16,
+        choices=OfficeStatus.choices,
+        default=OfficeStatus.ACTIVE,
+        db_index=True,
     )
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
 
@@ -109,6 +125,61 @@ class Membership(models.Model):
 
     def __str__(self):
         return f"{self.user} @ {self.office}"
+
+
+# Digits with an optional leading +, as accounts.forms.clean_phone_number
+# leaves them: 01012345678 or +201012345678.
+phone_number_validator = RegexValidator(
+    r"^\+?[0-9]{8,15}$",
+    _("Enter a phone number of 8 to 15 digits, optionally starting with +."),
+    code="invalid_phone_number",
+)
+
+
+class OfficeRegistration(models.Model):
+    """A brokerage's own sign-up, kept for staff review (ROADMAP Q6).
+
+    The applicant becomes the office's Broker Owner when staff approve it
+    (``accounts.services.approve_registrations``); until then they have no
+    role and see only the registration status page.
+    """
+
+    office = models.OneToOneField(
+        BrokerOffice,
+        on_delete=models.CASCADE,
+        related_name="registration",
+        verbose_name=_("office"),
+    )
+    applicant = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="office_registration",
+        verbose_name=_("applicant"),
+    )
+    phone_number = models.CharField(
+        _("mobile number"), max_length=16, validators=[phone_number_validator]
+    )
+    # The emails about this sign-up go out in the language it was made in.
+    language = models.CharField(_("language"), max_length=8, choices=settings.LANGUAGES)
+    email_confirmed_at = models.DateTimeField(_("email confirmed at"), null=True, blank=True)
+    created_at = models.DateTimeField(_("signed up at"), auto_now_add=True)
+    reviewed_at = models.DateTimeField(_("reviewed at"), null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("reviewed by"),
+    )
+
+    class Meta:
+        verbose_name = _("sign-up")
+        verbose_name_plural = _("sign-ups")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return str(self.office)
 
 
 class RoleProfile(models.Model):

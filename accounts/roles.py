@@ -53,6 +53,7 @@ CAPABILITIES = [
     ("manage_creative_library", _("Manage the creative library")),
     ("manage_team", _("Invite and manage office team members")),
     ("assign_campaign_tasks", _("Assign campaign tasks to media buyers")),
+    ("manage_connected_accounts", _("Connect the office's own pages and ad accounts")),
     # Entry to each audience's pages.
     ("access_back_office", _("Open the internal back office")),
     ("access_client_portal", _("Open the broker client portal")),
@@ -108,8 +109,30 @@ SYSTEM_ROLE_AUDIENCE = {
 
 _CATALOG_ADMIN = [
     f"catalog.{action}_{model}"
-    for model in ("developer", "project", "area", "unittype")
+    for model in ("developer", "project", "area", "unittype", "audiencepreset")
     for action in ("view", "add", "change", "delete")
+]
+
+# The creative library in the admin (SRS §2.1 Content Manager, §3.2).
+_CREATIVE_LIBRARY = [
+    f"creatives.{action}_creative" for action in ("view", "add", "change", "delete")
+]
+
+# Checking the pages and ad accounts brokers connect, in the admin (SRS §2.2:
+# "Manage master data & ad accounts").
+_CONNECTED_ACCOUNTS_ADMIN = [
+    f"campaigns.{action}_connectedaccount" for action in ("view", "change")
+]
+
+# Background jobs in the admin (leadshub/admin.py): schedules, finished and
+# failed tasks, and what is waiting. Retrying a failed task needs change.
+_BACKGROUND_JOBS = [
+    "django_q.view_schedule",
+    "django_q.view_success",
+    "django_q.view_failure",
+    "django_q.change_failure",
+    "django_q.delete_failure",
+    "django_q.view_ormq",
 ]
 
 # Meta Business Managers and ad accounts (US-META-01, FR-6.10, FR-6.11).
@@ -135,7 +158,11 @@ _ROLE_ADMIN = [
     "accounts.change_user",
     *[f"accounts.{action}_roleprofile" for action in ("view", "add", "change", "delete")],
     *[f"accounts.{action}_membership" for action in ("view", "add", "change", "delete")],
+    # Onboarding a brokerage: open its office and invite its owner (ROADMAP M1).
+    # Offices are never deleted from the admin.
     "accounts.view_brokeroffice",
+    "accounts.add_brokeroffice",
+    "accounts.change_brokeroffice",
 ]
 
 # What a role of each audience may be given. Client and developer roles can
@@ -154,7 +181,10 @@ AUDIENCE_PERMISSIONS = {
             "accounts.manage_creative_library",
             *_CATALOG_ADMIN,
             *_AD_CHANNELS_ADMIN,
+            *_CREATIVE_LIBRARY,
+            *_CONNECTED_ACCOUNTS_ADMIN,
             *_ROLE_ADMIN,
+            *_BACKGROUND_JOBS,
         }
     ),
     Audience.CLIENT: frozenset(
@@ -163,6 +193,7 @@ AUDIENCE_PERMISSIONS = {
             "accounts.manage_wallet",
             "accounts.work_leads",
             "accounts.manage_team",
+            "accounts.manage_connected_accounts",
         }
     ),
     Audience.DEVELOPER: frozenset({"accounts.view_project_metrics"}),
@@ -182,14 +213,18 @@ ROLE_PERMISSIONS = {
         "accounts.manage_creative_library",
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
+        *_CREATIVE_LIBRARY,
+        *_CONNECTED_ACCOUNTS_ADMIN,
         *_AD_CHANNELS_ADMIN,
         *_ROLE_ADMIN,
+        *_BACKGROUND_JOBS,
     ],
     # Plus everything a Media Buyer has (ROLE_INCLUDES).
     Role.MEDIA_BUYING_LEAD: [
         "accounts.manage_master_data",
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
+        *_CONNECTED_ACCOUNTS_ADMIN,
         *_AD_CHANNELS_VIEW,
     ],
     Role.MEDIA_BUYER: [
@@ -199,6 +234,7 @@ ROLE_PERMISSIONS = {
     ],
     Role.CONTENT_MANAGER: [
         "accounts.manage_creative_library",
+        *_CREATIVE_LIBRARY,
     ],
     Role.FINANCE_MANAGER: [
         "accounts.view_internal_financials",
@@ -211,6 +247,8 @@ ROLE_PERMISSIONS = {
         "accounts.manage_wallet",
         "accounts.work_leads",
         "accounts.manage_team",
+        # SRS §2.1: the owner controls the office's connected social pages.
+        "accounts.manage_connected_accounts",
     ],
     Role.BROKER_TEAM_MEMBER: [
         "accounts.work_leads",

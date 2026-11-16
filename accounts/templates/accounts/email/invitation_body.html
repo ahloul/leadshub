@@ -1,0 +1,12 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with office=office_name %}You're invited to {{ office }} on LeadsHub{% endblocktranslate %}{% endblock %}
+{% block preheader %}{% blocktranslate with inviter=inviter_name office=office_name %}{{ inviter }} invited you to join {{ office }} on LeadsHub.{% endblocktranslate %}{% endblock %}
+{% block heading %}{% blocktranslate with office=office_name %}You're invited to {{ office }} on LeadsHub{% endblocktranslate %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 16px;">{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}</p>
+<p style="margin:0 0 16px;">{% blocktranslate with inviter=inviter_name office=office_name %}{{ inviter }} invited you to join {{ office }} on LeadsHub.{% endblocktranslate %} {% translate "Set a password to open your account." %}</p>
+{% translate "Set your password" as label %}{% include "email/button.html" with url=link label=label %}
+{% include "email/details.html" with rows=details %}
+<p class="lh-muted" style="margin:16px 0 0;font-size:14px;color:#64748b;">{% blocktranslate count days=valid_days %}The link works once, within {{ days }} day. If it has expired, ask the person who invited you to send a new one.{% plural %}The link works once, within {{ days }} days. If it has expired, ask the person who invited you to send a new one.{% endblocktranslate %}</p>
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}

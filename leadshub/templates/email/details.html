@@ -1,0 +1,14 @@
+{% comment %}
+A box of label and value rows. {% include "email/details.html" with rows=rows %}
+where rows is a list of (label, value) pairs built in Python (labels with
+gettext_lazy, so they render in the email's language). Each value takes
+the direction of its own text, so emails and phone numbers stay left-to-right
+in Arabic.
+{% endcomment %}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="lh-panel" style="border-collapse:separate;margin:20px 0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;" dir="{{ direction }}">
+  {% for label, value in rows %}
+  <tr>
+    <td class="lh-muted" valign="top" style="padding:{% if forloop.first %}14px{% else %}6px{% endif %} 16px {% if forloop.last %}14px{% else %}6px{% endif %};width:35%;font-size:14px;color:#64748b;text-align:{{ start }};">{{ label }}</td>
+    <td class="lh-heading" valign="top" style="padding:{% if forloop.first %}14px{% else %}6px{% endif %} 16px {% if forloop.last %}14px{% else %}6px{% endif %};font-size:14px;font-weight:600;color:#0f172a;text-align:{{ start }};word-break:break-word;"><span dir="auto">{{ value }}</span></td>
+  </tr>
+  {% endfor %}
+</table>

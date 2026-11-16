@@ -1,0 +1,19 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Confirm your email address" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-sm sm:mt-10">
+    <div class="card">
+        {% if confirmed %}
+        <h1 class="text-xl font-bold">{% translate "Email address confirmed" %}</h1>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% translate "Thank you. Our team is reviewing your brokerage and will email you when your account opens." %}</p>
+        {% else %}
+        <h1 class="text-xl font-bold">{% translate "This link no longer works" %}</h1>
+        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% translate "It may have been used already or expired. Sign in to see where your registration stands or to get a new link." %}</p>
+        {% endif %}
+        <a href="{% url 'home' %}" class="btn-secondary mt-6">{% if user.is_authenticated %}{% translate "See your registration" %}{% else %}{% translate "Go to sign in" %}{% endif %}</a>
+    </div>
+</div>
+{% endblock %}

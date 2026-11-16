@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with office=office_name %}New brokerage to review: {{ office }}{% endblocktranslate %}{% endautoescape %}

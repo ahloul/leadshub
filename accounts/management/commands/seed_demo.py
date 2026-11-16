@@ -1,4 +1,6 @@
-"""Create a demo broker office and one login per role for local/Docker testing.
+"""Create demo data for local/Docker testing: an office, one login per role,
+a brokerage that signed itself up and waits for review, a small catalog, a
+few creatives and two campaigns.
 
 Safe to run repeatedly. Never run against production data.
 """
@@ -6,15 +8,24 @@ Safe to run repeatedly. Never run against production data.
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
-from accounts.models import BrokerOffice, Membership, User
+from accounts.models import BrokerOffice, Membership, OfficeRegistration, OfficeStatus, User
 from accounts.roles import Role
+from campaigns.demo import seed_campaigns
+from campaigns.models import Campaign
+from catalog.demo import seed_catalog
+from creatives.demo import seed_library
+from reviews.demo import seed_reviews
 
 DEMO_PASSWORD = "demo-pass-123"
 
 
 class Command(BaseCommand):
-    help = "Create the Nour Realty demo office and demo logins for the broker and internal roles."
+    help = (
+        "Create the demo office, logins for every role, a small catalog, a few creatives "
+        "and two campaigns."
+    )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -27,14 +38,17 @@ class Command(BaseCommand):
                 "feedback_score": 82,
             },
         )
+        brokers = {}
         for username, first, last, roles in [
             ("demo", "Nour", "Hassan", [Role.BROKER_OWNER]),
             ("sara", "Sara", "Adel", [Role.BROKER_TEAM_MEMBER]),
         ]:
             user = self.demo_user(username, first, last, roles)
             Membership.objects.get_or_create(user=user, defaults={"office": office})
+            brokers[username] = user
 
         # Internal staff (no office). "lead" is a Media Buyer promoted to team leader.
+        staff = {}
         for username, first, last, roles in [
             ("platform", "Omar", "Fathy", [Role.PLATFORM_ADMIN]),
             ("lead", "Karim", "Saleh", [Role.MEDIA_BUYER, Role.MEDIA_BUYING_LEAD]),
@@ -42,13 +56,36 @@ class Command(BaseCommand):
             ("content", "Laila", "Nabil", [Role.CONTENT_MANAGER]),
             ("finance", "Hany", "Mostafa", [Role.FINANCE_MANAGER]),
         ]:
-            self.demo_user(username, first, last, roles)
+            staff[username] = self.demo_user(username, first, last, roles)
+
+        # A self-signed-up brokerage with its email confirmed, waiting for a
+        # Platform Admin (admin > Broker offices > Sign-ups to review).
+        applicant = self.demo_user("applicant", "Mona", "Said", [])
+        if not hasattr(applicant, "office_registration"):
+            pending = BrokerOffice.objects.create(
+                company_name="Delta Brokers", status=OfficeStatus.PENDING
+            )
+            Membership.objects.create(user=applicant, office=pending)
+            OfficeRegistration.objects.create(
+                office=pending,
+                applicant=applicant,
+                phone_number="01012345678",
+                language="en",
+                email_confirmed_at=timezone.now(),
+            )
+
+        projects = seed_catalog()
+        seed_library(projects)
+        seed_campaigns(office, brokers["demo"], projects)
+        # The review queue (ROADMAP M4): the tasks behind each campaign's status.
+        seed_reviews(Campaign.objects.filter(office=office), staff["buyer"])
 
         self.stdout.write(
             self.style.SUCCESS(
                 "Demo ready. Password for every demo login: "
                 f"{DEMO_PASSWORD}\n"
                 "  brokers:  demo (owner), sara (team member)\n"
+                "  sign-up waiting for review: applicant\n"
                 "  internal: platform, lead, buyer, content, finance"
             )
         )

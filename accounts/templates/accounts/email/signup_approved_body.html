@@ -1,0 +1,11 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with office=office_name %}{{ office }} is ready on LeadsHub{% endblocktranslate %}{% endblock %}
+{% block preheader %}{% blocktranslate with office=office_name %}Good news: we approved {{ office }}. Your LeadsHub account is open.{% endblocktranslate %}{% endblock %}
+{% block heading %}{% translate "Your account is open" %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 16px;">{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}</p>
+<p style="margin:0 0 16px;">{% blocktranslate with office=office_name %}Good news: we approved {{ office }}. Your LeadsHub account is open.{% endblocktranslate %}</p>
+{% include "email/details.html" with rows=details %}
+{% translate "Sign in to LeadsHub" as label %}{% include "email/button.html" with url=link label=label %}
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}

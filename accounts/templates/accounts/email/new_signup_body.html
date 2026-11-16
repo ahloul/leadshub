@@ -1,0 +1,12 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with office=office_name %}New brokerage to review: {{ office }}{% endblocktranslate %}{% endblock %}
+{% block preheader %}{% blocktranslate with office=office_name %}{{ office }} signed up for LeadsHub and confirmed its email address.{% endblocktranslate %}{% endblock %}
+{% block heading %}{% translate "New brokerage to review" %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 4px;">{% blocktranslate with office=office_name %}{{ office }} signed up for LeadsHub and confirmed its email address.{% endblocktranslate %}</p>
+{% include "email/details.html" with rows=details %}
+<p style="margin:0;">{% translate "Review it, then approve or reject it from the broker offices list." %}</p>
+{% translate "Review the sign-up" as label %}{% include "email/button.html" with url=link label=label %}
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}
+{% block footer %}<p style="margin:0 0 8px;">{% translate "You get this email because you can approve brokerages on LeadsHub." %}</p>{% endblock %}

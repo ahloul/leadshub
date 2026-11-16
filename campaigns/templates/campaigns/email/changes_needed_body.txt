@@ -1,0 +1,6 @@
+{% extends "email/base.txt" %}{% load i18n %}{% block content %}{% blocktranslate with code=code target=target %}Our team reviewed campaign {{ code }} ({{ target }}) and needs a few changes before it can go live:{% endblocktranslate %}
+
+{{ reasons }}
+
+{% translate "Make the changes, then press Run again:" %}
+{{ link }}{% endblock %}

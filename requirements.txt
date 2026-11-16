@@ -1,12 +1,34 @@
-django>=5.1
-djust>=1.2.8
-channels>=4.0
-# Meta Marketing API SDK (ad_channels/meta). Major version tracks the Graph API version.
-facebook-business>=25.0,<27
-uvicorn[standard]>=0.30
+# Pinned to the versions the tests run on: CI and the Docker image install
+# from this file, and an unpinned "djust>=1.2.8" or "django>=5.1" pulls
+# releases the app hasn't been tested with (djust 1.3 renders forms
+# differently; Django 6 is a new major version). Upgrade on purpose: change
+# the pin, run `make test`, and read AGENTS.md on djust upgrades.
+Django==5.2.19
+djust==1.2.8
+channels==4.3.2
+uvicorn[standard]==0.54.0
+# channels.testing (the WebSocket tests) imports daphne.
+daphne==4.2.3
 django-axes>=8.3.1,<9
 psycopg[binary]>=3.3.6,<3.4
 # Tailwind-based admin theme. Pinned: releases must be two weeks old.
 django-unfold==0.110.0
-# Fernet encryption of Meta Business Manager tokens (US-META-01 #4).
+# Uploads on S3-compatible storage (S3 in production, RustFS locally; see
+# docker-compose.yml). Pinned: releases must be two weeks old.
+django-storages[s3]==1.14.6
+boto3==1.43.121
+botocore==1.43.121
+# Shared state for running on several machines, used when REDIS_URL is set
+# (settings.py): the channel layer and djust's live page state. Pinned:
+# releases must be two weeks old.
+channels-redis==4.3.0
+redis==8.1.0
+# Background work: the task queue (emails) and the scheduled jobs (review
+# SLA escalation), queued in PostgreSQL (Q_CLUSTER in settings.py; run with
+# `manage.py qcluster`). croniter enables cron schedules. Pinned: releases
+# must be two weeks old.
+django-q2==1.11.1
+croniter==6.2.4
+# Meta Marketing API SDK (ad_channels/meta). Major version tracks the Graph API version.
+facebook-business>=25.0,<27
 cryptography>=45,<47

@@ -12,3 +12,7 @@ static/css/output.css
 .playwright-mcp
 .DS_Store
 *.log
+media
+db.sqlite3*
+fly.toml
+.claude

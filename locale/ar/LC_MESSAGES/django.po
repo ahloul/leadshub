@@ -842,6 +842,2780 @@ msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
 msgid "Go to my home page"
 msgstr "الذهاب إلى صفحتي الرئيسية"
 
+#: accounts/admin.py:96
+msgid "Send a new invitation link"
+msgstr "إرسال رابط دعوة جديد"
+
+#: accounts/admin.py:103
+#, python-format
+msgid ""
+"Sent %(count)d invitation. People who already set a password were skipped."
+msgid_plural ""
+"Sent %(count)d invitations. People who already set a password were skipped."
+msgstr[0] "لم تُرسل أي دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[1] "أُرسلت دعوة واحدة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[2] "أُرسلت دعوتان. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[3] "أُرسلت %(count)d دعوات. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[4] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+msgstr[5] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+
+#: accounts/admin.py:345
+msgid "email confirmed"
+msgstr "تأكيد البريد الإلكتروني"
+
+#: accounts/admin.py:352
+msgid "Approve selected sign-ups"
+msgstr "الموافقة على التسجيلات المحددة"
+
+#: accounts/admin.py:358
+#, python-format
+msgid "Approved %(count)d office; its owner was emailed."
+msgid_plural "Approved %(count)d offices; their owners were emailed."
+msgstr[0] "لم تتم الموافقة على أي مكتب."
+msgstr[1] "تمت الموافقة على مكتب واحد، وأُرسل بريد إلى مالكه."
+msgstr[2] "تمت الموافقة على مكتبين، وأُرسل بريد إلى مالكيهما."
+msgstr[3] "تمت الموافقة على %(count)d مكاتب، وأُرسل بريد إلى مالكيها."
+msgstr[4] "تمت الموافقة على %(count)d مكتبًا، وأُرسل بريد إلى مالكيها."
+msgstr[5] "تمت الموافقة على %(count)d مكتب، وأُرسل بريد إلى مالكيها."
+
+#: accounts/admin.py:369
+#, python-format
+msgid ""
+"Skipped %(count)d office: already open, opened by staff, or its email isn't "
+"confirmed yet."
+msgid_plural ""
+"Skipped %(count)d offices: already open, opened by staff, or their email "
+"isn't confirmed yet."
+msgstr[0] "لم يُتخطَّ أي مكتب."
+msgstr[1] ""
+"تم تخطي مكتب واحد: مفعّل بالفعل، أو فتحه الفريق، أو لم يُؤكَّد بريده بعد."
+msgstr[2] ""
+"تم تخطي مكتبين: مفعّلان بالفعل، أو فتحهما الفريق، أو لم يُؤكَّد بريدهما بعد."
+msgstr[3] ""
+"تم تخطي %(count)d مكاتب: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها "
+"بعد."
+msgstr[4] ""
+"تم تخطي %(count)d مكتبًا: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها "
+"بعد."
+msgstr[5] ""
+"تم تخطي %(count)d مكتب: مفعّلة بالفعل، أو فتحها الفريق، أو لم يُؤكَّد بريدها بعد."
+
+#: accounts/admin.py:377
+msgid "Reject selected sign-ups"
+msgstr "رفض التسجيلات المحددة"
+
+#: accounts/admin.py:383
+#, python-format
+msgid "Rejected %(count)d sign-up."
+msgid_plural "Rejected %(count)d sign-ups."
+msgstr[0] "لم يُرفض أي طلب."
+msgstr[1] "تم رفض طلب تسجيل واحد."
+msgstr[2] "تم رفض طلبَي تسجيل."
+msgstr[3] "تم رفض %(count)d طلبات تسجيل."
+msgstr[4] "تم رفض %(count)d طلب تسجيل."
+msgstr[5] "تم رفض %(count)d طلب تسجيل."
+
+#: accounts/admin.py:394
+#, python-format
+msgid "Skipped %(count)d office that isn't waiting for review."
+msgid_plural "Skipped %(count)d offices that aren't waiting for review."
+msgstr[0] "لم يُتخطَّ أي مكتب."
+msgstr[1] "تم تخطي مكتب واحد لا ينتظر المراجعة."
+msgstr[2] "تم تخطي مكتبين لا ينتظران المراجعة."
+msgstr[3] "تم تخطي %(count)d مكاتب لا تنتظر المراجعة."
+msgstr[4] "تم تخطي %(count)d مكتبًا لا ينتظر المراجعة."
+msgstr[5] "تم تخطي %(count)d مكتب لا ينتظر المراجعة."
+
+#: accounts/admin.py:403
+msgid "Owner"
+msgstr "المالك"
+
+#: accounts/forms.py:37
+msgid ""
+"This address can't be a sign-in name. Use one of up to 150 characters with "
+"only letters, digits and @ . + - _"
+msgstr ""
+"لا يمكن استخدام هذا العنوان اسمًا لتسجيل الدخول. استخدم عنوانًا لا يزيد على "
+"150 حرفًا ولا يحتوي إلا على الحروف والأرقام والرموز ‎@ . + - _"
+
+#: accounts/forms.py:44
+msgid "This email address already has a LeadsHub account."
+msgstr "لهذا البريد الإلكتروني حساب في LeadsHub بالفعل."
+
+#: accounts/forms.py:72
+msgid "Owner's first name"
+msgstr "الاسم الأول للمالك"
+
+#: accounts/forms.py:75
+msgid "Owner's last name"
+msgstr "الاسم الأخير للمالك"
+
+#: accounts/forms.py:78
+msgid "Owner's email address"
+msgstr "البريد الإلكتروني للمالك"
+
+#: accounts/forms.py:80
+msgid ""
+"The owner gets an email with a link to set their password. They sign in with "
+"this address."
+msgstr ""
+"يصل إلى المالك بريد إلكتروني فيه رابط لتعيين كلمة المرور، ويسجّل الدخول بهذا "
+"العنوان."
+
+#: accounts/forms.py:115
+msgid "Company name"
+msgstr "اسم الشركة"
+
+#: accounts/forms.py:118
+msgid "Your first name"
+msgstr "اسمك الأول"
+
+#: accounts/forms.py:123
+msgid "Your last name"
+msgstr "اسم العائلة"
+
+#: accounts/forms.py:126
+msgid "Work email"
+msgstr "البريد الإلكتروني للعمل"
+
+#: accounts/forms.py:128
+msgid "You sign in with this address. We send a link to confirm it."
+msgstr "تسجّل الدخول بهذا العنوان، وسنرسل إليه رابطًا لتأكيده."
+
+#: accounts/forms.py:132 accounts/services.py:314
+msgid "Mobile number"
+msgstr "رقم الموبايل"
+
+#: accounts/forms.py:134
+msgid "For example 01012345678."
+msgstr "مثال: 01012345678"
+
+#: accounts/forms.py:140
+msgid "Password"
+msgstr "كلمة المرور"
+
+#: accounts/forms.py:145
+msgid "Password again"
+msgstr "تأكيد كلمة المرور"
+
+#: accounts/forms.py:167
+msgid "The two passwords don't match."
+msgstr "كلمتا المرور غير متطابقتين."
+
+#: accounts/models.py:56
+msgid "Pending review"
+msgstr "قيد المراجعة"
+
+#: accounts/models.py:58
+msgid "Rejected"
+msgstr "مرفوض"
+
+#: accounts/models.py:79 campaigns/models.py:187 campaigns/models.py:255
+#: creatives/admin.py:65 creatives/models.py:146 reviews/models.py:58
+msgid "status"
+msgstr "الحالة"
+
+#: accounts/models.py:134
+msgid "Enter a phone number of 8 to 15 digits, optionally starting with +."
+msgstr "أدخل رقم هاتف من 8 إلى 15 رقمًا، ويمكن أن يبدأ بعلامة +."
+
+#: accounts/models.py:157
+msgid "applicant"
+msgstr "مقدّم الطلب"
+
+#
+#: accounts/models.py:160
+msgid "mobile number"
+msgstr "رقم الموبايل"
+
+#: accounts/models.py:163 creatives/models.py:98
+msgid "language"
+msgstr "اللغة"
+
+#: accounts/models.py:164
+msgid "email confirmed at"
+msgstr "تاريخ تأكيد البريد الإلكتروني"
+
+#: accounts/models.py:165
+msgid "signed up at"
+msgstr "تاريخ التسجيل"
+
+#: accounts/models.py:166
+msgid "reviewed at"
+msgstr "تاريخ المراجعة"
+
+#: accounts/models.py:173
+msgid "reviewed by"
+msgstr "راجعه"
+
+#: accounts/models.py:177
+msgid "sign-up"
+msgstr "طلب تسجيل"
+
+#: accounts/models.py:178
+msgid "sign-ups"
+msgstr "طلبات التسجيل"
+
+#: accounts/roles.py:56
+msgid "Connect the office's own pages and ad accounts"
+msgstr "ربط صفحات المكتب وحساباته الإعلانية"
+
+#: accounts/services.py:118 accounts/services.py:358
+msgid "Sign-in name"
+msgstr "اسم تسجيل الدخول"
+
+#: accounts/services.py:142
+#, python-format
+msgid "%(name)s has already accepted the invitation."
+msgstr "قبِل %(name)s الدعوة بالفعل."
+
+#: accounts/services.py:246
+msgid "Your email address is already confirmed."
+msgstr "بريدك الإلكتروني مؤكَّد بالفعل."
+
+#: accounts/services.py:312
+msgid "Applicant"
+msgstr "مقدّم الطلب"
+
+#: accounts/services.py:313
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:2
+#: accounts/templates/accounts/email/confirm_email_body.html:4
+#: accounts/templates/registration/confirm_email.html:4
+#: accounts/templates/registration/registration_status.html:22
+msgid "Confirm your email address"
+msgstr "أكّد بريدك الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:3
+#, python-format
+msgid "One step left to register %(office)s on LeadsHub."
+msgstr "خطوة واحدة متبقية لتسجيل %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:6
+#: accounts/templates/accounts/email/confirm_email_body.txt:1
+#: accounts/templates/accounts/email/invitation_body.html:6
+#: accounts/templates/accounts/email/invitation_body.txt:1
+#: accounts/templates/accounts/email/signup_approved_body.html:6
+#: accounts/templates/accounts/email/signup_approved_body.txt:1
+#: accounts/templates/accounts/email/signup_rejected_body.html:6
+#: accounts/templates/accounts/email/signup_rejected_body.txt:1
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "مرحبًا %(name)s،"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:6
+#: accounts/templates/accounts/email/confirm_email_body.txt:1
+#: accounts/templates/accounts/email/invitation_body.html:6
+#: accounts/templates/accounts/email/invitation_body.txt:1
+#: accounts/templates/accounts/email/signup_approved_body.html:6
+#: accounts/templates/accounts/email/signup_approved_body.txt:1
+#: accounts/templates/accounts/email/signup_rejected_body.html:6
+#: accounts/templates/accounts/email/signup_rejected_body.txt:1
+msgid "Hello,"
+msgstr "مرحبًا،"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:7
+#: accounts/templates/accounts/email/confirm_email_body.txt:3
+#, python-format
+msgid "Thank you for registering %(office)s on LeadsHub."
+msgstr "شكرًا لتسجيل %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:7
+msgid "Confirm your email address so our team can review your brokerage."
+msgstr "أكّد بريدك الإلكتروني حتى يبدأ فريقنا مراجعة بيانات شركتك."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:8
+msgid "Confirm email address"
+msgstr "تأكيد البريد الإلكتروني"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:12
+msgid "What happens next"
+msgstr "الخطوة التالية"
+
+#: accounts/templates/accounts/email/confirm_email_body.html:13
+msgid ""
+"Once your email is confirmed, our team reviews your brokerage and emails you "
+"when your account opens."
+msgstr ""
+"بعد تأكيد بريدك الإلكتروني، يراجع فريقنا بيانات شركتك ويراسلك عند تفعيل "
+"حسابك."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:17
+#: accounts/templates/accounts/email/confirm_email_body.txt:8
+#, python-format
+msgid ""
+"The link works within %(days)s day. If it has expired, sign in to LeadsHub "
+"and ask for a new one."
+msgid_plural ""
+"The link works within %(days)s days. If it has expired, sign in to LeadsHub "
+"and ask for a new one."
+msgstr[0] ""
+"يعمل الرابط خلال اليوم نفسه. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[1] ""
+"يعمل الرابط خلال يوم واحد. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub واطلب "
+"رابطًا جديدًا."
+msgstr[2] ""
+"يعمل الرابط خلال يومين. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub واطلب "
+"رابطًا جديدًا."
+msgstr[3] ""
+"يعمل الرابط خلال %(days)s أيام. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[4] ""
+"يعمل الرابط خلال %(days)s يومًا. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+msgstr[5] ""
+"يعمل الرابط خلال %(days)s يوم. إذا انتهت صلاحيته، فسجّل الدخول إلى LeadsHub "
+"واطلب رابطًا جديدًا."
+
+#: accounts/templates/accounts/email/confirm_email_body.html:20
+#: accounts/templates/accounts/email/confirm_email_body.txt:11
+msgid "If you didn't register, you can ignore this email."
+msgstr "إذا لم تكن أنت من سجّل، فتجاهل هذه الرسالة."
+
+#: accounts/templates/accounts/email/confirm_email_body.txt:5
+msgid "Confirm your email address with this link:"
+msgstr "أكّد بريدك الإلكتروني من هذا الرابط:"
+
+#: accounts/templates/accounts/email/confirm_email_body.txt:9
+msgid ""
+"After that, our team reviews your brokerage and emails you when your account "
+"opens."
+msgstr "بعد ذلك يراجع فريقنا بيانات شركتك ويراسلك عند تفعيل حسابك."
+
+#: accounts/templates/accounts/email/confirm_email_subject.txt:1
+msgid "Confirm your email address for LeadsHub"
+msgstr "تأكيد بريدك الإلكتروني على LeadsHub"
+
+#: accounts/templates/accounts/email/invitation_body.html:2
+#: accounts/templates/accounts/email/invitation_body.html:4
+#: accounts/templates/accounts/email/invitation_subject.txt:1
+#, python-format
+msgid "You're invited to %(office)s on LeadsHub"
+msgstr "دعوة للانضمام إلى %(office)s على LeadsHub"
+
+#: accounts/templates/accounts/email/invitation_body.html:3
+#: accounts/templates/accounts/email/invitation_body.html:7
+#: accounts/templates/accounts/email/invitation_body.txt:3
+#, python-format
+msgid "%(inviter)s invited you to join %(office)s on LeadsHub."
+msgstr "دعاك %(inviter)s للانضمام إلى %(office)s على LeadsHub."
+
+#: accounts/templates/accounts/email/invitation_body.html:7
+msgid "Set a password to open your account."
+msgstr "عيّن كلمة مرور لتفتح حسابك."
+
+#: accounts/templates/accounts/email/invitation_body.html:8
+#: accounts/templates/registration/accept_invitation.html:4
+#: accounts/templates/registration/accept_invitation.html:10
+msgid "Set your password"
+msgstr "عيّن كلمة المرور"
+
+#: accounts/templates/accounts/email/invitation_body.html:10
+#: accounts/templates/accounts/email/invitation_body.txt:9
+#, python-format
+msgid ""
+"The link works once, within %(days)s day. If it has expired, ask the person "
+"who invited you to send a new one."
+msgid_plural ""
+"The link works once, within %(days)s days. If it has expired, ask the person "
+"who invited you to send a new one."
+msgstr[0] ""
+"يعمل الرابط مرة واحدة خلال اليوم نفسه. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[1] ""
+"يعمل الرابط مرة واحدة خلال يوم واحد. إذا انتهت صلاحيته، فاطلب من الشخص الذي "
+"دعاك أن يرسل رابطًا جديدًا."
+msgstr[2] ""
+"يعمل الرابط مرة واحدة خلال يومين. إذا انتهت صلاحيته، فاطلب من الشخص الذي "
+"دعاك أن يرسل رابطًا جديدًا."
+msgstr[3] ""
+"يعمل الرابط مرة واحدة خلال %(days)s أيام. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[4] ""
+"يعمل الرابط مرة واحدة خلال %(days)s يومًا. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+msgstr[5] ""
+"يعمل الرابط مرة واحدة خلال %(days)s يوم. إذا انتهت صلاحيته، فاطلب من الشخص "
+"الذي دعاك أن يرسل رابطًا جديدًا."
+
+#: accounts/templates/accounts/email/invitation_body.txt:5
+msgid "Set your password with this link:"
+msgstr "عيّن كلمة المرور من هذا الرابط:"
+
+#: accounts/templates/accounts/email/invitation_body.txt:8
+#: accounts/templates/accounts/email/signup_approved_body.txt:8
+#, python-format
+msgid "Your sign-in name is %(name)s."
+msgstr "اسم تسجيل الدخول الخاص بك هو %(name)s."
+
+#: accounts/templates/accounts/email/new_signup_body.html:2
+#: accounts/templates/accounts/email/new_signup_subject.txt:1
+#, python-format
+msgid "New brokerage to review: %(office)s"
+msgstr "شركة وساطة جديدة للمراجعة: %(office)s"
+
+#: accounts/templates/accounts/email/new_signup_body.html:3
+#: accounts/templates/accounts/email/new_signup_body.html:6
+#: accounts/templates/accounts/email/new_signup_body.txt:1
+#, python-format
+msgid "%(office)s signed up for LeadsHub and confirmed its email address."
+msgstr "سجّلت %(office)s في LeadsHub وأكّدت بريدها الإلكتروني."
+
+#: accounts/templates/accounts/email/new_signup_body.html:4
+msgid "New brokerage to review"
+msgstr "شركة وساطة جديدة للمراجعة"
+
+#: accounts/templates/accounts/email/new_signup_body.html:8
+msgid "Review it, then approve or reject it from the broker offices list."
+msgstr "راجِع الطلب، ثم وافق عليه أو ارفضه من قائمة مكاتب الوساطة."
+
+#: accounts/templates/accounts/email/new_signup_body.html:9
+msgid "Review the sign-up"
+msgstr "مراجعة طلب التسجيل"
+
+#: accounts/templates/accounts/email/new_signup_body.html:12
+msgid "You get this email because you can approve brokerages on LeadsHub."
+msgstr "وصلتك هذه الرسالة لأنك تستطيع الموافقة على شركات الوساطة في LeadsHub."
+
+#: accounts/templates/accounts/email/new_signup_body.txt:3
+msgid "Applicant:"
+msgstr "مقدّم الطلب:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:4
+msgid "Email:"
+msgstr "البريد الإلكتروني:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:5
+msgid "Mobile:"
+msgstr "الموبايل:"
+
+#: accounts/templates/accounts/email/new_signup_body.txt:7
+msgid "Review it, then approve or reject it from the broker offices list:"
+msgstr "راجِع الطلب، ثم وافق عليه أو ارفضه من قائمة مكاتب الوساطة:"
+
+#: accounts/templates/accounts/email/signup_approved_body.html:2
+#: accounts/templates/accounts/email/signup_approved_subject.txt:1
+#, python-format
+msgid "%(office)s is ready on LeadsHub"
+msgstr "%(office)s جاهزة على LeadsHub"
+
+#: accounts/templates/accounts/email/signup_approved_body.html:3
+#: accounts/templates/accounts/email/signup_approved_body.html:7
+#: accounts/templates/accounts/email/signup_approved_body.txt:3
+#, python-format
+msgid "Good news: we approved %(office)s. Your LeadsHub account is open."
+msgstr "أخبار سارة: وافقنا على %(office)s، وحسابك على LeadsHub مفعّل الآن."
+
+#: accounts/templates/accounts/email/signup_approved_body.html:4
+msgid "Your account is open"
+msgstr "تم فتح حسابك"
+
+#: accounts/templates/accounts/email/signup_approved_body.txt:5
+msgid "Sign in here:"
+msgstr "سجّل الدخول من هنا:"
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:2
+#: accounts/templates/accounts/email/signup_rejected_body.html:4
+#: accounts/templates/accounts/email/signup_rejected_subject.txt:1
+#, python-format
+msgid "Your LeadsHub registration for %(office)s"
+msgstr "طلب تسجيل %(office)s على LeadsHub"
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:3
+msgid "An update on your LeadsHub registration."
+msgstr "تحديث بشأن طلب تسجيلك على LeadsHub."
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:7
+#: accounts/templates/accounts/email/signup_rejected_body.txt:3
+#, python-format
+msgid ""
+"Thank you for registering %(office)s. Our team reviewed it and can't open an "
+"account for it at the moment."
+msgstr ""
+"شكرًا لتسجيل %(office)s. راجع فريقنا الطلب ولا يمكنه تفعيل حساب لها في الوقت "
+"الحالي."
+
+#: accounts/templates/accounts/email/signup_rejected_body.html:8
+#: accounts/templates/accounts/email/signup_rejected_body.txt:5
+msgid "If you think this is a mistake, please contact LeadsHub support."
+msgstr "إذا كنت ترى أن هذا خطأ، فتواصل مع دعم LeadsHub."
+
+#: accounts/templates/registration/accept_invitation.html:12
+msgid "Your sign-in name"
+msgstr "اسم تسجيل الدخول"
+
+#: accounts/templates/registration/accept_invitation.html:40
+msgid "Set password and sign in"
+msgstr "تعيين كلمة المرور وتسجيل الدخول"
+
+#: accounts/templates/registration/accept_invitation.html:43
+#: accounts/templates/registration/confirm_email.html:13
+msgid "This link no longer works"
+msgstr "هذا الرابط لم يعد يعمل"
+
+#: accounts/templates/registration/accept_invitation.html:44
+msgid ""
+"An invitation link works once and only for a few days. Ask the person who "
+"invited you to send a new one."
+msgstr ""
+"يعمل رابط الدعوة مرة واحدة ولبضعة أيام فقط. اطلب من الشخص الذي دعاك أن يرسل "
+"رابطًا جديدًا."
+
+#: accounts/templates/registration/accept_invitation.html:45
+#: accounts/templates/registration/confirm_email.html:16
+msgid "Go to sign in"
+msgstr "الذهاب إلى تسجيل الدخول"
+
+#: accounts/templates/registration/confirm_email.html:10
+#: accounts/templates/registration/registration_status.html:18
+msgid "Email address confirmed"
+msgstr "تم تأكيد البريد الإلكتروني"
+
+#: accounts/templates/registration/confirm_email.html:11
+msgid ""
+"Thank you. Our team is reviewing your brokerage and will email you when your "
+"account opens."
+msgstr "شكرًا لك. يراجع فريقنا بيانات شركتك وسيراسلك عند تفعيل حسابك."
+
+#: accounts/templates/registration/confirm_email.html:14
+msgid ""
+"It may have been used already or expired. Sign in to see where your "
+"registration stands or to get a new link."
+msgstr ""
+"ربما استُخدم الرابط من قبل أو انتهت صلاحيته. سجّل الدخول لمعرفة حالة طلبك أو "
+"للحصول على رابط جديد."
+
+#: accounts/templates/registration/confirm_email.html:16
+msgid "See your registration"
+msgstr "عرض حالة طلبك"
+
+#: accounts/templates/registration/login.html:34
+msgid "New to LeadsHub?"
+msgstr "جديد على LeadsHub؟"
+
+#: accounts/templates/registration/login.html:35
+#: accounts/templates/registration/register.html:4
+#: accounts/templates/registration/register.html:9
+msgid "Register your brokerage"
+msgstr "سجّل شركتك"
+
+#: accounts/templates/registration/register.html:10
+msgid ""
+"Our team reviews every new brokerage before its account opens. We email you "
+"as soon as it does."
+msgstr ""
+"يراجع فريقنا كل شركة وساطة جديدة قبل تفعيل حسابها، وسنراسلك فور تفعيله."
+
+#: accounts/templates/registration/register.html:37
+msgid "Register"
+msgstr "تسجيل"
+
+#: accounts/templates/registration/register.html:41
+msgid "Already have an account?"
+msgstr "لديك حساب بالفعل؟"
+
+#: accounts/templates/registration/registration_status.html:4
+msgid "Your registration"
+msgstr "طلب التسجيل"
+
+#: accounts/templates/registration/registration_status.html:11
+msgid "We couldn't approve this registration"
+msgstr "تعذّرت الموافقة على هذا الطلب"
+
+#: accounts/templates/registration/registration_status.html:12
+msgid ""
+"Our team reviewed your brokerage and can't open an account for it at the "
+"moment. If you think this is a mistake, please contact LeadsHub support."
+msgstr ""
+"راجع فريقنا بيانات شركتك ولا يمكنه تفعيل حساب لها في الوقت الحالي. إذا كنت "
+"ترى أن هذا خطأ، فتواصل مع دعم LeadsHub."
+
+#: accounts/templates/registration/registration_status.html:14
+msgid "Your registration is being reviewed"
+msgstr "طلبك قيد المراجعة"
+
+#: accounts/templates/registration/registration_status.html:15
+msgid ""
+"Thank you. Our team is checking your details and will email you when your "
+"account opens. You can close this page."
+msgstr ""
+"شكرًا لك. يراجع فريقنا بياناتك وسيراسلك عند تفعيل حسابك. يمكنك إغلاق هذه "
+"الصفحة."
+
+#: accounts/templates/registration/registration_status.html:17
+msgid "Brokerage registered"
+msgstr "تم تسجيل الشركة"
+
+#: accounts/templates/registration/registration_status.html:19
+msgid "Review by our team"
+msgstr "مراجعة فريقنا"
+
+#: accounts/templates/registration/registration_status.html:24
+msgid "We sent a link to"
+msgstr "أرسلنا رابطًا إلى"
+
+#: accounts/templates/registration/registration_status.html:25
+msgid ""
+"Open it to confirm your address. Our team starts reviewing your brokerage "
+"after that."
+msgstr "افتحه لتأكيد بريدك الإلكتروني، وبعدها يبدأ فريقنا مراجعة بيانات شركتك."
+
+#: accounts/templates/registration/registration_status.html:28
+msgid "We sent a new link. Earlier links still work until they expire."
+msgstr "أرسلنا رابطًا جديدًا. تظل الروابط السابقة صالحة حتى تنتهي صلاحيتها."
+
+#: accounts/templates/registration/registration_status.html:32
+msgid "Send the link again"
+msgstr "إرسال الرابط مرة أخرى"
+
+#: campaigns/admin.py:33
+msgid "Mark as verified"
+msgstr "تأكيد التحقق"
+
+#: campaigns/admin.py:40
+#, python-format
+msgid "%(count)d account marked as verified."
+msgid_plural "%(count)d accounts marked as verified."
+msgstr[0] "لم يُتحقق من أي حساب."
+msgstr[1] "تم التحقق من حساب واحد."
+msgstr[2] "تم التحقق من حسابين."
+msgstr[3] "تم التحقق من %(count)d حسابات."
+msgstr[4] "تم التحقق من %(count)d حسابًا."
+msgstr[5] "تم التحقق من %(count)d حساب."
+
+#: campaigns/apps.py:8 campaigns/templates/campaigns/list.html:4
+#: campaigns/templates/campaigns/list.html:14 leadshub/navigation.py:47
+#: leadshub/navigation.py:74
+msgid "Campaigns"
+msgstr "الحملات"
+
+#: campaigns/forms.py:41
+msgid "Where the ads appear"
+msgstr "أين تظهر الإعلانات"
+
+#: campaigns/forms.py:54
+msgid "Any developer"
+msgstr "أي مطور"
+
+#: campaigns/forms.py:86 campaigns/models.py:470
+msgid "The platform dark page runs on Meta only."
+msgstr "صفحة المنصة الداخلية تعمل على ميتا فقط."
+
+#: campaigns/forms.py:88
+msgid "This account is for the other channel."
+msgstr "هذا الحساب خاص بالقناة الأخرى."
+
+#: campaigns/models.py:33 creatives/models.py:48
+msgid "Draft"
+msgstr "مسودة"
+
+#: campaigns/models.py:34
+msgid "AI Building"
+msgstr "قيد الإعداد بالذكاء الاصطناعي"
+
+#: campaigns/models.py:35
+msgid "Live"
+msgstr "قيد التشغيل"
+
+#: campaigns/models.py:36
+msgid "Needs Changes"
+msgstr "تحتاج إلى تعديلات"
+
+#: campaigns/models.py:37
+msgid "Paused (Low Balance)"
+msgstr "متوقفة (رصيد منخفض)"
+
+#: campaigns/models.py:38
+msgid "Ended"
+msgstr "انتهت"
+
+#: campaigns/models.py:65
+msgid "Specific campaign"
+msgstr "حملة محددة"
+
+#: campaigns/models.py:66 campaigns/templates/campaigns/step_target.html:29
+msgid "General campaign"
+msgstr "حملة عامة"
+
+#: campaigns/models.py:72
+msgid "Meta: Facebook and Instagram"
+msgstr "ميتا: فيسبوك وإنستغرام"
+
+#: campaigns/models.py:73
+msgid "Google: Search and YouTube"
+msgstr "جوجل: البحث ويوتيوب"
+
+#: campaigns/models.py:77
+msgid "Meta"
+msgstr "ميتا"
+
+#: campaigns/models.py:77
+msgid "Google"
+msgstr "جوجل"
+
+#: campaigns/models.py:83
+msgid "Platform dark page"
+msgstr "صفحة المنصة الداخلية"
+
+#: campaigns/models.py:84
+msgid "Platform landing page"
+msgstr "صفحة هبوط من المنصة"
+
+#: campaigns/models.py:85
+msgid "Your own page or account"
+msgstr "صفحتك أو حسابك"
+
+#: campaigns/models.py:100
+msgid "Lowest cost per lead"
+msgstr "أقل تكلفة للعميل المحتمل"
+
+#: campaigns/models.py:101 campaigns/models.py:108
+msgid "More leads"
+msgstr "عملاء محتملون أكثر"
+
+#: campaigns/models.py:102 campaigns/models.py:109
+msgid "Better quality"
+msgstr "جودة أعلى"
+
+#: campaigns/models.py:107
+msgid "Lowest CPL"
+msgstr "أقل تكلفة للعميل"
+
+#: campaigns/models.py:114
+msgid "Daily budget"
+msgstr "ميزانية يومية"
+
+#: campaigns/models.py:115
+msgid "Total budget"
+msgstr "ميزانية إجمالية"
+
+#: campaigns/models.py:121 campaigns/views.py:123
+#: leadshub/templates/leadshub/library.html:34
+#: reviews/templates/reviews/task.html:45
+msgid "Type"
+msgstr "النوع"
+
+#: campaigns/models.py:122 campaigns/views.py:124
+msgid "Target"
+msgstr "الهدف"
+
+#: campaigns/models.py:123
+msgid "Creative"
+msgstr "المادة الإعلانية"
+
+#: campaigns/models.py:124 campaigns/templates/campaigns/step_audience.html:16
+#: campaigns/views.py:128 reviews/templates/reviews/task.html:76
+msgid "Audience"
+msgstr "الفئة المستهدفة"
+
+#: campaigns/models.py:125
+msgid "Budget and run"
+msgstr "الميزانية والتشغيل"
+
+#: campaigns/models.py:132
+msgid "Instagram account"
+msgstr "حساب إنستغرام"
+
+#: campaigns/models.py:133
+msgid "Facebook page"
+msgstr "صفحة فيسبوك"
+
+#: campaigns/models.py:134
+msgid "Google Ads account"
+msgstr "حساب إعلانات جوجل"
+
+#: campaigns/models.py:148
+msgid "Not verified yet"
+msgstr "لم يُتحقق منه بعد"
+
+#: campaigns/models.py:149
+msgid "Verified"
+msgstr "تم التحقق"
+
+#: campaigns/models.py:150
+msgid "Disconnected"
+msgstr "غير مرتبط"
+
+#: campaigns/models.py:157
+msgid ""
+"Enter the handle as it appears on Instagram or Facebook, for example @nour."
+"realty."
+msgstr "أدخل اسم الحساب كما يظهر على إنستغرام أو فيسبوك، مثل @nour.realty."
+
+#: campaigns/models.py:161
+msgid "Enter the Google Ads customer ID, for example 123-456-7890."
+msgstr "أدخل رقم عميل إعلانات جوجل، مثل 123-456-7890."
+
+#: campaigns/models.py:180
+msgid "platform"
+msgstr "المنصة"
+
+#: campaigns/models.py:182
+msgid "handle or account ID"
+msgstr "اسم الحساب أو رقمه"
+
+#: campaigns/models.py:184
+msgid "@handle for Instagram and Facebook, the customer ID for Google Ads."
+msgstr "@اسم الحساب لإنستغرام وفيسبوك، ورقم العميل لإعلانات جوجل."
+
+#: campaigns/models.py:190
+msgid "platform ID"
+msgstr "المعرّف على المنصة"
+
+#: campaigns/models.py:190
+msgid "Set by the Meta or Google connection."
+msgstr "يُضبط عند الربط مع ميتا أو جوجل."
+
+#: campaigns/models.py:198
+msgid "added by"
+msgstr "أضافه"
+
+#: campaigns/models.py:200
+msgid "verified at"
+msgstr "وقت التحقق"
+
+#: campaigns/models.py:205
+msgid "connected account"
+msgstr "حساب مرتبط"
+
+#: campaigns/models.py:206
+msgid "connected accounts"
+msgstr "حسابات مرتبطة"
+
+#: campaigns/models.py:252 creatives/models.py:170
+msgid "created by"
+msgstr "أنشأها"
+
+#: campaigns/models.py:260
+msgid "campaign type"
+msgstr "نوع الحملة"
+
+#
+#: campaigns/models.py:304
+msgid "channel"
+msgstr "القناة"
+
+#: campaigns/models.py:307
+msgid "where the ads appear"
+msgstr "أين تظهر الإعلانات"
+
+#: campaigns/models.py:318
+msgid "your page or account"
+msgstr "صفحتك أو حسابك"
+
+#: campaigns/models.py:324
+msgid "also take leads from other projects in the same area"
+msgstr "استقبال عملاء من مشروعات أخرى في المنطقة نفسها أيضًا"
+
+#: campaigns/models.py:327
+msgid "also take leads from other projects by the same developer"
+msgstr "استقبال عملاء من مشروعات أخرى للمطور نفسه أيضًا"
+
+#: campaigns/models.py:333 creatives/models.py:179
+msgid "creatives"
+msgstr "المواد الإعلانية"
+
+#: campaigns/models.py:347
+msgid "optimization goal"
+msgstr "هدف التحسين"
+
+#: campaigns/models.py:353
+msgid "budget type"
+msgstr "نوع الميزانية"
+
+#: campaigns/models.py:356
+msgid "amount (USD)"
+msgstr "المبلغ (دولار أمريكي)"
+
+#: campaigns/models.py:363
+msgid "start date"
+msgstr "تاريخ البدء"
+
+#: campaigns/models.py:365
+msgid "end date"
+msgstr "تاريخ الانتهاء"
+
+#: campaigns/models.py:368
+msgid ""
+"Needed for a total budget. Leave empty to run a daily budget until you stop "
+"it."
+msgstr ""
+"مطلوب للميزانية الإجمالية. اتركه فارغًا لتستمر الميزانية اليومية حتى توقفها."
+
+#: campaigns/models.py:372 reviews/models.py:80
+msgid "changes asked for"
+msgstr "التعديلات المطلوبة"
+
+#: campaigns/models.py:373
+msgid "submitted at"
+msgstr "وقت الإرسال"
+
+#: campaigns/models.py:377
+msgid "platform campaign ID"
+msgstr "رقم الحملة على المنصة"
+
+#: campaigns/models.py:378
+msgid "platform data"
+msgstr "بيانات المنصة"
+
+#: campaigns/models.py:384 reviews/models.py:54
+msgid "campaign"
+msgstr "حملة"
+
+#: campaigns/models.py:385
+msgid "campaigns"
+msgstr "حملات"
+
+#: campaigns/models.py:413 campaigns/models.py:419
+msgid "No target yet"
+msgstr "لم يُحدَّد الهدف بعد"
+
+#: campaigns/models.py:466
+msgid "Choose a project."
+msgstr "اختر مشروعًا."
+
+#: campaigns/models.py:468
+msgid "Choose at least two of area, developer and unit type."
+msgstr "اختر عنصرين على الأقل من المنطقة والمطور ونوع الوحدة."
+
+#: campaigns/models.py:474
+msgid "Choose one of your pages or accounts for this channel."
+msgstr "اختر إحدى صفحاتك أو حساباتك لهذه القناة."
+
+#: campaigns/models.py:512
+#, python-format
+msgid "A campaign that is %(status)s can't do that."
+msgstr "لا يمكن تنفيذ ذلك على حملة حالتها %(status)s."
+
+#: campaigns/services.py:103
+#, python-format
+msgid "This campaign can't be changed while it is %(status)s."
+msgstr "لا يمكن تعديل هذه الحملة وحالتها %(status)s."
+
+#: campaigns/services.py:177
+msgid "Choose a project from the list."
+msgstr "اختر مشروعًا من القائمة."
+
+#: campaigns/services.py:178
+msgid "Choose a developer from the list."
+msgstr "اختر مطورًا من القائمة."
+
+#: campaigns/services.py:179
+msgid "Choose an area from the list."
+msgstr "اختر منطقة من القائمة."
+
+#: campaigns/services.py:180
+msgid "Choose a unit type from the list."
+msgstr "اختر نوع وحدة من القائمة."
+
+#: campaigns/services.py:223
+msgid ""
+"This creative can't be used for this campaign. Its offer may have ended."
+msgstr "لا يمكن استخدام هذه المادة الإعلانية في هذه الحملة. ربما انتهى عرضها."
+
+#: campaigns/services.py:249
+msgid "Choose one of the audiences listed."
+msgstr "اختر إحدى الفئات المعروضة."
+
+#: campaigns/services.py:264
+msgid "The budget must be at least 1 USD."
+msgstr "يجب ألا تقل الميزانية عن 1 دولار أمريكي."
+
+#: campaigns/services.py:266
+msgid "The start date can't be in the past."
+msgstr "لا يمكن أن يكون تاريخ البدء في الماضي."
+
+#: campaigns/services.py:268
+msgid "A total budget needs an end date."
+msgstr "تحتاج الميزانية الإجمالية إلى تاريخ انتهاء."
+
+#: campaigns/services.py:270
+msgid "The end date must be on or after the start date."
+msgstr "يجب أن يكون تاريخ الانتهاء في يوم البدء أو بعده."
+
+#: campaigns/services.py:296
+#, python-format
+msgid "Complete the %(step)s step."
+msgstr "أكمل خطوة «%(step)s»."
+
+#: campaigns/services.py:302
+msgid ""
+"A chosen creative can no longer be used (its offer may have ended). Choose "
+"another."
+msgstr ""
+"لم يعد من الممكن استخدام مادة إعلانية مختارة (ربما انتهى عرضها). اختر غيرها."
+
+#: campaigns/services.py:307
+msgid "The chosen audience is no longer offered. Choose another."
+msgstr "الفئة المختارة لم تعد متاحة. اختر غيرها."
+
+#: campaigns/services.py:309
+msgid "The start date has passed. Choose a new one."
+msgstr "مرّ تاريخ البدء. اختر تاريخًا جديدًا."
+
+#: campaigns/services.py:336
+msgid "Only a draft can be discarded."
+msgstr "لا يمكن حذف إلا المسودات."
+
+#: campaigns/services.py:372
+msgid "This account is already on your list."
+msgstr "هذا الحساب موجود في قائمتك بالفعل."
+
+#: campaigns/services.py:395
+msgid "A campaign in review or live uses this account. Wait until it ends."
+msgstr "حملة قيد المراجعة أو قيد التشغيل تستخدم هذا الحساب. انتظر حتى تنتهي."
+
+#: campaigns/services.py:457 campaigns/templates/campaigns/list.html:86
+#: reviews/templates/reviews/task.html:43
+msgid "Campaign"
+msgstr "الحملة"
+
+#: campaigns/services.py:458 reviews/templates/reviews/task.html:69
+msgid "Office"
+msgstr "المكتب"
+
+#: campaigns/templates/campaigns/_list_action.html:7
+msgid "Edit"
+msgstr "تعديل"
+
+#: campaigns/templates/campaigns/_list_action.html:9
+msgid "Fix"
+msgstr "إصلاح"
+
+#: campaigns/templates/campaigns/_list_action.html:11
+#: leadshub/templates/leadshub/library.html:86 reviews/models.py:44
+msgid "Open"
+msgstr "فتح"
+
+#: campaigns/templates/campaigns/_step_footer.html:5
+#: campaigns/templates/campaigns/step_budget.html:49
+#: campaigns/templates/campaigns/step_creative.html:72
+msgid "Back"
+msgstr "رجوع"
+
+#: campaigns/templates/campaigns/_step_footer.html:7
+msgid "Cancel"
+msgstr "إلغاء"
+
+#: campaigns/templates/campaigns/_step_footer.html:9
+#: campaigns/templates/campaigns/accounts.html:44
+#: campaigns/templates/campaigns/step_budget.html:51
+msgid "Saving…"
+msgstr "جارٍ الحفظ…"
+
+#: campaigns/templates/campaigns/_step_footer.html:9
+#: campaigns/templates/campaigns/list.html:154
+#: campaigns/templates/campaigns/step_creative.html:75
+#: leadshub/templates/leadshub/library.html:97
+msgid "Next"
+msgstr "التالي"
+
+#: campaigns/templates/campaigns/_step_header.html:3
+#, python-format
+msgid "Step %(number)s of 5"
+msgstr "الخطوة %(number)s من 5"
+
+#: campaigns/templates/campaigns/_step_header.html:4
+msgid "Build a campaign"
+msgstr "أنشئ حملة"
+
+#: campaigns/templates/campaigns/_step_header.html:5
+msgid ""
+"Type, target, creative, audience, budget. Press Run and our team takes it "
+"live for you."
+msgstr ""
+"النوع، الهدف، المادة الإعلانية، الفئة، الميزانية. اضغط «تشغيل» وسيطلقها "
+"فريقنا لك."
+
+#: campaigns/templates/campaigns/_step_header.html:8
+msgid "Campaign steps"
+msgstr "خطوات الحملة"
+
+#: campaigns/templates/campaigns/_step_header.html:16
+msgid "(done)"
+msgstr "(مكتملة)"
+
+#: campaigns/templates/campaigns/_step_header.html:33
+msgid "View the campaign"
+msgstr "عرض الحملة"
+
+#: campaigns/templates/campaigns/_summary.html:3
+msgid "Your campaign"
+msgstr "حملتك"
+
+#: campaigns/templates/campaigns/_summary.html:14
+msgid "Your choices appear here as you go."
+msgstr "تظهر اختياراتك هنا أثناء التقدم."
+
+#: campaigns/templates/campaigns/accounts.html:4
+#: campaigns/templates/campaigns/accounts.html:9 leadshub/navigation.py:50
+msgid "Pages and accounts"
+msgstr "الصفحات والحسابات"
+
+#: campaigns/templates/campaigns/accounts.html:10
+msgid ""
+"Your office's own Instagram account, Facebook page and Google Ads account. "
+"Campaigns can run under them instead of the platform's pages."
+msgstr ""
+"حساب إنستغرام وصفحة فيسبوك وحساب إعلانات جوجل الخاصة بمكتبك. يمكن أن تعمل "
+"الحملات باسمها بدلًا من صفحات المنصة."
+
+#: campaigns/templates/campaigns/accounts.html:15
+msgid "Add an account"
+msgstr "إضافة حساب"
+
+#: campaigns/templates/campaigns/accounts.html:21
+msgid "Coming soon"
+msgstr "قريبًا"
+
+#: campaigns/templates/campaigns/accounts.html:21
+msgid "soon"
+msgstr "قريبًا"
+
+#: campaigns/templates/campaigns/accounts.html:25
+msgid ""
+"Until then, add it by hand. Our team checks it before your first campaign on "
+"it goes live."
+msgstr "حتى ذلك الحين، أضفه يدويًا. يتحقق فريقنا منه قبل تشغيل أول حملة عليه."
+
+#: campaigns/templates/campaigns/accounts.html:29
+msgid "Platform"
+msgstr "المنصة"
+
+#: campaigns/templates/campaigns/accounts.html:40
+msgid "Google Ads customer ID"
+msgstr "رقم عميل إعلانات جوجل"
+
+#: campaigns/templates/campaigns/accounts.html:40
+msgid "Handle"
+msgstr "اسم الحساب"
+
+#: campaigns/templates/campaigns/accounts.html:44
+msgid "Add"
+msgstr "إضافة"
+
+#: campaigns/templates/campaigns/accounts.html:50
+msgid "Your pages and accounts"
+msgstr "صفحاتك وحساباتك"
+
+#: campaigns/templates/campaigns/accounts.html:64
+msgid "Remove this account? Campaigns can no longer run under it."
+msgstr "هل تريد إزالة هذا الحساب؟ لن تعمل الحملات باسمه بعد ذلك."
+
+#: campaigns/templates/campaigns/accounts.html:64
+#: campaigns/templates/campaigns/step_creative.html:29
+msgid "Remove"
+msgstr "إزالة"
+
+#: campaigns/templates/campaigns/accounts.html:70
+msgid "No pages or accounts yet."
+msgstr "لا توجد صفحات أو حسابات بعد."
+
+#: campaigns/templates/campaigns/detail.html:10
+msgid "All campaigns"
+msgstr "كل الحملات"
+
+#: campaigns/templates/campaigns/detail.html:21
+msgid "Changes asked for by our team"
+msgstr "تعديلات طلبها فريقنا"
+
+#: campaigns/templates/campaigns/detail.html:25
+msgid ""
+"In the review queue. Our media team usually reviews it within 4 hours, then "
+"it goes live."
+msgstr "في قائمة المراجعة. يراجعها فريق الإعلانات عادةً خلال 4 ساعات، ثم تبدأ."
+
+#: campaigns/templates/campaigns/detail.html:31 campaigns/views.py:127
+#: leadshub/navigation.py:72 reviews/templates/reviews/task.html:95
+msgid "Creatives"
+msgstr "المواد الإعلانية"
+
+#: campaigns/templates/campaigns/detail.html:45
+msgid "Not chosen yet"
+msgstr "لم يُختر بعد"
+
+#: campaigns/templates/campaigns/detail.html:50
+msgid "Schedule"
+msgstr "الجدول الزمني"
+
+#: campaigns/templates/campaigns/detail.html:53
+#: reviews/templates/reviews/task.html:57
+msgid "Start date"
+msgstr "تاريخ البدء"
+
+#: campaigns/templates/campaigns/detail.html:54
+msgid "Not set yet"
+msgstr "لم يُحدَّد بعد"
+
+#: campaigns/templates/campaigns/detail.html:57
+#: reviews/templates/reviews/task.html:58
+msgid "End date"
+msgstr "تاريخ الانتهاء"
+
+#: campaigns/templates/campaigns/detail.html:58
+#: reviews/templates/reviews/task.html:58
+msgid "until stopped"
+msgstr "حتى الإيقاف"
+
+#: campaigns/templates/campaigns/detail.html:61
+msgid "Sent to review"
+msgstr "أُرسلت للمراجعة"
+
+#: campaigns/templates/campaigns/detail.html:62
+msgid "Not yet"
+msgstr "ليس بعد"
+
+#: campaigns/templates/campaigns/detail.html:66
+msgid ""
+"Your page isn't verified yet. Our team checks it before the campaign goes "
+"live."
+msgstr "لم يُتحقق من صفحتك بعد. يتحقق فريقنا منها قبل تشغيل الحملة."
+
+#: campaigns/templates/campaigns/detail.html:72
+msgid "Edit and run"
+msgstr "التعديل والتشغيل"
+
+#: campaigns/templates/campaigns/detail.html:80
+msgid "Before you can run it:"
+msgstr "قبل أن تتمكن من تشغيلها:"
+
+#: campaigns/templates/campaigns/detail.html:88
+msgid "Delete this draft? This cannot be undone."
+msgstr "هل تريد حذف هذه المسودة؟ لا يمكن التراجع عن ذلك."
+
+#: campaigns/templates/campaigns/detail.html:88
+msgid "Discard draft"
+msgstr "حذف المسودة"
+
+#: campaigns/templates/campaigns/detail.html:90
+#: campaigns/templates/campaigns/step_budget.html:52
+#: leadshub/templates/leadshub/team.html:21
+msgid "Sending…"
+msgstr "جارٍ الإرسال…"
+
+#: campaigns/templates/campaigns/detail.html:90
+#: campaigns/templates/campaigns/step_budget.html:52
+msgid "Run campaign"
+msgstr "تشغيل الحملة"
+
+#: campaigns/templates/campaigns/detail.html:92
+msgid ""
+"Run sends the campaign to our media team for review. It goes live once they "
+"approve it."
+msgstr "التشغيل يرسل الحملة إلى فريق الإعلانات لمراجعتها، وتبدأ بعد موافقتهم."
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:2
+#: campaigns/templates/campaigns/email/changes_needed_subject.txt:1
+#, python-format
+msgid "Campaign %(code)s needs changes"
+msgstr "الحملة %(code)s تحتاج إلى تعديلات"
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:3
+msgid "A few changes are needed before your campaign can go live."
+msgstr "تحتاج حملتك إلى بعض التعديلات قبل أن تبدأ."
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:4
+msgid "Your campaign needs changes"
+msgstr "حملتك تحتاج إلى تعديلات"
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:6
+#: campaigns/templates/campaigns/email/changes_needed_body.txt:1
+#, python-format
+msgid ""
+"Our team reviewed campaign %(code)s (%(target)s) and needs a few changes "
+"before it can go live:"
+msgstr ""
+"راجع فريقنا الحملة %(code)s (%(target)s) ويحتاج إلى بعض التعديلات قبل أن "
+"تبدأ:"
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:9
+msgid "Make the changes, then press Run again."
+msgstr "أجرِ التعديلات، ثم اضغط «تشغيل» مرة أخرى."
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:10
+msgid "Open the campaign"
+msgstr "افتح الحملة"
+
+#: campaigns/templates/campaigns/email/changes_needed_body.html:13
+msgid ""
+"You get this email because you can run campaigns for your office on LeadsHub."
+msgstr "تصلك هذه الرسالة لأنك تستطيع تشغيل حملات مكتبك على LeadsHub."
+
+#: campaigns/templates/campaigns/email/changes_needed_body.txt:5
+msgid "Make the changes, then press Run again:"
+msgstr "أجرِ التعديلات، ثم اضغط «تشغيل» مرة أخرى:"
+
+#: campaigns/templates/campaigns/list.html:15
+msgid "Press Run on a draft and the campaign is built and launched for you."
+msgstr "اضغط «تشغيل» على المسودة، وسنجهّز الحملة ونطلقها لك."
+
+#: campaigns/templates/campaigns/list.html:20
+#: campaigns/templates/campaigns/step_type.html:4 reviews/models.py:39
+msgid "New campaign"
+msgstr "حملة جديدة"
+
+#: campaigns/templates/campaigns/list.html:25
+msgid "Search and filters"
+msgstr "البحث وعوامل التصفية"
+
+#: campaigns/templates/campaigns/list.html:28
+msgid "Search campaigns"
+msgstr "ابحث في الحملات"
+
+#: campaigns/templates/campaigns/list.html:31
+msgid "Search by project, developer, area or code"
+msgstr "ابحث بالمشروع أو المطور أو المنطقة أو الرمز"
+
+#: campaigns/templates/campaigns/list.html:34
+#: campaigns/templates/campaigns/list.html:89
+msgid "Status"
+msgstr "الحالة"
+
+#: campaigns/templates/campaigns/list.html:36
+msgid "All statuses"
+msgstr "كل الحالات"
+
+#: campaigns/templates/campaigns/list.html:41
+#: campaigns/templates/campaigns/list.html:87
+#: campaigns/templates/campaigns/step_target.html:41 campaigns/views.py:125
+#: reviews/templates/reviews/task.html:46
+msgid "Channel"
+msgstr "القناة"
+
+#
+#: campaigns/templates/campaigns/list.html:43
+msgid "All channels"
+msgstr "كل القنوات"
+
+#: campaigns/templates/campaigns/list.html:48
+#: campaigns/templates/campaigns/step_audience.html:32 campaigns/views.py:129
+#: reviews/templates/reviews/task.html:55
+msgid "Optimization goal"
+msgstr "هدف التحسين"
+
+#: campaigns/templates/campaigns/list.html:50
+msgid "All goals"
+msgstr "كل الأهداف"
+
+#: campaigns/templates/campaigns/list.html:57
+msgid "All developers"
+msgstr "كل المطورين"
+
+#
+#: campaigns/templates/campaigns/list.html:62
+#: leadshub/templates/leadshub/library.html:25
+#: reviews/templates/reviews/task.html:48
+msgid "Project"
+msgstr "المشروع"
+
+#: campaigns/templates/campaigns/list.html:64
+#: leadshub/templates/leadshub/library.html:27
+msgid "All projects"
+msgstr "كل المشروعات"
+
+#: campaigns/templates/campaigns/list.html:72
+#, python-format
+msgid "%(counter)s campaign matches."
+msgid_plural "%(counter)s campaigns match."
+msgstr[0] "لا توجد حملات مطابقة."
+msgstr[1] "حملة واحدة مطابقة."
+msgstr[2] "حملتان مطابقتان."
+msgstr[3] "%(counter)s حملات مطابقة."
+msgstr[4] "%(counter)s حملة مطابقة."
+msgstr[5] "%(counter)s حملة مطابقة."
+
+#: campaigns/templates/campaigns/list.html:73
+#: campaigns/templates/campaigns/list.html:162
+msgid "Clear search and filters"
+msgstr "مسح البحث وعوامل التصفية"
+
+#: campaigns/templates/campaigns/list.html:79
+msgid "Campaign list"
+msgstr "قائمة الحملات"
+
+#: campaigns/templates/campaigns/list.html:88
+msgid "Goal"
+msgstr "الهدف"
+
+#: campaigns/templates/campaigns/list.html:90 campaigns/views.py:130
+#: reviews/templates/reviews/task.html:56
+msgid "Budget"
+msgstr "الميزانية"
+
+#: campaigns/templates/campaigns/list.html:91
+#: campaigns/templates/campaigns/list.html:140
+msgid "Leads"
+msgstr "العملاء المحتملون"
+
+#: campaigns/templates/campaigns/list.html:92
+#: campaigns/templates/campaigns/list.html:141
+msgid "Interested"
+msgstr "مهتمون"
+
+#: campaigns/templates/campaigns/list.html:93
+#: campaigns/templates/campaigns/list.html:142
+msgid "No answer"
+msgstr "لا رد"
+
+#: campaigns/templates/campaigns/list.html:94
+#: campaigns/templates/campaigns/list.html:143
+msgid "CPL"
+msgstr "تكلفة العميل"
+
+#: campaigns/templates/campaigns/list.html:95
+msgid "Action"
+msgstr "إجراء"
+
+#: campaigns/templates/campaigns/list.html:110
+#: campaigns/templates/campaigns/list.html:137
+#: reviews/templates/reviews/task.html:56
+msgid "a day"
+msgstr "يوميًا"
+
+#: campaigns/templates/campaigns/list.html:110
+#: campaigns/templates/campaigns/list.html:137
+#: reviews/templates/reviews/task.html:56
+msgid "in total"
+msgstr "إجمالًا"
+
+#: campaigns/templates/campaigns/list.html:151
+#: leadshub/templates/leadshub/library.html:94
+msgid "Pages"
+msgstr "الصفحات"
+
+#: campaigns/templates/campaigns/list.html:152
+#: leadshub/templates/leadshub/library.html:95
+msgid "Previous"
+msgstr "السابق"
+
+#: campaigns/templates/campaigns/list.html:153
+#: leadshub/templates/leadshub/library.html:96
+#, python-format
+msgid "Page %(number)s of %(count)s"
+msgstr "صفحة %(number)s من %(count)s"
+
+#: campaigns/templates/campaigns/list.html:158
+msgid ""
+"Leads, Interested, No answer and cost per lead (CPL) fill in once leads "
+"arrive; Interested and No answer come from your team's CRM feedback. The "
+"goal tells the AI what to optimize each campaign for."
+msgstr ""
+"تظهر أرقام العملاء المحتملين و«مهتمون» و«لا رد» وتكلفة العميل بعد وصول "
+"العملاء؛ وتأتي «مهتمون» و«لا رد» من ملاحظات فريقك في نظام إدارة العملاء. "
+"ويحدد الهدف ما يحسّنه الذكاء الاصطناعي في كل حملة."
+
+#: campaigns/templates/campaigns/list.html:161
+msgid "No campaigns match this search and these filters."
+msgstr "لا توجد حملات تطابق هذا البحث وعوامل التصفية هذه."
+
+#: campaigns/templates/campaigns/list.html:166
+msgid "No campaigns yet."
+msgstr "لا توجد حملات بعد."
+
+#: campaigns/templates/campaigns/list.html:168
+msgid "Pick a project, a creative, an audience and a budget, then press Run."
+msgstr "اختر مشروعًا وإعلانًا وجمهورًا وميزانية، ثم اضغط «تشغيل»."
+
+#: campaigns/templates/campaigns/list.html:169
+msgid "Build your first campaign"
+msgstr "أنشئ حملتك الأولى"
+
+#: campaigns/templates/campaigns/step_audience.html:4
+msgid "Campaign audience"
+msgstr "الفئة المستهدفة للحملة"
+
+#: campaigns/templates/campaigns/step_audience.html:17
+msgid ""
+"Only audiences that fit your target are shown. Our team sets the targeting "
+"for each one."
+msgstr "تظهر فقط الفئات التي تناسب هدفك. يضبط فريقنا الاستهداف لكل منها."
+
+#: campaigns/templates/campaigns/step_audience.html:20
+#: campaigns/templates/campaigns/step_creative.html:18
+msgid "Choose the target first."
+msgstr "اختر الهدف أولًا."
+
+#: campaigns/templates/campaigns/step_audience.html:20
+#: campaigns/templates/campaigns/step_creative.html:18
+msgid "Go to Target"
+msgstr "الانتقال إلى الهدف"
+
+#: campaigns/templates/campaigns/step_audience.html:24
+msgid "No audiences are offered for this area yet. Please contact LeadsHub."
+msgstr "لا توجد فئات متاحة لهذه المنطقة بعد. يُرجى التواصل مع LeadsHub."
+
+#: campaigns/templates/campaigns/step_audience.html:27
+msgid ""
+"Audiences never limit by age or gender, to stay within the housing-ad policy."
+msgstr "لا تُقيَّد الفئات بالعمر أو الجنس، التزامًا بسياسة إعلانات العقارات."
+
+#: campaigns/templates/campaigns/step_audience.html:33
+msgid ""
+"What the campaign should aim for. We tune targeting, bidding and delivery to "
+"match."
+msgstr "ما الذي تسعى إليه الحملة. نضبط الاستهداف والمزايدة والعرض بما يناسبه."
+
+#: campaigns/templates/campaigns/step_budget.html:4
+msgid "Campaign budget"
+msgstr "ميزانية الحملة"
+
+#: campaigns/templates/campaigns/step_budget.html:16
+msgid "Budget and schedule"
+msgstr "الميزانية والجدول الزمني"
+
+#: campaigns/templates/campaigns/step_budget.html:17
+msgid ""
+"In US dollars. A daily budget runs until its end date, or until you stop it."
+msgstr ""
+"بالدولار الأمريكي. تستمر الميزانية اليومية حتى تاريخ الانتهاء أو حتى توقفها."
+
+#: campaigns/templates/campaigns/step_budget.html:20
+msgid "Budget type"
+msgstr "نوع الميزانية"
+
+#: campaigns/templates/campaigns/step_budget.html:38
+msgid "What happens when you press Run"
+msgstr "ماذا يحدث عند الضغط على «تشغيل»"
+
+#: campaigns/templates/campaigns/step_budget.html:40
+msgid ""
+"The campaign goes to our media team as AI Building. They usually review it "
+"within 4 hours."
+msgstr ""
+"تنتقل الحملة إلى فريق الإعلانات بحالة «قيد الإعداد بالذكاء الاصطناعي». "
+"يراجعها عادةً خلال 4 ساعات."
+
+#: campaigns/templates/campaigns/step_budget.html:41
+msgid "Once approved, it goes Live and leads start arriving in your CRM."
+msgstr ""
+"بعد الموافقة تبدأ الحملة ويصل العملاء المحتملون إلى نظام إدارة العملاء لديك."
+
+#: campaigns/templates/campaigns/step_budget.html:42
+msgid ""
+"If something needs fixing, it comes back as Needs Changes with the reason."
+msgstr ""
+"إذا احتاج شيء إلى تعديل، تعود الحملة بحالة «تحتاج إلى تعديلات» مع السبب."
+
+#: campaigns/templates/campaigns/step_budget.html:51
+msgid "Save draft"
+msgstr "حفظ كمسودة"
+
+#: campaigns/templates/campaigns/step_creative.html:4
+msgid "Campaign creative"
+msgstr "المادة الإعلانية للحملة"
+
+#: campaigns/templates/campaigns/step_creative.html:14
+msgid "Choose one creative"
+msgstr "اختر مادة إعلانية واحدة"
+
+#: campaigns/templates/campaigns/step_creative.html:14
+msgid "Choose one or more creatives"
+msgstr "اختر مادة إعلانية أو أكثر"
+
+#: campaigns/templates/campaigns/step_creative.html:15
+msgid ""
+"Ready-made ads from the library that fit your target. Offers that have ended "
+"are not shown."
+msgstr "إعلانات جاهزة من المكتبة تناسب هدفك. العروض المنتهية لا تظهر."
+
+#: campaigns/templates/campaigns/step_creative.html:24
+msgid "These creatives can no longer be used. Remove them and choose another:"
+msgstr "لم يعد من الممكن استخدام هذه المواد الإعلانية. احذفها واختر غيرها:"
+
+#: campaigns/templates/campaigns/step_creative.html:55
+#: leadshub/templates/leadshub/library.html:82
+msgid "Offer ends"
+msgstr "ينتهي العرض"
+
+#: campaigns/templates/campaigns/step_creative.html:58
+msgid "Chosen. Remove"
+msgstr "مختارة. إزالة"
+
+#: campaigns/templates/campaigns/step_creative.html:60
+msgid "Choose"
+msgstr "اختيار"
+
+#: campaigns/templates/campaigns/step_creative.html:68
+msgid ""
+"The library has no creatives for this target yet. Choose another target, or "
+"contact LeadsHub."
+msgstr ""
+"لا توجد في المكتبة مواد إعلانية لهذا الهدف بعد. اختر هدفًا آخر أو تواصل مع "
+"LeadsHub."
+
+#: campaigns/templates/campaigns/step_creative.html:74
+#, python-format
+msgid "%(counter)s chosen"
+msgid_plural "%(counter)s chosen"
+msgstr[0] "لم يُختر شيء"
+msgstr[1] "مادة واحدة مختارة"
+msgstr[2] "مادتان مختارتان"
+msgstr[3] "%(counter)s مواد مختارة"
+msgstr[4] "%(counter)s مادة مختارة"
+msgstr[5] "%(counter)s مادة مختارة"
+
+#: campaigns/templates/campaigns/step_target.html:4
+msgid "Campaign target"
+msgstr "هدف الحملة"
+
+#: campaigns/templates/campaigns/step_target.html:17
+msgid "Developer and project"
+msgstr "المطور والمشروع"
+
+#: campaigns/templates/campaigns/step_target.html:18
+msgid "Pick the developer, then one of its projects."
+msgstr "اختر المطور، ثم أحد مشروعاته."
+
+#: campaigns/templates/campaigns/step_target.html:25
+#, python-format
+msgid ""
+"%(project)s by %(developer)s, in %(area)s. Every campaign, creative and lead "
+"is attributed to this developer, project and area."
+msgstr ""
+"%(project)s من %(developer)s في %(area)s. تُنسب كل حملة ومادة إعلانية وعميل "
+"محتمل إلى هذا المطور والمشروع والمنطقة."
+
+#: campaigns/templates/campaigns/step_target.html:30
+msgid ""
+"Choose any two or more, and leave the rest as Any. We advertise across every "
+"project that matches."
+msgstr ""
+"اختر عنصرين أو أكثر، واترك الباقي على «أي». نعلن في كل المشروعات المطابقة."
+
+#: campaigns/templates/campaigns/step_target.html:42
+msgid "Where people see the ads."
+msgstr "أين يرى الناس الإعلانات."
+
+#: campaigns/templates/campaigns/step_target.html:49
+msgid "Destination and identity"
+msgstr "الوجهة والهوية"
+
+#: campaigns/templates/campaigns/step_target.html:50
+msgid "Whose name the ads carry, and where the leads come in."
+msgstr "باسم من تظهر الإعلانات، وأين يصل العملاء المحتملون."
+
+#: campaigns/templates/campaigns/step_target.html:54
+msgid ""
+"Tip: on the platform dark page your budget can join other brokers' budgets "
+"for the same project, creative and audience. That usually means a lower cost "
+"per lead."
+msgstr ""
+"نصيحة: على صفحة المنصة الداخلية يمكن أن تنضم ميزانيتك إلى ميزانيات وسطاء "
+"آخرين لنفس المشروع والمادة الإعلانية والفئة، وهذا يعني عادةً تكلفة أقل لكل "
+"عميل محتمل."
+
+#: campaigns/templates/campaigns/step_target.html:59
+#, python-format
+msgid ""
+"To run under your own %(platforms)s, add it to your office's pages first."
+msgstr "لتشغيل الحملة باسم %(platforms)s الخاص بك، أضفه أولًا إلى صفحات مكتبك."
+
+#: campaigns/templates/campaigns/step_target.html:60
+msgid "Manage your pages"
+msgstr "إدارة صفحاتك"
+
+#: campaigns/templates/campaigns/step_target.html:65
+msgid "Get more, better-quality leads"
+msgstr "عملاء محتملون أكثر وبجودة أعلى"
+
+#: campaigns/templates/campaigns/step_target.html:66
+msgid "When their quality is better, we can also send you leads from:"
+msgstr "عندما تكون جودتهم أعلى، يمكننا أيضًا أن نرسل لك عملاء محتملين من:"
+
+#: campaigns/templates/campaigns/step_type.html:15
+msgid "What kind of campaign?"
+msgstr "ما نوع الحملة؟"
+
+#: campaigns/templates/campaigns/step_type.html:16
+msgid ""
+"Advertise one specific project, or a broader category across many projects."
+msgstr "أعلن عن مشروع محدد، أو عن فئة أوسع عبر مشروعات كثيرة."
+
+#: campaigns/views.py:126 reviews/templates/reviews/task.html:52
+msgid "Ads appear on"
+msgstr "تظهر الإعلانات على"
+
+#: campaigns/views.py:321
+#, python-format
+msgid ""
+"%(code)s is in the review queue. Our team usually reviews it within 4 hours."
+msgstr "الحملة %(code)s في قائمة المراجعة. يراجعها فريقنا عادةً خلال 4 ساعات."
+
+#: campaigns/views.py:457
+msgid ""
+"Advertise one project from one developer. You choose the developer and the "
+"project."
+msgstr "أعلن عن مشروع واحد لمطور واحد. تختار المطور والمشروع."
+
+#: campaigns/views.py:461
+msgid ""
+"Advertise a category across projects. You choose any two of area, developer "
+"and unit type."
+msgstr ""
+"أعلن عن فئة عبر مشروعات متعددة. تختار عنصرين من المنطقة والمطور ونوع الوحدة."
+
+#: campaigns/views.py:511
+msgid ""
+"Runs under the platform. Shares one campaign with others on the same "
+"creative, for a better cost per lead."
+msgstr ""
+"تعمل باسم المنصة، وتشارك حملة واحدة مع آخرين على المادة الإعلانية نفسها، "
+"لتكلفة أفضل لكل عميل محتمل."
+
+#: campaigns/views.py:512
+msgid "Recommended · pooled"
+msgstr "موصى بها · مجمّعة"
+
+#: campaigns/views.py:514
+msgid ""
+"A ready page from the library. A hidden campaign ID routes each lead to you."
+msgstr "صفحة جاهزة من المكتبة. رقم حملة مخفي يوجّه كل عميل محتمل إليك."
+
+#: campaigns/views.py:524
+#, python-format
+msgid "Your %(platform)s %(handle)s"
+msgstr "%(platform)s الخاص بك %(handle)s"
+
+#: campaigns/views.py:526
+msgid ""
+"The ads carry your identity. Never pooled: every lead comes straight to you."
+msgstr "تحمل الإعلانات هويتك. لا تُجمَّع أبدًا: يصلك كل عميل محتمل مباشرة."
+
+#: campaigns/views.py:543
+msgid "Any area"
+msgstr "أي منطقة"
+
+#: campaigns/views.py:544
+msgid "Any unit type"
+msgstr "أي نوع وحدة"
+
+#: campaigns/views.py:549
+msgid "Facebook and Instagram feeds, Stories and Reels."
+msgstr "صفحات فيسبوك وإنستغرام الرئيسية والقصص والريلز."
+
+#: campaigns/views.py:550
+msgid "Google Search and YouTube."
+msgstr "بحث جوجل ويوتيوب."
+
+#
+#: campaigns/views.py:557 leadshub/templates/leadshub/library.html:16
+#: reviews/templates/reviews/task.html:49
+msgid "Area"
+msgstr "المنطقة"
+
+#
+#: campaigns/views.py:558 reviews/templates/reviews/task.html:50
+msgid "Unit type"
+msgstr "نوع الوحدة"
+
+#: campaigns/views.py:562
+msgid "Also send me leads from other projects in the same area"
+msgstr "أرسل لي أيضًا عملاء من مشروعات أخرى في المنطقة نفسها"
+
+#: campaigns/views.py:565
+msgid "Also send me leads from other projects by the same developer"
+msgstr "أرسل لي أيضًا عملاء من مشروعات أخرى للمطور نفسه"
+
+#: campaigns/views.py:626
+msgid "Choose one creative."
+msgstr "اختر مادة إعلانية واحدة."
+
+#: campaigns/views.py:628
+msgid "Choose at least one creative."
+msgstr "اختر مادة إعلانية واحدة على الأقل."
+
+#: campaigns/views.py:652
+msgid "The most leads for the money: the cheapest cost per lead."
+msgstr "أكبر عدد من العملاء مقابل المال: أقل تكلفة لكل عميل محتمل."
+
+#: campaigns/views.py:653
+msgid "The most leads your budget can buy."
+msgstr "أكبر عدد من العملاء تسمح به ميزانيتك."
+
+#: campaigns/views.py:655
+msgid "Fewer, more serious leads: optimized for interested buyers."
+msgstr "عملاء أقل وأكثر جدية: مُحسَّنة للمشترين المهتمين."
+
+#: campaigns/views.py:733
+msgid "Connect with Meta"
+msgstr "الربط مع ميتا"
+
+#: campaigns/views.py:733
+msgid "Connect with Google"
+msgstr "الربط مع جوجل"
+
+#: campaigns/views.py:754
+#, python-format
+msgid ""
+"%(account)s was added. Our team checks it before your first campaign on it "
+"goes live."
+msgstr "أُضيف %(account)s. يتحقق فريقنا منه قبل تشغيل أول حملة عليه."
+
+#: campaigns/views.py:770
+#, python-format
+msgid "%(account)s was removed."
+msgstr "أُزيل %(account)s."
+
+#: catalog/admin.py:38
+msgid "Meta targeting (internal)"
+msgstr "استهداف ميتا (داخلي)"
+
+#: catalog/models.py:100
+msgid "Leave empty if it suits any area."
+msgstr "اتركه فارغًا إن كان يناسب أي منطقة."
+
+#: catalog/models.py:104
+msgid "description (English)"
+msgstr "الوصف (بالإنجليزية)"
+
+#: catalog/models.py:107
+msgid ""
+"Shown to brokers, e.g. \"Families researching villas and townhouses in West "
+"Cairo.\""
+msgstr "يظهر للوسطاء، مثل «عائلات تبحث عن فيلات وتاون هاوس في غرب القاهرة»."
+
+#: catalog/models.py:109
+msgid "description (Arabic)"
+msgstr "الوصف (بالعربية)"
+
+#: catalog/models.py:111 reviews/templates/reviews/task.html:82
+msgid "Meta interests"
+msgstr "اهتمامات ميتا"
+
+#: catalog/models.py:111
+msgid "One interest per line."
+msgstr "اهتمام واحد في كل سطر."
+
+#: catalog/models.py:114
+msgid "lookalike source"
+msgstr "مصدر الجمهور المشابه"
+
+#: catalog/models.py:117
+msgid "For example: closed_won_1pct."
+msgstr "مثال: closed_won_1pct."
+
+#: catalog/models.py:120
+msgid "location targeting"
+msgstr "الاستهداف الجغرافي"
+
+#: catalog/models.py:123
+msgid "For example: 6th of October + 15 km."
+msgstr "مثال: السادس من أكتوبر + 15 كم."
+
+#: catalog/models.py:127
+msgid "audience preset"
+msgstr "جمهور جاهز"
+
+#: catalog/models.py:128
+msgid "audience presets"
+msgstr "الجماهير الجاهزة"
+
+#: creatives/admin.py:16 creatives/admin.py:73 creatives/models.py:92
+msgid "offer"
+msgstr "العرض"
+
+#: creatives/admin.py:21
+msgid "Expired"
+msgstr "منتهٍ"
+
+#: creatives/admin.py:22
+msgid "Running"
+msgstr "سارٍ"
+
+#: creatives/admin.py:23 creatives/admin.py:79
+#: leadshub/templates/leadshub/library.html:82
+msgid "No end date"
+msgstr "بلا تاريخ انتهاء"
+
+#: creatives/admin.py:53
+msgid "Where it applies"
+msgstr "أين تُستخدم"
+
+#: creatives/admin.py:54
+msgid "Files"
+msgstr "الملفات"
+
+#: creatives/admin.py:55
+msgid "Publishing"
+msgstr "النشر"
+
+#: creatives/admin.py:56
+msgid "Record"
+msgstr "السجل"
+
+#: creatives/admin.py:82
+#, python-format
+msgid "Expired %(date)s"
+msgstr "انتهى في %(date)s"
+
+#: creatives/admin.py:83
+#, python-format
+msgid "Until %(date)s"
+msgstr "حتى %(date)s"
+
+#: creatives/admin.py:89
+msgid "Publish"
+msgstr "نشر"
+
+#: creatives/admin.py:92
+#, python-format
+msgid "Published %(count)d creative."
+msgid_plural "Published %(count)d creatives."
+msgstr[0] "لم تُنشر أي مادة إعلانية."
+msgstr[1] "نُشرت مادة إعلانية واحدة."
+msgstr[2] "نُشرت مادتان إعلانيتان."
+msgstr[3] "نُشرت %(count)d مواد إعلانية."
+msgstr[4] "نُشرت %(count)d مادة إعلانية."
+msgstr[5] "نُشرت %(count)d مادة إعلانية."
+
+#: creatives/admin.py:94
+msgid "Back to draft"
+msgstr "إعادة إلى المسودة"
+
+#: creatives/admin.py:97
+#, python-format
+msgid "Moved %(count)d creative back to draft."
+msgid_plural "Moved %(count)d creatives back to draft."
+msgstr[0] "لم تُعَد أي مادة إلى المسودة."
+msgstr[1] "أُعيدت مادة واحدة إلى المسودة."
+msgstr[2] "أُعيدت مادتان إلى المسودة."
+msgstr[3] "أُعيدت %(count)d مواد إلى المسودة."
+msgstr[4] "أُعيدت %(count)d مادة إلى المسودة."
+msgstr[5] "أُعيدت %(count)d مادة إلى المسودة."
+
+#: creatives/admin.py:99
+msgid "Archive"
+msgstr "أرشفة"
+
+#: creatives/admin.py:102
+#, python-format
+msgid "Archived %(count)d creative."
+msgid_plural "Archived %(count)d creatives."
+msgstr[0] "لم تُؤرشف أي مادة."
+msgstr[1] "أُرشفت مادة واحدة."
+msgstr[2] "أُرشفت مادتان."
+msgstr[3] "أُرشفت %(count)d مواد."
+msgstr[4] "أُرشفت %(count)d مادة."
+msgstr[5] "أُرشفت %(count)d مادة."
+
+#: creatives/apps.py:8 leadshub/navigation.py:48 leadshub/navigation.py:71
+#: leadshub/templates/leadshub/library.html:4
+#: leadshub/templates/leadshub/library.html:9
+msgid "Creative library"
+msgstr "مكتبة المواد الإعلانية"
+
+#: creatives/models.py:29
+msgid "9:16 reel"
+msgstr "ريل 9:16"
+
+#: creatives/models.py:30
+msgid "Carousel"
+msgstr "كاروسيل"
+
+#: creatives/models.py:31
+msgid "Static image"
+msgstr "صورة ثابتة"
+
+#: creatives/models.py:32
+msgid "Landing page"
+msgstr "صفحة هبوط"
+
+#: creatives/models.py:36
+msgid "Arabic"
+msgstr "العربية"
+
+#: creatives/models.py:37
+msgid "English"
+msgstr "الإنجليزية"
+
+#: creatives/models.py:49
+msgid "Published"
+msgstr "منشور"
+
+#: creatives/models.py:50
+msgid "Archived"
+msgstr "مؤرشف"
+
+#: creatives/models.py:66
+#, python-format
+msgid "The file is larger than %(size)d MB."
+msgstr "حجم الملف أكبر من %(size)d ميجابايت."
+
+#: creatives/models.py:90
+msgid "title"
+msgstr "العنوان"
+
+#: creatives/models.py:95
+msgid "As the ad states it, for example \"5% down payment, 10-year plan\"."
+msgstr "كما يذكره الإعلان، مثل \"مقدم 5% وتقسيط على 10 سنوات\"."
+
+#: creatives/models.py:97
+msgid "type"
+msgstr "النوع"
+
+#: creatives/models.py:100
+msgid "aspect ratio"
+msgstr "نسبة الأبعاد"
+
+#: creatives/models.py:104
+msgid "Leave empty for a landing page."
+msgstr "اتركها فارغة لصفحة الهبوط."
+
+#: creatives/models.py:121
+msgid "Leave empty for an area-wide asset."
+msgstr "اتركه فارغًا لمادة تخص المنطقة كلها."
+
+#: creatives/models.py:129
+msgid "Filled in from the project when one is chosen."
+msgstr "يُملأ من المشروع عند اختياره."
+
+#: creatives/models.py:140
+msgid "offer ends on"
+msgstr "ينتهي العرض في"
+
+#: creatives/models.py:143
+msgid ""
+"The last day of the offer. From the next day, brokers no longer see the "
+"asset."
+msgstr "آخر يوم في العرض. من اليوم التالي لا يرى الوسطاء هذه المادة."
+
+#: creatives/models.py:149
+msgid "file"
+msgstr "الملف"
+
+#: creatives/models.py:153
+msgid "Image, video or zip, up to 100 MB."
+msgstr "صورة أو فيديو أو ملف zip، حتى 100 ميجابايت."
+
+#: creatives/models.py:156
+msgid "preview image"
+msgstr "صورة المعاينة"
+
+#: creatives/models.py:161
+msgid "Shown in the library. Not needed when the file is an image."
+msgstr "تظهر في المكتبة. لا حاجة إليها إذا كان الملف صورة."
+
+#: creatives/models.py:178
+msgid "creative"
+msgstr "مادة إعلانية"
+
+#: creatives/models.py:225
+#, python-format
+msgid "This project is in %(area)s."
+msgstr "هذا المشروع في %(area)s."
+
+#: creatives/models.py:229
+#, python-format
+msgid "This project is by %(developer)s."
+msgstr "هذا المشروع من تطوير %(developer)s."
+
+#: creatives/models.py:233
+msgid "Choose an area, or a project."
+msgstr "اختر منطقة أو مشروعًا."
+
+#: creatives/models.py:235
+msgid "Choose the aspect ratio."
+msgstr "اختر نسبة الأبعاد."
+
+#: creatives/models.py:237
+msgid "A reel is 9:16."
+msgstr "الريل بنسبة 9:16."
+
+#: leadshub/navigation.py:45 reviews/apps.py:8
+#: reviews/templates/reviews/queue.html:4
+#: reviews/templates/reviews/queue.html:12
+#: reviews/templates/reviews/task.html:4 reviews/templates/reviews/task.html:14
+msgid "Review queue"
+msgstr "قائمة المراجعة"
+
+#: leadshub/navigation.py:59
+msgid "Sign-ups to review"
+msgstr "طلبات تسجيل للمراجعة"
+
+#: leadshub/navigation.py:68
+msgid "Audience presets"
+msgstr "الجماهير الجاهزة"
+
+#: leadshub/navigation.py:75
+msgid "Brokers' pages and accounts"
+msgstr "صفحات الوسطاء وحساباتهم"
+
+#: leadshub/navigation.py:79
+msgid "Background jobs"
+msgstr "المهام الخلفية"
+
+#: leadshub/navigation.py:80
+msgid "Schedules"
+msgstr "الجداول الزمنية"
+
+#: leadshub/navigation.py:81
+msgid "Failed tasks"
+msgstr "المهام الفاشلة"
+
+#: leadshub/navigation.py:82
+msgid "Finished tasks"
+msgstr "المهام المكتملة"
+
+#: leadshub/navigation.py:83
+msgid "Waiting tasks"
+msgstr "المهام المنتظرة"
+
+#: leadshub/templates/email/base.html:64 leadshub/templates/email/base.txt:3
+msgid "The LeadsHub team"
+msgstr "فريق LeadsHub"
+
+#: leadshub/templates/email/base.html:70 leadshub/templates/email/base.txt:6
+msgid "This email was sent automatically. Please don't reply to it."
+msgstr "أُرسلت هذه الرسالة تلقائيًا، يُرجى عدم الرد عليها."
+
+#: leadshub/templates/email/link_fallback.html:4
+msgid "If the button doesn't work, copy this link into your browser:"
+msgstr "إذا لم يعمل الزر، انسخ هذا الرابط وافتحه في متصفحك:"
+
+#: leadshub/templates/leadshub/base.html:38
+msgid "Close menu"
+msgstr "إغلاق القائمة"
+
+#: leadshub/templates/leadshub/base.html:45
+msgid "Main"
+msgstr "القائمة الرئيسية"
+
+#: leadshub/templates/leadshub/base.html:78
+msgid "Open menu"
+msgstr "فتح القائمة"
+
+#: leadshub/templates/leadshub/dashboard.html:36
+msgid "Manage team"
+msgstr "إدارة الفريق"
+
+#: leadshub/templates/leadshub/library.html:10
+msgid ""
+"Ready-made ads for your campaigns. Offers that have ended are not shown."
+msgstr "إعلانات جاهزة لحملاتك. العروض المنتهية لا تظهر."
+
+#: leadshub/templates/leadshub/library.html:13
+msgid "Filters"
+msgstr "عوامل التصفية"
+
+#: leadshub/templates/leadshub/library.html:18
+msgid "All areas"
+msgstr "كل المناطق"
+
+#: leadshub/templates/leadshub/library.html:36
+msgid "All types"
+msgstr "كل الأنواع"
+
+#: leadshub/templates/leadshub/library.html:43
+msgid "Language of the ad"
+msgstr "لغة الإعلان"
+
+#: leadshub/templates/leadshub/library.html:45
+msgid "Both languages"
+msgstr "اللغتان"
+
+#: leadshub/templates/leadshub/library.html:53
+msgid "Clear filters"
+msgstr "مسح عوامل التصفية"
+
+#: leadshub/templates/leadshub/library.html:58
+msgid "Assets"
+msgstr "المواد"
+
+#: leadshub/templates/leadshub/library.html:86
+msgid "Download"
+msgstr "تنزيل"
+
+#: leadshub/templates/leadshub/library.html:101
+msgid "No assets match these filters."
+msgstr "لا توجد مواد تطابق عوامل التصفية هذه."
+
+#: leadshub/templates/leadshub/library.html:101
+msgid "The library is empty for now."
+msgstr "المكتبة فارغة حاليًا."
+
+#: leadshub/templates/leadshub/team.html:10
+msgid "Invite people to your office and choose what they can do."
+msgstr "ادعُ أشخاصًا إلى مكتبك وحدّد ما يمكنهم فعله."
+
+#: leadshub/templates/leadshub/team.html:15
+msgid "Invite a team member"
+msgstr "دعوة عضو إلى الفريق"
+
+#: leadshub/templates/leadshub/team.html:16
+msgid ""
+"They get an email with a link to set a password, and sign in with their "
+"email address."
+msgstr ""
+"يصلهم بريد إلكتروني فيه رابط لتعيين كلمة المرور، ويسجّلون الدخول ببريدهم "
+"الإلكتروني."
+
+#: leadshub/templates/leadshub/team.html:21
+msgid "Send invitation"
+msgstr "إرسال الدعوة"
+
+#: leadshub/templates/leadshub/team.html:27
+msgid "People in your office"
+msgstr "الأشخاص في مكتبك"
+
+#: leadshub/templates/leadshub/team.html:38
+msgid "Manages the team"
+msgstr "يدير الفريق"
+
+#: leadshub/templates/leadshub/team.html:41
+msgid "Deactivated"
+msgstr "موقوف"
+
+#: leadshub/templates/leadshub/team.html:43
+msgid "Hasn't accepted the invitation yet"
+msgstr "لم يقبل الدعوة بعد"
+
+#: leadshub/templates/leadshub/team.html:46
+msgid "Can run campaigns"
+msgstr "يمكنه تشغيل الحملات"
+
+#: leadshub/templates/leadshub/team.html:55
+msgid "Send a new invitation"
+msgstr "إرسال دعوة جديدة"
+
+#: leadshub/templates/leadshub/team.html:59
+msgid "Remove campaign access"
+msgstr "إلغاء صلاحية الحملات"
+
+#: leadshub/templates/leadshub/team.html:61
+msgid "Allow campaigns"
+msgstr "السماح بالحملات"
+
+#: leadshub/templates/leadshub/team.html:64
+msgid ""
+"Deactivate this person? They will be signed out and can no longer sign in."
+msgstr "إيقاف حساب هذا الشخص؟ سيُسجَّل خروجه ولن يتمكن من تسجيل الدخول بعد ذلك."
+
+#: leadshub/templates/leadshub/team.html:64
+msgid "Deactivate"
+msgstr "إيقاف الحساب"
+
+#: leadshub/views.py:125
+#, python-format
+msgid "Invitation sent to %(email)s."
+msgstr "أُرسلت الدعوة إلى %(email)s."
+
+#: leadshub/views.py:144
+#, python-format
+msgid "A new invitation was sent to %(email)s."
+msgstr "أُرسلت دعوة جديدة إلى %(email)s."
+
+#: leadshub/views.py:152
+#, python-format
+msgid "%(name)s can no longer sign in."
+msgstr "لم يعد بإمكان %(name)s تسجيل الدخول."
+
+#: leadshub/views.py:160
+#, python-format
+msgid "%(name)s can sign in again."
+msgstr "أصبح بإمكان %(name)s تسجيل الدخول مجددًا."
+
+#: leadshub/views.py:170
+#, python-format
+msgid "%(name)s can now create and run campaigns."
+msgstr "أصبح بإمكان %(name)s إنشاء الحملات وتشغيلها."
+
+#: leadshub/views.py:181
+#, python-format
+msgid "%(name)s can no longer create or run campaigns."
+msgstr "لم يعد بإمكان %(name)s إنشاء الحملات أو تشغيلها."
+
+#: reviews/models.py:40
+msgid "Campaign sent again"
+msgstr "حملة أُرسلت مرة أخرى"
+
+#: reviews/models.py:45 reviews/templates/reviews/queue.html:98
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#: reviews/models.py:46
+msgid "Changes requested"
+msgstr "طُلبت تعديلات"
+
+#: reviews/models.py:56
+msgid "kind"
+msgstr "النوع"
+
+#: reviews/models.py:60
+msgid "opened at"
+msgstr "وقت الفتح"
+
+#: reviews/models.py:61
+msgid "due by"
+msgstr "الموعد النهائي"
+
+#: reviews/models.py:68
+msgid "assigned to"
+msgstr "مسندة إلى"
+
+#: reviews/models.py:70
+msgid "assigned at"
+msgstr "وقت الإسناد"
+
+#: reviews/models.py:77
+msgid "decided by"
+msgstr "صاحب القرار"
+
+#: reviews/models.py:79
+msgid "decided at"
+msgstr "وقت القرار"
+
+#: reviews/models.py:82
+msgid "escalated at"
+msgstr "وقت التصعيد"
+
+#: reviews/models.py:89
+msgid "deployed by"
+msgstr "أطلقها"
+
+#: reviews/models.py:91
+msgid "deployed at"
+msgstr "وقت الإطلاق"
+
+#: reviews/models.py:95
+msgid "review task"
+msgstr "مهمة مراجعة"
+
+#: reviews/models.py:96
+msgid "review tasks"
+msgstr "مهام المراجعة"
+
+#: reviews/models.py:194
+msgid "task"
+msgstr "المهمة"
+
+#: reviews/models.py:196
+msgid "content"
+msgstr "المحتوى"
+
+#: reviews/models.py:197
+msgid "generated at"
+msgstr "وقت الإنشاء"
+
+#: reviews/models.py:201
+msgid "brief"
+msgstr "الموجز"
+
+#: reviews/models.py:202
+msgid "briefs"
+msgstr "الموجزات"
+
+#: reviews/services.py:57
+msgid "This task no longer exists."
+msgstr "هذه المهمة لم تعد موجودة."
+
+#: reviews/services.py:64
+msgid "This task was already decided."
+msgstr "صدر قرار في هذه المهمة بالفعل."
+
+#: reviews/services.py:114
+msgid "Choose someone who can review tasks."
+msgstr "اختر شخصًا يستطيع مراجعة المهام."
+
+#: reviews/services.py:127
+msgid "Someone else already has this task."
+msgstr "هذه المهمة مع شخص آخر بالفعل."
+
+#: reviews/services.py:157
+msgid "The campaign is no longer waiting for review."
+msgstr "الحملة لم تعد بانتظار المراجعة."
+
+#: reviews/services.py:171
+msgid "Tell the broker what to change."
+msgstr "اكتب للوسيط ما يجب تعديله."
+
+#: reviews/services.py:174
+#, python-format
+msgid "Keep the reasons under %(count)d characters."
+msgstr "اجعل الأسباب أقل من %(count)d حرف."
+
+#: reviews/services.py:190
+msgid "Only an approved task waiting for launch can be marked deployed."
+msgstr "لا يمكن تسجيل الإطلاق إلا لمهمة موافق عليها بانتظار الإطلاق."
+
+#: reviews/services.py:196
+msgid "Enter the ID the network gave, digits only."
+msgstr "أدخل المعرّف الذي أعطته الشبكة، أرقامًا فقط."
+
+#: reviews/services.py:198
+msgid "Enter the ad account, for example act_1234567890 or 123-456-7890."
+msgstr "أدخل الحساب الإعلاني، مثل act_1234567890 أو 123-456-7890."
+
+#: reviews/services.py:256
+msgid "past due"
+msgstr "تجاوزت الموعد"
+
+#: reviews/services.py:258
+#, python-format
+msgid "%(minutes)d min left"
+msgstr "متبقٍ %(minutes)d دقيقة"
+
+#: reviews/services.py:259
+msgid "nobody"
+msgstr "لا أحد"
+
+#: reviews/services.py:262
+#, python-format
+msgid "%(campaign)s for %(office)s · %(when)s · assigned to %(who)s"
+msgstr "%(campaign)s لمكتب %(office)s · %(when)s · مسندة إلى %(who)s"
+
+#: reviews/templates/reviews/email/near_breach_body.html:2
+#: reviews/templates/reviews/email/near_breach_body.html:4
+msgid "Review tasks near their limit"
+msgstr "مهام مراجعة تقترب من حدها"
+
+#: reviews/templates/reviews/email/near_breach_body.html:3
+msgid "These review tasks have an hour or less left before the 4-hour limit."
+msgstr "بقيت ساعة أو أقل على حد الساعات الأربع لمهام المراجعة هذه."
+
+#: reviews/templates/reviews/email/near_breach_body.html:6
+msgid ""
+"These review tasks have an hour or less left before the 4-hour limit. Assign "
+"or decide them now."
+msgstr ""
+"بقيت ساعة أو أقل على حد الساعات الأربع لمهام المراجعة هذه. أسندها أو اتخذ "
+"قرارًا فيها الآن."
+
+#: reviews/templates/reviews/email/near_breach_body.html:8
+msgid "Open the queue"
+msgstr "افتح قائمة المراجعة"
+
+#: reviews/templates/reviews/email/near_breach_body.html:11
+msgid "You get this email because you can assign review tasks on LeadsHub."
+msgstr "تصلك هذه الرسالة لأنك تستطيع إسناد مهام المراجعة على LeadsHub."
+
+#: reviews/templates/reviews/email/near_breach_body.txt:1
+msgid ""
+"These review tasks have an hour or less left before the 4-hour limit. Assign "
+"or decide them now:"
+msgstr ""
+"بقيت ساعة أو أقل على حد الساعات الأربع لمهام المراجعة هذه. أسندها أو اتخذ "
+"قرارًا فيها الآن:"
+
+#: reviews/templates/reviews/email/near_breach_body.txt:5
+msgid "Open the queue:"
+msgstr "افتح قائمة المراجعة:"
+
+#: reviews/templates/reviews/email/near_breach_subject.txt:1
+#, python-format
+msgid "%(counter)s review task is near its 4-hour limit"
+msgid_plural "%(counter)s review tasks are near their 4-hour limit"
+msgstr[0] "لا توجد مهام مراجعة قريبة من حد الساعات الأربع"
+msgstr[1] "مهمة مراجعة واحدة تقترب من حد الساعات الأربع"
+msgstr[2] "مهمتا مراجعة تقتربان من حد الساعات الأربع"
+msgstr[3] "%(counter)s مهام مراجعة تقترب من حد الساعات الأربع"
+msgstr[4] "%(counter)s مهمة مراجعة تقترب من حد الساعات الأربع"
+msgstr[5] "%(counter)s مهمة مراجعة تقترب من حد الساعات الأربع"
+
+#: reviews/templates/reviews/queue.html:13
+msgid ""
+"Decide every campaign within 4 hours, around the clock. Tasks with an hour "
+"left are flagged to the lead."
+msgstr ""
+"اتخذ القرار في كل حملة خلال 4 ساعات، على مدار الساعة. تُرسل المهام التي بقيت "
+"لها ساعة إلى قائد الفريق."
+
+#: reviews/templates/reviews/queue.html:16
+msgid "Queue figures"
+msgstr "أرقام القائمة"
+
+#: reviews/templates/reviews/queue.html:18
+#: reviews/templates/reviews/queue.html:41
+msgid "Open tasks"
+msgstr "المهام المفتوحة"
+
+#: reviews/templates/reviews/queue.html:20
+#, python-format
+msgid "%(count)s unassigned"
+msgstr "%(count)s غير مسندة"
+
+#: reviews/templates/reviews/queue.html:23 reviews/views.py:96
+msgid "Near breach"
+msgstr "قريبة من التجاوز"
+
+#: reviews/templates/reviews/queue.html:25
+msgid "An hour or less left"
+msgstr "بقيت ساعة أو أقل"
+
+#: reviews/templates/reviews/queue.html:28
+msgid "Past 4 hours"
+msgstr "تجاوزت 4 ساعات"
+
+#: reviews/templates/reviews/queue.html:30
+msgid "Still open after the limit"
+msgstr "ما زالت مفتوحة بعد الحد"
+
+#: reviews/templates/reviews/queue.html:33
+msgid "Median decision time"
+msgstr "الوقت الوسيط للقرار"
+
+#: reviews/templates/reviews/queue.html:34
+#: reviews/templates/reviews/task.html:143
+msgid "min"
+msgstr "دقيقة"
+
+#: reviews/templates/reviews/queue.html:35
+#, python-format
+msgid "%(percent)s%% within 4 hours · %(count)s decided in 30 days"
+msgstr "%(percent)s%% خلال 4 ساعات · %(count)s قرارًا في 30 يومًا"
+
+#: reviews/templates/reviews/queue.html:35
+msgid "No decisions in the last 30 days"
+msgstr "لا قرارات في آخر 30 يومًا"
+
+#: reviews/templates/reviews/queue.html:42
+msgid "Show"
+msgstr "عرض"
+
+#: reviews/templates/reviews/queue.html:64
+#: reviews/templates/reviews/task.html:139
+#: reviews/templates/reviews/task.html:149
+msgid "Assigned to"
+msgstr "مسندة إلى"
+
+#: reviews/templates/reviews/queue.html:65
+#: reviews/templates/reviews/task.html:139
+#: reviews/templates/reviews/task.html:151
+msgid "Nobody yet"
+msgstr "لا أحد بعد"
+
+#: reviews/templates/reviews/queue.html:73
+msgid "Due"
+msgstr "الموعد"
+
+#: reviews/templates/reviews/queue.html:80
+msgid "No open tasks match this filter."
+msgstr "لا توجد مهام مفتوحة تطابق هذا التصفية."
+
+#: reviews/templates/reviews/queue.html:80
+msgid "The queue is empty. New campaigns appear here as brokers press Run."
+msgstr "القائمة فارغة. تظهر الحملات الجديدة هنا عندما يضغط الوسطاء «تشغيل»."
+
+#: reviews/templates/reviews/queue.html:87
+#: reviews/templates/reviews/task.html:26
+msgid "Approved, waiting for launch"
+msgstr "موافق عليها، بانتظار الإطلاق"
+
+#: reviews/templates/reviews/queue.html:88
+msgid ""
+"Every approved campaign whose ad set isn't recorded yet. The broker sees AI "
+"Building until then."
+msgstr ""
+"كل حملة موافق عليها لم تُسجَّل مجموعتها الإعلانية بعد. يرى الوسيط «قيد الإعداد» "
+"حتى ذلك الحين."
+
+#: reviews/templates/reviews/queue.html:88
+msgid ""
+"Your approved campaigns whose ad set isn't recorded yet. The broker sees AI "
+"Building until then."
+msgstr ""
+"حملاتك الموافق عليها التي لم تُسجَّل مجموعتها الإعلانية بعد. يرى الوسيط «قيد "
+"الإعداد» حتى ذلك الحين."
+
+#: reviews/templates/reviews/task.html:23
+msgid "left before the 4-hour limit"
+msgstr "متبقية قبل حد الساعات الأربع"
+
+#: reviews/templates/reviews/task.html:26
+#: reviews/templates/reviews/task.html:204
+msgid "Deployed"
+msgstr "تم الإطلاق"
+
+#: reviews/templates/reviews/task.html:38
+msgid ""
+"The broker sent this campaign again after changes were asked for. Check that "
+"each earlier reason was addressed (see Earlier reviews)."
+msgstr ""
+"أرسل الوسيط هذه الحملة مرة أخرى بعد طلب التعديلات. تحقق من معالجة كل سبب "
+"سابق (انظر المراجعات السابقة)."
+
+#: reviews/templates/reviews/task.html:60
+msgid "Also takes leads from"
+msgstr "تستقبل أيضًا عملاء من"
+
+#: reviews/templates/reviews/task.html:61
+msgid "other projects in the same area"
+msgstr "مشروعات أخرى في المنطقة نفسها"
+
+#: reviews/templates/reviews/task.html:61
+msgid "other projects by the same developer"
+msgstr "مشروعات أخرى للمطور نفسه"
+
+#: reviews/templates/reviews/task.html:61
+msgid "only this campaign's own leads"
+msgstr "عملاء هذه الحملة فقط"
+
+#: reviews/templates/reviews/task.html:85
+msgid "Lookalike source"
+msgstr "مصدر الجمهور المشابه"
+
+#: reviews/templates/reviews/task.html:86
+msgid "Location targeting"
+msgstr "الاستهداف الجغرافي"
+
+#: reviews/templates/reviews/task.html:88
+msgid "No age or gender limits: Meta's housing category doesn't allow them."
+msgstr "بلا قيود عمر أو نوع: فئة الإسكان في ميتا لا تسمح بها."
+
+#: reviews/templates/reviews/task.html:90
+msgid "No audience chosen."
+msgstr "لم يُختر جمهور."
+
+#: reviews/templates/reviews/task.html:106
+msgid "Open the file"
+msgstr "افتح الملف"
+
+#: reviews/templates/reviews/task.html:110
+msgid "No creatives chosen."
+msgstr "لم تُختر إعلانات."
+
+#: reviews/templates/reviews/task.html:120
+msgid ""
+"Hand this brief to the AI execution agent. It never changes after approval."
+msgstr "سلّم هذا الموجز لوكيل التنفيذ بالذكاء الاصطناعي. لا يتغير بعد الموافقة."
+
+#: reviews/templates/reviews/task.html:123
+msgid "Copy"
+msgstr "نسخ"
+
+#: reviews/templates/reviews/task.html:123
+msgid "Copied"
+msgstr "تم النسخ"
+
+#: reviews/templates/reviews/task.html:124
+msgid "Download JSON"
+msgstr "تنزيل JSON"
+
+#
+#
+#: reviews/templates/reviews/task.html:134
+msgid "Decision"
+msgstr "القرار"
+
+#: reviews/templates/reviews/task.html:136
+msgid "Opened"
+msgstr "فُتحت"
+
+#: reviews/templates/reviews/task.html:137
+msgid "Due by"
+msgstr "الموعد النهائي"
+
+#: reviews/templates/reviews/task.html:142
+msgid "Decided"
+msgstr "صدر القرار"
+
+#: reviews/templates/reviews/task.html:143
+msgid "Decision time"
+msgstr "وقت القرار"
+
+#: reviews/templates/reviews/task.html:143
+msgid "within 4 hours"
+msgstr "خلال 4 ساعات"
+
+#: reviews/templates/reviews/task.html:143
+msgid "over 4 hours"
+msgstr "أكثر من 4 ساعات"
+
+#: reviews/templates/reviews/task.html:160
+msgid "Take this task"
+msgstr "تولَّ هذه المهمة"
+
+#: reviews/templates/reviews/task.html:164 reviews/views.py:180
+msgid "This task is assigned to someone else. Ask the lead to reassign it."
+msgstr "هذه المهمة مسندة إلى شخص آخر. اطلب من قائد الفريق إعادة إسنادها."
+
+#: reviews/templates/reviews/task.html:169
+msgid "Approve this campaign and write its brief?"
+msgstr "الموافقة على هذه الحملة وكتابة موجزها؟"
+
+#: reviews/templates/reviews/task.html:169
+msgid "Approve and write the brief"
+msgstr "وافق واكتب الموجز"
+
+#: reviews/templates/reviews/task.html:171
+msgid "Or ask the broker for changes"
+msgstr "أو اطلب من الوسيط تعديلات"
+
+#: reviews/templates/reviews/task.html:172
+msgid "What should the broker change? They see this text."
+msgstr "ما الذي يجب أن يعدّله الوسيط؟ سيرى هذا النص."
+
+#: reviews/templates/reviews/task.html:173
+msgid "Send back with these reasons"
+msgstr "أعِدها بهذه الأسباب"
+
+#: reviews/templates/reviews/task.html:180
+msgid "Changes asked for"
+msgstr "التعديلات المطلوبة"
+
+#: reviews/templates/reviews/task.html:187
+msgid ""
+"Launch the campaign from the brief, then record what the network gave. The "
+"broker sees it Live."
+msgstr ""
+"أطلق الحملة من الموجز، ثم سجّل ما أعطته الشبكة. سيراها الوسيط «قيد التشغيل»."
+
+#: reviews/templates/reviews/task.html:189
+#: reviews/templates/reviews/task.html:205
+msgid "Meta ad set ID"
+msgstr "معرّف المجموعة الإعلانية في ميتا"
+
+#: reviews/templates/reviews/task.html:189
+#: reviews/templates/reviews/task.html:205
+msgid "Google Ads campaign ID"
+msgstr "معرّف حملة إعلانات جوجل"
+
+#: reviews/templates/reviews/task.html:194
+msgid "Ad account"
+msgstr "الحساب الإعلاني"
+
+#: reviews/templates/reviews/task.html:198
+msgid "Mark deployed"
+msgstr "سجّل الإطلاق"
+
+#: reviews/templates/reviews/task.html:212
+msgid "Earlier reviews"
+msgstr "المراجعات السابقة"
+
+#: reviews/views.py:93
+msgid "All open"
+msgstr "كل المفتوحة"
+
+#: reviews/views.py:94
+msgid "Mine"
+msgstr "مهامي"
+
+#: reviews/views.py:95
+msgid "Unassigned"
+msgstr "غير مسندة"
+
+#: reviews/views.py:191
+msgid "Assignment saved."
+msgstr "تم حفظ الإسناد."
+
+#: reviews/views.py:196
+msgid "The task is yours. Decide it before the time runs out."
+msgstr "المهمة لك الآن. اتخذ القرار قبل انتهاء الوقت."
+
+#: reviews/views.py:201
+msgid "Approved. The brief is ready; launch the campaign and mark it deployed."
+msgstr "تمت الموافقة. الموجز جاهز؛ أطلق الحملة ثم سجّل الإطلاق."
+
+#: reviews/views.py:207
+msgid "Sent back to the broker with your reasons."
+msgstr "أُعيدت إلى الوسيط مع أسبابك."
+
+#: reviews/views.py:216
+msgid "Recorded. The campaign is Live."
+msgstr "تم التسجيل. الحملة قيد التشغيل."
+
 #~ msgid "Owned"
 #~ msgstr "مملوك"
 
@@ -921,3 +3695,75 @@ msgstr "الذهاب إلى صفحتي الرئيسية"
 
 #~ msgid "A broker is either the owner or a team member, not both."
 #~ msgstr "الوسيط إما مالك أو عضو فريق، وليس الاثنين معًا."
+
+#~ msgid "Admin"
+#~ msgstr "الإدارة"
+
+#~ msgid "Your office's campaigns. Drafts wait here until you run them."
+#~ msgstr "حملات مكتبك. تبقى المسودات هنا حتى تشغّلها."
+
+#~ msgid "No campaigns with this status."
+#~ msgstr "لا توجد حملات بهذه الحالة."
+
+#
+#~ msgid "Unit type (optional)"
+#~ msgstr "نوع الوحدة (اختياري)"
+
+#~ msgid "Every kind of unit"
+#~ msgstr "كل أنواع الوحدات"
+
+#~ msgid "Choose an area."
+#~ msgstr "اختر منطقة."
+
+#~ msgid "A single project"
+#~ msgstr "مشروع واحد"
+
+#~ msgid "A category across an area"
+#~ msgstr "فئة وحدات في منطقة"
+
+#~ msgid "LeadsHub page (pooled)"
+#~ msgstr "صفحة LeadsHub (مجمّعة)"
+
+#~ msgid "Lifetime budget"
+#~ msgstr "ميزانية إجمالية"
+
+#~ msgid "what to advertise"
+#~ msgstr "ما الذي تعلن عنه"
+
+#~ msgid "Leave empty for every kind of unit in the area."
+#~ msgstr "اتركه فارغًا لكل أنواع الوحدات في المنطقة."
+
+#, python-format
+#~ msgid "%(unit_type)s in %(area)s"
+#~ msgstr "%(unit_type)s في %(area)s"
+
+#, python-format
+#~ msgid "All units in %(area)s"
+#~ msgstr "كل الوحدات في %(area)s"
+
+#~ msgid "Save and continue"
+#~ msgstr "حفظ ومتابعة"
+
+#~ msgid ""
+#~ "Choose who should see the ads. Our media team turns this into the "
+#~ "targeting."
+#~ msgstr ""
+#~ "اختر من يجب أن يرى الإعلانات، وسيحوّل فريق الإعلانات ذلك إلى إعدادات "
+#~ "الاستهداف."
+
+#~ msgid "Continue"
+#~ msgstr "متابعة"
+
+#~ msgid ""
+#~ "Runs under your handle. Never pooled, and every lead is yours. You can "
+#~ "use several creatives."
+#~ msgstr ""
+#~ "تُعرض باسم صفحتك. لا تُجمَّع مع غيرها أبدًا، وكل العملاء المحتملين لك. يمكنك "
+#~ "استخدام عدة مواد إعلانية."
+
+#~ msgid ""
+#~ "Advertise one project, or a kind of unit across the projects of an area, "
+#~ "such as commercial units in New Cairo."
+#~ msgstr ""
+#~ "أعلن عن مشروع واحد، أو عن نوع من الوحدات في مشروعات منطقة ما، مثل الوحدات "
+#~ "التجارية في القاهرة الجديدة."

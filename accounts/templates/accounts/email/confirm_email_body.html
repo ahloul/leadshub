@@ -1,0 +1,20 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% translate "Confirm your email address" %}{% endblock %}
+{% block preheader %}{% blocktranslate with office=office_name %}One step left to register {{ office }} on LeadsHub.{% endblocktranslate %}{% endblock %}
+{% block heading %}{% translate "Confirm your email address" %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 16px;">{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}</p>
+<p style="margin:0 0 16px;">{% blocktranslate with office=office_name %}Thank you for registering {{ office }} on LeadsHub.{% endblocktranslate %} {% translate "Confirm your email address so our team can review your brokerage." %}</p>
+{% translate "Confirm email address" as label %}{% include "email/button.html" with url=link label=label %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="lh-panel" style="border-collapse:separate;margin:0 0 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+  <tr>
+    <td style="padding:16px;font-size:14px;line-height:1.6;text-align:{{ start }};">
+      <p class="lh-heading" style="margin:0 0 4px;font-weight:600;color:#0f172a;">{% translate "What happens next" %}</p>
+      <p class="lh-text" style="margin:0;color:#475569;">{% translate "Once your email is confirmed, our team reviews your brokerage and emails you when your account opens." %}</p>
+    </td>
+  </tr>
+</table>
+<p class="lh-muted" style="margin:16px 0 0;font-size:14px;color:#64748b;">{% blocktranslate count days=valid_days %}The link works within {{ days }} day. If it has expired, sign in to LeadsHub and ask for a new one.{% plural %}The link works within {{ days }} days. If it has expired, sign in to LeadsHub and ask for a new one.{% endblocktranslate %}</p>
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}
+{% block footer %}<p style="margin:0 0 8px;">{% translate "If you didn't register, you can ignore this email." %}</p>{% endblock %}

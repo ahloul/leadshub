@@ -1,0 +1,226 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ task.code }} · {% translate "Review queue" %} · LeadsHub{% endblock %}
+
+{% block content %}
+{% comment %}One review task (SRS §4.1): everything the broker chose, with the internal
+targeting, then assign, take, approve or ask for changes; once approved, the brief
+and "Mark deployed" (ROADMAP Q12).{% endcomment %}
+<div dj-root dj-view="reviews.views.ReviewTaskView" class="space-y-6">
+    <section class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
+            <a href="{% url 'review_queue' %}" dj-navigate="{% url 'review_queue' %}" class="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400">{% translate "Review queue" %}</a>
+            <h1 class="mt-1 text-2xl font-bold sm:text-3xl"><span dir="ltr">{{ task.code }}</span> · <span dir="auto">{{ campaign.target_label }}</span></h1>
+            <p class="mt-1 text-slate-500 dark:text-slate-400">{{ task.get_kind_display }} · <span dir="ltr">{{ campaign.code }}</span> · <span dir="auto">{{ campaign.office.company_name }}</span></p>
+        </div>
+        {% if task.is_open %}
+        <span data-countdown="{{ task.due_iso }}" data-sla="{{ task.sla_state }}"
+              class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-3 py-1.5 text-base font-semibold tabular-nums data-[sla=ok]:bg-slate-100 data-[sla=ok]:text-slate-700 data-[sla=near]:bg-amber-50 data-[sla=near]:text-amber-800 data-[sla=breached]:bg-red-50 data-[sla=breached]:text-red-700 dark:data-[sla=ok]:bg-slate-800 dark:data-[sla=ok]:text-slate-200 dark:data-[sla=near]:bg-amber-950 dark:data-[sla=near]:text-amber-300 dark:data-[sla=breached]:bg-red-950 dark:data-[sla=breached]:text-red-300">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+            <span data-countdown-time dir="ltr">{{ task.countdown }}</span>
+            <span class="sr-only">{% translate "left before the 4-hour limit" %}</span>
+        </span>
+        {% else %}
+        <span class="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full px-3 py-1 text-sm font-semibold {% if rejected %}bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300{% elif task.awaiting_deployment %}bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300{% else %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% endif %}"><span class="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true"></span>{% if task.awaiting_deployment %}{% translate "Approved, waiting for launch" %}{% elif task.deployed_at %}{% translate "Deployed" %}{% else %}{{ task.get_status_display }}{% endif %}</span>
+        {% endif %}
+    </section>
+
+    {% if notice %}<p role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">{{ notice }}</p>{% endif %}
+    {% if error %}<p role="alert" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">{{ error }}</p>{% endif %}
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="space-y-6 lg:col-span-2">
+            {% if is_resent and earlier %}
+            <div class="tip">
+                <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5"/></svg>
+                <p>{% translate "The broker sent this campaign again after changes were asked for. Check that each earlier reason was addressed (see Earlier reviews)." %}</p>
+            </div>
+            {% endif %}
+
+            <section class="card" aria-labelledby="campaign-heading">
+                <h2 id="campaign-heading" class="section-title">{% translate "Campaign" %}</h2>
+                <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Type" %}</dt><dd class="mt-0.5 font-medium">{{ campaign.get_target_kind_display }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Channel" %}</dt><dd class="mt-0.5 font-medium">{{ campaign.get_channel_display }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Developer" %}</dt><dd class="mt-0.5 font-medium">{% if campaign.developer %}{{ campaign.developer.display_name }}{% else %}—{% endif %}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Project" %}</dt><dd class="mt-0.5 font-medium">{% if campaign.project %}{{ campaign.project.display_name }}{% else %}—{% endif %}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Area" %}</dt><dd class="mt-0.5 font-medium">{% if campaign.area %}{{ campaign.area.display_name }}{% else %}—{% endif %}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Unit type" %}</dt><dd class="mt-0.5 font-medium">{% if campaign.unit_type %}{{ campaign.unit_type.display_name }}{% else %}—{% endif %}</dd></div>
+                    <div class="sm:col-span-2">
+                        <dt class="text-slate-500 dark:text-slate-400">{% translate "Ads appear on" %}</dt>
+                        <dd class="mt-0.5 font-medium">{{ campaign.get_destination_display }}{% if account %} · <span dir="ltr">{{ account.handle }}</span> <span class="ms-1 rounded-full px-2 py-0.5 text-xs font-semibold {% if account.status == 'verified' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% else %}bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% endif %}">{{ account.get_status_display }}</span>{% endif %}</dd>
+                    </div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Optimization goal" %}</dt><dd class="mt-0.5 font-medium">{{ campaign.get_goal_display }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Budget" %}</dt><dd class="mt-0.5 font-medium"><span dir="ltr">{{ campaign.budget_text }}</span> {% if campaign.budget_kind == 'daily' %}{% translate "a day" %}{% else %}{% translate "in total" %}{% endif %}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Start date" %}</dt><dd class="mt-0.5 font-medium" dir="ltr">{{ campaign.starts_on|date:"Y-m-d" }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "End date" %}</dt><dd class="mt-0.5 font-medium">{% if campaign.ends_on %}<span dir="ltr">{{ campaign.ends_on|date:"Y-m-d" }}</span>{% else %}{% translate "until stopped" %}{% endif %}</dd></div>
+                    <div class="sm:col-span-2">
+                        <dt class="text-slate-500 dark:text-slate-400">{% translate "Also takes leads from" %}</dt>
+                        <dd class="mt-0.5 font-medium">{% if campaign.accept_area_leads %}{% translate "other projects in the same area" %}{% if campaign.accept_developer_leads %}; {% endif %}{% endif %}{% if campaign.accept_developer_leads %}{% translate "other projects by the same developer" %}{% endif %}{% if not campaign.accept_area_leads and not campaign.accept_developer_leads %}{% translate "only this campaign's own leads" %}{% endif %}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="card" aria-labelledby="client-heading">
+                <h2 id="client-heading" class="section-title">{% translate "Broker office" %}</h2>
+                <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-3">
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Office" %}</dt><dd class="mt-0.5 font-medium" dir="auto">{{ campaign.office.company_name }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Spend tier" %}</dt><dd class="mt-0.5 font-medium">{{ campaign.office.get_spend_tier_display }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Wallet (USD)" %}</dt><dd class="mt-0.5 font-medium tabular-nums" dir="ltr">${{ campaign.office.wallet_balance_usd }}</dd></div>
+                </dl>
+            </section>
+
+            <section class="card" aria-labelledby="audience-heading">
+                <h2 id="audience-heading" class="section-title">{% translate "Audience" %}</h2>
+                {% if audience %}
+                <p class="mt-3 font-medium" dir="auto">{{ audience.display_name }}</p>
+                {% if audience.display_description %}<p class="mt-1 text-sm text-slate-500 dark:text-slate-400" dir="auto">{{ audience.display_description }}</p>{% endif %}
+                <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <dt class="text-slate-500 dark:text-slate-400">{% translate "Meta interests" %}</dt>
+                        <dd class="mt-1 flex flex-wrap gap-1.5">{% for interest in audience.interests %}<span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300" dir="auto">{{ interest }}</span>{% empty %}<span class="text-slate-400 dark:text-slate-500">—</span>{% endfor %}</dd>
+                    </div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Lookalike source" %}</dt><dd class="mt-0.5 font-medium" dir="ltr">{{ audience.lookalike_source|default:"—" }}</dd></div>
+                    <div><dt class="text-slate-500 dark:text-slate-400">{% translate "Location targeting" %}</dt><dd class="mt-0.5 font-medium" dir="auto">{{ audience.geo_targeting|default:"—" }}</dd></div>
+                </dl>
+                <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">{% translate "No age or gender limits: Meta's housing category doesn't allow them." %}</p>
+                {% else %}
+                <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">{% translate "No audience chosen." %}</p>
+                {% endif %}
+            </section>
+
+            <section class="card" aria-labelledby="creatives-heading">
+                <h2 id="creatives-heading" class="section-title">{% translate "Creatives" %}</h2>
+                <ul class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {% for creative in creatives %}
+                    <li data-key="creative-{{ creative.pk }}" class="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex aspect-video items-center justify-center bg-slate-100 dark:bg-slate-800">
+                            {% if creative.image_url %}<img src="{{ creative.image_url }}" alt="{{ creative.title }}" loading="lazy" class="h-full w-full object-contain">{% else %}<span class="text-sm text-slate-500 dark:text-slate-400">{{ creative.get_asset_type_display }}</span>{% endif %}
+                        </div>
+                        <div class="space-y-1 p-3 text-sm">
+                            <p class="font-medium"><span dir="ltr">{{ creative.code }}</span> · <span dir="auto">{{ creative.title }}</span></p>
+                            {% if creative.offer %}<p dir="auto">{{ creative.offer }}</p>{% endif %}
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ creative.get_asset_type_display }} · {{ creative.get_language_display }}{% if creative.aspect_ratio %} · <span dir="ltr">{{ creative.aspect_ratio }}</span>{% endif %}</p>
+                            {% if creative.file_url %}<a href="{{ creative.file_url }}" target="_blank" rel="noopener" class="inline-block pt-1 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400">{% translate "Open the file" %}</a>{% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="text-sm text-slate-500 dark:text-slate-400">{% translate "No creatives chosen." %}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            {% if brief_json %}
+            <section class="card" aria-labelledby="brief-heading">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 id="brief-heading" class="section-title" dir="ltr">{{ brief_id }}</h2>
+                        <p class="section-text">{% translate "Hand this brief to the AI execution agent. It never changes after approval." %}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="btn-secondary" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('brief-json').textContent).then(() => { this.dataset.copied = '1'; setTimeout(() => delete this.dataset.copied, 2000); })"><span class="[[data-copied]_&]:hidden">{% translate "Copy" %}</span><span class="hidden [[data-copied]_&]:inline">{% translate "Copied" %}</span></button>
+                        <a href="{{ brief_url }}" download class="btn-secondary">{% translate "Download JSON" %}</a>
+                    </div>
+                </div>
+                <pre id="brief-json" dir="ltr" class="mt-4 max-h-[32rem] overflow-auto rounded-lg bg-slate-950 p-4 text-xs leading-relaxed text-slate-100">{{ brief_json }}</pre>
+            </section>
+            {% endif %}
+        </div>
+
+        <aside class="space-y-6">
+            <section class="card space-y-4" aria-labelledby="decision-heading">
+                <h2 id="decision-heading" class="section-title">{% translate "Decision" %}</h2>
+                <dl class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Opened" %}</dt><dd class="font-medium" dir="ltr">{{ task.opened_text }}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Due by" %}</dt><dd class="font-medium" dir="ltr">{{ task.due_text }}</dd></div>
+                    {% if not can_assign %}
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Assigned to" %}</dt><dd class="font-medium">{% if task.assigned_to %}{{ task.assigned_to.get_full_name|default:task.assigned_to.username }}{% else %}{% translate "Nobody yet" %}{% endif %}</dd></div>
+                    {% endif %}
+                    {% if task.decided_at %}
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Decided" %}</dt><dd class="text-end font-medium"><span dir="ltr">{{ task.decided_text }}</span>{% if task.decided_by %}<span class="block text-xs font-normal text-slate-500 dark:text-slate-400">{{ task.decided_by.get_full_name|default:task.decided_by.username }}</span>{% endif %}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Decision time" %}</dt><dd class="font-medium"><span dir="ltr">{{ task.decision_minutes }}</span> {% translate "min" %} · {% if task.met_sla %}<span class="text-emerald-700 dark:text-emerald-400">{% translate "within 4 hours" %}</span>{% else %}<span class="text-red-700 dark:text-red-400">{% translate "over 4 hours" %}</span>{% endif %}</dd></div>
+                    {% endif %}
+                </dl>
+
+                {% if can_assign %}
+                <div class="field">
+                    <label for="assignee" class="field-label">{% translate "Assigned to" %}</label>
+                    <select id="assignee" name="assignee" class="input" dj-change="assign">
+                        <option value="">{% translate "Nobody yet" %}</option>
+                        {% for person in reviewers %}
+                        <option value="{{ person.pk }}"{% if person.pk == task.assigned_to_id %} selected{% endif %}>{{ person.get_full_name|default:person.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                {% if can_take %}
+                <button type="button" dj-click="take" class="btn-secondary w-full">{% translate "Take this task" %}</button>
+                {% endif %}
+
+                {% if assigned_elsewhere %}
+                <p class="rounded-lg bg-slate-100 p-3 text-sm text-slate-600 dark:bg-slate-800 dark:text-slate-300">{% translate "This task is assigned to someone else. Ask the lead to reassign it." %}</p>
+                {% endif %}
+
+                {% if can_decide %}
+                <div class="space-y-4 border-t border-slate-200 pt-4 dark:border-slate-800">
+                    <button type="button" dj-click="approve" dj-confirm="{% translate 'Approve this campaign and write its brief?' %}" class="btn-primary w-full">{% translate "Approve and write the brief" %}</button>
+                    <form dj-submit="reject" class="space-y-2">
+                        <label for="reasons" class="field-label">{% translate "Or ask the broker for changes" %}</label>
+                        <textarea id="reasons" name="reasons" rows="4" maxlength="2000" class="input" dir="auto" placeholder="{% translate 'What should the broker change? They see this text.' %}">{{ reasons }}</textarea>
+                        <button type="submit" class="btn-danger w-full">{% translate "Send back with these reasons" %}</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                {% if rejected and task.reasons %}
+                <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm dark:border-red-900 dark:bg-red-950">
+                    <p class="font-medium text-red-800 dark:text-red-200">{% translate "Changes asked for" %}</p>
+                    <p class="mt-1 whitespace-pre-line text-red-900 dark:text-red-100" dir="auto">{{ task.reasons }}</p>
+                </div>
+                {% endif %}
+
+                {% if can_deploy %}
+                <form dj-submit="mark_deployed" class="space-y-3 border-t border-slate-200 pt-4 dark:border-slate-800">
+                    <p class="text-sm text-slate-600 dark:text-slate-300">{% translate "Launch the campaign from the brief, then record what the network gave. The broker sees it Live." %}</p>
+                    <div class="field">
+                        <label for="network_id" class="field-label">{% if is_meta %}{% translate "Meta ad set ID" %}{% else %}{% translate "Google Ads campaign ID" %}{% endif %}</label>
+                        <input id="network_id" name="network_id" value="{{ network_id }}" inputmode="numeric" autocomplete="off" dir="ltr" class="input" maxlength="40">
+                        {% if field_errors.network_id %}<p class="field-error">{{ field_errors.network_id }}</p>{% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="ad_account" class="field-label">{% translate "Ad account" %}</label>
+                        <input id="ad_account" name="ad_account" value="{{ ad_account }}" autocomplete="off" dir="ltr" class="input" maxlength="40" placeholder="{% if is_meta %}act_1234567890{% else %}123-456-7890{% endif %}">
+                        {% if field_errors.ad_account %}<p class="field-error">{{ field_errors.ad_account }}</p>{% endif %}
+                    </div>
+                    <button type="submit" class="btn-primary w-full">{% translate "Mark deployed" %}</button>
+                </form>
+                {% endif %}
+
+                {% if task.deployed_at %}
+                <dl class="space-y-3 border-t border-slate-200 pt-4 text-sm dark:border-slate-800">
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% translate "Deployed" %}</dt><dd class="text-end font-medium"><span dir="ltr">{{ task.deployed_text }}</span>{% if task.deployed_by %}<span class="block text-xs font-normal text-slate-500 dark:text-slate-400">{{ task.deployed_by.get_full_name|default:task.deployed_by.username }}</span>{% endif %}</dd></div>
+                    <div class="flex justify-between gap-3"><dt class="text-slate-500 dark:text-slate-400">{% if is_meta %}{% translate "Meta ad set ID" %}{% else %}{% translate "Google Ads campaign ID" %}{% endif %}</dt><dd class="font-medium" dir="ltr">{{ campaign.external_id|default:"—" }}</dd></div>
+                </dl>
+                {% endif %}
+            </section>
+
+            {% if earlier %}
+            <section class="card" aria-labelledby="earlier-heading">
+                <h2 id="earlier-heading" class="section-title">{% translate "Earlier reviews" %}</h2>
+                <ol class="mt-3 space-y-3">
+                    {% for item in earlier %}
+                    <li data-key="earlier-{{ item.pk }}" class="text-sm">
+                        <p class="font-medium"><a href="{% url 'review_task' item.pk %}" dj-navigate="{% url 'review_task' item.pk %}" class="text-indigo-600 hover:underline dark:text-indigo-400" dir="ltr">{{ item.code }}</a> · {{ item.get_status_display }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400" dir="ltr">{{ item.decided_text|default:item.opened_text }}</p>
+                        {% if item.reasons %}<p class="mt-1 whitespace-pre-line rounded-md bg-slate-50 p-2 text-slate-700 dark:bg-slate-800 dark:text-slate-300" dir="auto">{{ item.reasons }}</p>{% endif %}
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "leadshub/base.html" %}
+{% load i18n live_tags %}
+
+{% block title %}{% translate "Pages and accounts" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.ConnectedAccountsView" class="space-y-6 sm:space-y-8">
+    <section>
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">{% translate "Pages and accounts" %}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Your office's own Instagram account, Facebook page and Google Ads account. Campaigns can run under them instead of the platform's pages." %}</p>
+    </section>
+
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        <section class="card space-y-4" aria-labelledby="add-heading">
+            <h2 id="add-heading" class="section-title">{% translate "Add an account" %}</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for item in connect %}
+                {% if item.url %}
+                <a href="{{ item.url }}" class="btn-secondary">{{ item.label }}</a>
+                {% else %}
+                <button type="button" class="btn-secondary" disabled title="{% translate 'Coming soon' %}">{{ item.label }} · {% translate "soon" %}</button>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Until then, add it by hand. Our team checks it before your first campaign on it goes live." %}</p>
+            <form dj-submit="submit_form" class="space-y-4" novalidate>
+                {% csrf_token %}
+                <fieldset>
+                    <legend class="field-label">{% translate "Platform" %}</legend>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        {% for o in platform_cards %}
+                        <label class="chip-option">
+                            <input type="radio" name="{{ o.name }}" value="{{ o.value }}" class="sr-only" dj-change="validate_field"{% if o.selected %} checked{% endif %}>
+                            {{ o.label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+                <div class="field">
+                    <label for="id_handle" class="field-label">{% if is_google %}{% translate "Google Ads customer ID" %}{% else %}{% translate "Handle" %}{% endif %}</label>
+                    <input type="text" name="handle" id="id_handle" class="input{% if field_errors.handle %} input-invalid{% endif %}" dir="ltr" autocomplete="off" value="{{ form_data.handle }}" placeholder="{% if is_google %}123-456-7890{% else %}@nour.realty{% endif %}">
+                    {% for message in field_errors.handle %}<p class="field-error">{{ message }}</p>{% endfor %}
+                </div>
+                <button type="submit" class="btn-primary w-full sm:w-auto" dj-disable-with="{% translate 'Saving…' %}">{% translate "Add" %}</button>
+                <p role="status" class="text-sm font-medium text-emerald-700 dark:text-emerald-400">{{ success_message }}</p>
+            </form>
+        </section>
+
+        <section class="card lg:col-span-2" aria-labelledby="list-heading">
+            <h2 id="list-heading" class="section-title">{% translate "Your pages and accounts" %}</h2>
+            <p role="status" class="mt-1 text-sm font-medium {% if notice_is_error %}text-red-700 dark:text-red-400{% else %}text-emerald-700 dark:text-emerald-400{% endif %}">{{ notice }}</p>
+            {% if accounts %}
+            <ul class="mt-2 divide-y divide-slate-200 dark:divide-slate-800">
+                {% for account in accounts %}
+                <li data-key="{{ account.pk }}" class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                        <p id="account-{{ account.pk }}" class="font-medium"><span dir="ltr">{{ account.handle }}</span></p>
+                        <p class="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                            {{ account.get_platform_display }}
+                            <span class="rounded-full px-2 py-0.5 text-xs font-medium {% if account.status == 'verified' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% elif account.status == 'unverified' %}bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300{% endif %}">{{ account.get_status_display }}</span>
+                        </p>
+                    </div>
+                    {% if account.status != "disconnected" %}
+                    <button type="button" class="btn-secondary" dj-click="remove_account" data-account-id="{{ account.pk }}" aria-describedby="account-{{ account.pk }}" dj-confirm="{% translate 'Remove this account? Campaigns can no longer run under it.' %}">{% translate "Remove" %}</button>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="section-text mt-3">{% translate "No pages or accounts yet." %}</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

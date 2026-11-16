@@ -1,0 +1,37 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Your registration" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full max-w-md sm:mt-6">
+    <div class="card">
+        <p class="text-sm font-medium text-slate-500 dark:text-slate-400" dir="auto">{{ office_name }}</p>
+        {% if rejected %}
+        <h1 class="mt-1 text-xl font-bold">{% translate "We couldn't approve this registration" %}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{% translate "Our team reviewed your brokerage and can't open an account for it at the moment. If you think this is a mistake, please contact LeadsHub support." %}</p>
+        {% elif email_confirmed %}
+        <h1 class="mt-1 text-xl font-bold">{% translate "Your registration is being reviewed" %}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{% translate "Thank you. Our team is checking your details and will email you when your account opens. You can close this page." %}</p>
+        <ol class="mt-6 space-y-3 text-sm">
+            <li class="flex items-center gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" aria-hidden="true">✓</span>{% translate "Brokerage registered" %}</li>
+            <li class="flex items-center gap-3"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300" aria-hidden="true">✓</span>{% translate "Email address confirmed" %}</li>
+            <li class="flex items-center gap-3 font-medium"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300" aria-hidden="true">3</span>{% translate "Review by our team" %}</li>
+        </ol>
+        {% else %}
+        <h1 class="mt-1 text-xl font-bold">{% translate "Confirm your email address" %}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            {% translate "We sent a link to" %} <span class="font-medium" dir="ltr">{{ email }}</span>.
+            {% translate "Open it to confirm your address. Our team starts reviewing your brokerage after that." %}
+        </p>
+        {% if sent %}
+        <p role="status" class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">{% translate "We sent a new link. Earlier links still work until they expire." %}</p>
+        {% endif %}
+        <form method="post" class="mt-6">
+            {% csrf_token %}
+            <button type="submit" class="btn-secondary">{% translate "Send the link again" %}</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

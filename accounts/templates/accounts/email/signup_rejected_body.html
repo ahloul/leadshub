@@ -1,0 +1,9 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% blocktranslate with office=office_name %}Your LeadsHub registration for {{ office }}{% endblocktranslate %}{% endblock %}
+{% block preheader %}{% translate "An update on your LeadsHub registration." %}{% endblock %}
+{% block heading %}{% blocktranslate with office=office_name %}Your LeadsHub registration for {{ office }}{% endblocktranslate %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 16px;">{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}</p>
+<p style="margin:0 0 16px;">{% blocktranslate with office=office_name %}Thank you for registering {{ office }}. Our team reviewed it and can't open an account for it at the moment.{% endblocktranslate %}</p>
+<p style="margin:0;">{% translate "If you think this is a mistake, please contact LeadsHub support." %}</p>
+{% endblock %}

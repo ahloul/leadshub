@@ -1,0 +1,105 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Creative library" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="leadshub.views.LibraryView" class="space-y-6 sm:space-y-8">
+    <section>
+        <h1 class="text-2xl font-bold sm:text-3xl">{% translate "Creative library" %}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Ready-made ads for your campaigns. Offers that have ended are not shown." %}</p>
+    </section>
+
+    <section class="card" aria-label="{% translate 'Filters' %}">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="field">
+                <label for="filter-area" class="field-label">{% translate "Area" %}</label>
+                <select id="filter-area" name="area" class="input" dj-change="set_filter">
+                    <option value="">{% translate "All areas" %}</option>
+                    {% for item in areas %}
+                    <option value="{{ item.pk }}"{% if item.pk == area %} selected{% endif %}>{{ item.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-project" class="field-label">{% translate "Project" %}</label>
+                <select id="filter-project" name="project" class="input" dj-change="set_filter">
+                    <option value="">{% translate "All projects" %}</option>
+                    {% for item in projects %}
+                    <option value="{{ item.pk }}"{% if item.pk == project %} selected{% endif %}>{{ item.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-type" class="field-label">{% translate "Type" %}</label>
+                <select id="filter-type" name="type" class="input" dj-change="set_filter">
+                    <option value="">{% translate "All types" %}</option>
+                    {% for value, label in type_choices %}
+                    <option value="{{ value }}"{% if value == asset_type %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="field">
+                <label for="filter-language" class="field-label">{% translate "Language of the ad" %}</label>
+                <select id="filter-language" name="language" class="input" dj-change="set_filter">
+                    <option value="">{% translate "Both languages" %}</option>
+                    {% for value, label in language_choices %}
+                    <option value="{{ value }}"{% if value == language %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% if filtered %}
+        <button type="button" dj-click="clear_filters" class="mt-4 text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400">{% translate "Clear filters" %}</button>
+        {% endif %}
+    </section>
+
+    <section aria-labelledby="assets-heading">
+        <h2 id="assets-heading" class="sr-only">{% translate "Assets" %}</h2>
+        {% if creatives %}
+        <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {% for creative in creatives %}
+            <li data-key="{{ creative.pk }}" class="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div class="flex aspect-video items-center justify-center bg-slate-100 dark:bg-slate-800">
+                    {% if creative.is_video %}
+                    <video src="{{ creative.file_url }}" poster="{{ creative.image_url }}" controls preload="none" class="h-full w-full object-contain"></video>
+                    {% elif creative.image_url %}
+                    <img src="{{ creative.image_url }}" alt="{{ creative.title }}" loading="lazy" class="h-full w-full object-contain">
+                    {% else %}
+                    <span class="text-sm text-slate-500 dark:text-slate-400">{{ creative.get_asset_type_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="flex flex-1 flex-col gap-2 p-4">
+                    <h3 class="font-semibold" dir="auto">{{ creative.title }}</h3>
+                    {% if creative.offer %}<p class="text-sm" dir="auto">{{ creative.offer }}</p>{% endif %}
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{% if creative.project %}{{ creative.project.display_name }} · {% endif %}{{ creative.area.display_name }}</p>
+                    <ul class="flex flex-wrap gap-2 text-xs font-medium">
+                        <li class="rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{{ creative.get_asset_type_display }}</li>
+                        <li class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300">{{ creative.get_language_display }}</li>
+                        {% if creative.aspect_ratio %}<li class="rounded-full bg-slate-100 px-2 py-0.5 text-slate-700 dark:bg-slate-800 dark:text-slate-300" dir="ltr">{{ creative.aspect_ratio }}</li>{% endif %}
+                    </ul>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        {% if creative.offer_expires_on %}{% translate "Offer ends" %} <span dir="ltr">{{ creative.offer_expires_on|date:"Y-m-d" }}</span>{% else %}{% translate "No end date" %}{% endif %}
+                        · <span dir="ltr">{{ creative.code }}</span>
+                    </p>
+                    <div class="mt-auto pt-2">
+                        <a href="{{ creative.file_url }}" target="_blank" rel="noopener" class="btn-secondary">{% if creative.opens_in_browser %}{% translate "Open" %}{% else %}{% translate "Download" %}{% endif %}</a>
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {% if page_count > 1 %}
+        <nav aria-label="{% translate 'Pages' %}" class="mt-6 flex items-center justify-between gap-3">
+            {% if previous_query %}<a href="?{{ previous_query }}" dj-patch="?{{ previous_query }}" class="btn-secondary">{% translate "Previous" %}</a>{% else %}<span></span>{% endif %}
+            <span class="text-sm text-slate-500 dark:text-slate-400">{% blocktranslate with number=page count=page_count %}Page {{ number }} of {{ count }}{% endblocktranslate %}</span>
+            {% if next_query %}<a href="?{{ next_query }}" dj-patch="?{{ next_query }}" class="btn-secondary">{% translate "Next" %}</a>{% else %}<span></span>{% endif %}
+        </nav>
+        {% endif %}
+        {% else %}
+        <p class="card text-center text-slate-500 dark:text-slate-400">{% if filtered %}{% translate "No assets match these filters." %}{% else %}{% translate "The library is empty for now." %}{% endif %}</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

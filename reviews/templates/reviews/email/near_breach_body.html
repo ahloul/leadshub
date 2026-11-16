@@ -1,0 +1,11 @@
+{% extends "email/base.html" %}{% load i18n %}
+{% block title %}{% translate "Review tasks near their limit" %}{% endblock %}
+{% block preheader %}{% translate "These review tasks have an hour or less left before the 4-hour limit." %}{% endblock %}
+{% block heading %}{% translate "Review tasks near their limit" %}{% endblock %}
+{% block content %}
+<p style="margin:0 0 4px;">{% translate "These review tasks have an hour or less left before the 4-hour limit. Assign or decide them now." %}</p>
+{% include "email/details.html" with rows=rows %}
+{% translate "Open the queue" as label %}{% include "email/button.html" with url=link label=label %}
+{% include "email/link_fallback.html" with url=link %}
+{% endblock %}
+{% block footer %}<p style="margin:0 0 8px;">{% translate "You get this email because you can assign review tasks on LeadsHub." %}</p>{% endblock %}

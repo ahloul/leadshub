@@ -1,0 +1,14 @@
+{# djust:partial #}
+{% comment %}Radio choices drawn as cards. Expects "group": [{name, value, label, description?, badge?, warning?, selected}], and "two_columns" to lay them out side by side from tablet width.{% endcomment %}
+<div class="grid grid-cols-1 gap-3 {% if two_columns %}sm:grid-cols-2{% endif %}">
+    {% for o in group %}
+    <label class="option-card">
+        <input type="radio" name="{{ o.name }}" value="{{ o.value }}" class="sr-only" dj-change="validate_field"{% if o.selected %} checked{% endif %}>
+        <span class="option-card-mark" aria-hidden="true"></span>
+        <span class="min-w-0">
+            <span class="option-card-title"><span dir="auto">{{ o.label }}</span>{% if o.badge %}<span class="option-card-badge">{{ o.badge }}</span>{% endif %}{% if o.warning %}<span class="option-card-warning">{{ o.warning }}</span>{% endif %}</span>
+            {% if o.description %}<span class="option-card-text">{{ o.description }}</span>{% endif %}
+        </span>
+    </label>
+    {% endfor %}
+</div>

@@ -1,0 +1,11 @@
+{% extends "email/base.txt" %}{% load i18n %}{% block content %}{% if first_name %}{% blocktranslate with name=first_name %}Hello {{ name }},{% endblocktranslate %}{% else %}{% translate "Hello," %}{% endif %}
+
+{% blocktranslate with office=office_name %}Thank you for registering {{ office }} on LeadsHub.{% endblocktranslate %}
+
+{% translate "Confirm your email address with this link:" %}
+{{ link }}
+
+{% blocktranslate count days=valid_days %}The link works within {{ days }} day. If it has expired, sign in to LeadsHub and ask for a new one.{% plural %}The link works within {{ days }} days. If it has expired, sign in to LeadsHub and ask for a new one.{% endblocktranslate %}
+{% translate "After that, our team reviews your brokerage and emails you when your account opens." %}
+
+{% translate "If you didn't register, you can ignore this email." %}{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Campaign audience" %} · LeadsHub{% endblock %}
+
+{% block content %}
+<div dj-root dj-view="campaigns.views.AudienceStepView" class="space-y-6">
+    {% include "campaigns/_step_header.html" %}
+
+    {% if not locked_message %}
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-start">
+        <form dj-submit="submit_form" class="space-y-6 lg:col-span-2" novalidate>
+            {% csrf_token %}
+            <section class="card space-y-4" aria-labelledby="audience-heading">
+                <div>
+                    <h2 id="audience-heading" class="section-title">{% translate "Audience" %}</h2>
+                    <p class="section-text">{% translate "Only audiences that fit your target are shown. Our team sets the targeting for each one." %}</p>
+                </div>
+                {% if target_missing %}
+                <p class="tip">{% translate "Choose the target first." %} <a href="{{ target_url }}" dj-navigate="{{ target_url }}" class="font-medium underline">{% translate "Go to Target" %}</a></p>
+                {% elif audience_cards %}
+                {% include "campaigns/_choice_cards.html" with group=audience_cards two_columns=True %}
+                {% else %}
+                <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">{% translate "No audiences are offered for this area yet. Please contact LeadsHub." %}</p>
+                {% endif %}
+                {% for message in field_errors.audience %}<p class="field-error">{{ message }}</p>{% endfor %}
+                <p class="policy-note text-xs text-slate-500 dark:text-slate-400">{% translate "Audiences never limit by age or gender, to stay within the housing-ad policy." %}</p>
+            </section>
+
+            <section class="card space-y-4" aria-labelledby="goal-heading">
+                <div>
+                    <h2 id="goal-heading" class="section-title">{% translate "Optimization goal" %}</h2>
+                    <p class="section-text">{% translate "What the campaign should aim for. We tune targeting, bidding and delivery to match." %}</p>
+                </div>
+                {% include "campaigns/_choice_cards.html" with group=goal_cards %}
+            </section>
+
+            <div>{% include "campaigns/_step_footer.html" with bare=True %}</div>
+        </form>
+        {% include "campaigns/_summary.html" %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
