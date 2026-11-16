@@ -321,7 +321,7 @@ class LaunchReadyFilter(admin.SimpleListFilter):
         return queryset
 
 
-_META_FIELDS = ["business_manager", "meta_account_id", "name", "account_status", "ownership", "currency", "timezone_name"]
+_META_FIELDS = ["business_manager", "meta_account_id", "name"]
 
 
 @admin.register(MetaAdAccount)
@@ -331,14 +331,11 @@ class MetaAdAccountAdmin(ModelAdmin):
         "name",
         "meta_account_id",
         "business_manager",
-        "status_badge",
         "enabled_for_launch",
         "launch_badge",
-        "currency",
-        "timezone_name",
         "last_synced_at",
     ]
-    list_filter = ["business_manager", "account_status", LaunchReadyFilter, "enabled_for_launch", "is_removed"]
+    list_filter = ["business_manager", LaunchReadyFilter, "enabled_for_launch"]
     list_select_related = ["business_manager"]
     search_fields = ["name", "meta_account_id"]
     actions = ["enable_for_launch", "disable_for_launch"]
@@ -346,7 +343,7 @@ class MetaAdAccountAdmin(ModelAdmin):
     def get_fields(self, request, obj=None):
         if obj is None:
             return [*_META_FIELDS, "enabled_for_launch"]
-        return [*_META_FIELDS, "enabled_for_launch", "is_removed", "last_synced_at", "launch_badge"]
+        return [*_META_FIELDS, "enabled_for_launch", "last_synced_at", "launch_badge"]
 
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
@@ -354,23 +351,12 @@ class MetaAdAccountAdmin(ModelAdmin):
         # Once synced, Meta owns these and the next sync would overwrite any
         # edit (criterion 11). A hand-added account stays editable until then.
         meta = _META_FIELDS if obj.last_synced_at else []
-        return [*meta, "is_removed", "last_synced_at", "launch_badge"]
+        return [*meta, "last_synced_at", "launch_badge"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "business_manager":
             kwargs["queryset"] = MetaBusinessManager.objects.filter(is_active=True)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    # Every status needs a colour: Unfold shows the raw number for an unmapped one.
-    @display(
-        description=_("Meta status"),
-        label={
-            status: "success" if status in (MetaAdAccount.Status.ACTIVE, MetaAdAccount.Status.ANY_ACTIVE) else "danger"
-            for status in MetaAdAccount.Status
-        },
-    )
-    def status_badge(self, obj):
-        return obj.account_status, obj.get_account_status_display()
 
     @display(description=_("launch"), label={"ready": "success", "blocked": "danger", "off": "info"})
     def launch_badge(self, obj):

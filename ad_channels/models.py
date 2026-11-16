@@ -12,8 +12,9 @@ the admin, or by pressing Sync on their Business Manager. Sync matches by
 Field ownership (criterion 11):
 
 - Meta-owned, overwritten by every sync: ``name``, ``account_status``,
-  ``currency``, ``timezone_name``, ``ownership``, ``last_synced_at``,
-  ``is_removed``. Typed by the admin only when adding an account by hand.
+  ``last_synced_at``, ``is_removed``. ``account_status`` and ``is_removed``
+  are not shown in the admin; they only keep disabled or vanished accounts
+  out of launch (FR-6.12).
 - Admin-owned, never touched by sync: ``enabled_for_launch``.
 
 Both are plain CRUD for the Platform Admin. Deleting a Business Manager
@@ -122,10 +123,6 @@ class MetaAdAccount(models.Model):
         ANY_ACTIVE = 201, _("Any active")
         ANY_CLOSED = 202, _("Any closed")
 
-    class Ownership(models.TextChoices):
-        OWNED = "owned", _("Owned")
-        SHARED = "shared", _("Shared with us")
-
     business_manager = models.ForeignKey(
         MetaBusinessManager,
         on_delete=models.CASCADE,  # An ad account belongs to its Business Manager.
@@ -143,13 +140,6 @@ class MetaAdAccount(models.Model):
     name = models.CharField(_("name"), max_length=255)
     account_status = models.PositiveSmallIntegerField(
         _("Meta status"), choices=Status.choices, default=Status.ACTIVE
-    )
-    ownership = models.CharField(
-        _("ownership"), max_length=10, choices=Ownership.choices, default=Ownership.OWNED
-    )
-    currency = models.CharField(_("currency"), max_length=3, help_text=_("ISO code, e.g. EGP or USD."))
-    timezone_name = models.CharField(
-        _("time zone"), max_length=64, help_text=_("As in Ads Manager, e.g. Africa/Cairo.")
     )
     # Empty for an account added by hand until its first sync.
     last_synced_at = models.DateTimeField(_("last synced"), null=True, blank=True, editable=False)
@@ -178,7 +168,7 @@ class MetaAdAccount(models.Model):
         if self.is_removed:
             problems.append(_("no longer returned by Meta"))
         if self.account_status != self.Status.ACTIVE:
-            problems.append(_("Meta status is not active"))
+            problems.append(_("disabled by Meta"))
         bm = self.business_manager
         if not bm.is_active:
             problems.append(_("Business Manager is deactivated"))
@@ -191,8 +181,6 @@ class MetaAdAccount(models.Model):
             self.meta_account_id = f"act_{self.meta_account_id}"
         if self.meta_account_id and not self.meta_account_id[4:].isdigit():
             raise ValidationError({"meta_account_id": _("Enter act_ followed by the numeric account ID.")})
-        if self.currency:
-            self.currency = self.currency.upper()
         # Turning launch on needs a healthy account (criterion 15). Turning it
         # off is always allowed.
         if self.enabled_for_launch and not self._enabled_in_db():

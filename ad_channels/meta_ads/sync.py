@@ -165,9 +165,6 @@ def sync_business_manager(bm: MetaBusinessManager) -> SyncResult:
             account.business_manager = bm
             account.name = info.name
             account.account_status = info.status
-            account.currency = info.currency
-            account.timezone_name = info.timezone_name
-            account.ownership = info.ownership
             account.is_removed = False
             account.last_synced_at = now
             account.save()
@@ -195,4 +192,5 @@ def _moves_here(account: MetaAdAccount, info) -> bool:
     """
     if account.is_removed:
         return True
-    return info.ownership == OWNED and account.ownership != OWNED
+    # Only the owner takes it over; a business it's merely shared with doesn't.
+    return info.ownership == OWNED

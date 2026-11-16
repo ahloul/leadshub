@@ -34,8 +34,6 @@ _AD_ACCOUNT_FIELDS = [
     AdAccount.Field.id,
     AdAccount.Field.name,
     AdAccount.Field.account_status,
-    AdAccount.Field.currency,
-    AdAccount.Field.timezone_name,
 ]
 
 
@@ -54,9 +52,7 @@ class AdAccountInfo:
     id: str  # "act_<number>"
     name: str
     status: int  # Meta account_status, 1 = active
-    currency: str
-    timezone_name: str
-    ownership: str  # OWNED or SHARED
+    ownership: str  # OWNED or SHARED; decides which Business Manager keeps it, not stored
 
 
 class MetaClient:
@@ -113,8 +109,6 @@ class MetaClient:
                             id=acc[AdAccount.Field.id],
                             name=acc.get(AdAccount.Field.name, ""),
                             status=int(acc.get(AdAccount.Field.account_status, 0)),
-                            currency=acc.get(AdAccount.Field.currency, ""),
-                            timezone_name=acc.get(AdAccount.Field.timezone_name, ""),
                             ownership=ownership,
                         ),
                     )

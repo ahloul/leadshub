@@ -33,7 +33,7 @@ REJECTED = MetaError("Error validating access token (Meta error 190)", token_rej
 
 def account(id_="act_1", *, name="Account 1", status=1, ownership=OWNED):
     return AdAccountInfo(
-        id=id_, name=name, status=status, currency="EGP", timezone_name="Africa/Cairo", ownership=ownership
+        id=id_, name=name, status=status, ownership=ownership
     )
 
 
@@ -278,7 +278,7 @@ class SyncTests(MetaTestCase):
         self.assertEqual(MetaAdAccount.objects.get(meta_account_id="act_1").business_manager, self.bm)
         sync_business_manager(other)  # Still only shared there: stays with the owner.
         acc = MetaAdAccount.objects.get(meta_account_id="act_1")
-        self.assertEqual((acc.business_manager, acc.ownership), (self.bm, OWNED))
+        self.assertEqual(acc.business_manager, self.bm)
         self.assertEqual(MetaAdAccount.objects.count(), 2)
 
 
@@ -292,10 +292,7 @@ class LaunchAvailabilityTests(MetaTestCase):
             business_manager=self.bm,
             meta_account_id="act_1",
             name="ACC-01",
-            currency="EGP",
-            timezone_name="Africa/Cairo",
             account_status=MetaAdAccount.Status.ACTIVE,
-            ownership=OWNED,
             last_synced_at=timezone.now(),
         )
 
@@ -311,7 +308,7 @@ class LaunchAvailabilityTests(MetaTestCase):
     def test_inactive_account_cannot_be_enabled(self):
         self.acc.account_status = MetaAdAccount.Status.DISABLED
         self.acc.save()
-        with self.assertRaisesMessage(ValidationError, "Meta status is not active"):
+        with self.assertRaisesMessage(ValidationError, "disabled by Meta"):
             self.enable()
 
     def test_account_cannot_be_enabled_while_the_token_is_not_valid(self):
@@ -356,7 +353,7 @@ class LaunchAvailabilityTests(MetaTestCase):
         response = self.client.post(
             ACCOUNT_URL, {"action": "enable_for_launch", "_selected_action": [self.acc.pk]}, follow=True
         )
-        self.assertContains(response, "Meta status is not active")
+        self.assertContains(response, "disabled by Meta")
         self.assertFalse(MetaAdAccount.objects.get().enabled_for_launch)
 
     def test_enable_action_enables_healthy_accounts(self):
@@ -393,7 +390,7 @@ class DeleteTests(MetaTestCase):
     def test_deleting_a_business_manager_deletes_its_ad_accounts(self):
         other = make_bm("BM Two", "222")
         MetaAdAccount.objects.create(
-            business_manager=other, meta_account_id="act_9", name="Other", currency="EGP", timezone_name="Africa/Cairo"
+            business_manager=other, meta_account_id="act_9", name="Other"
         )
         self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
         page = self.client.get(f"{BM_URL}{self.bm.pk}/delete/")
@@ -459,10 +456,6 @@ class ManualAdAccountTests(MetaTestCase):
             "business_manager": self.bm.pk,
             "meta_account_id": "act_555",
             "name": "ACC-05",
-            "account_status": MetaAdAccount.Status.ACTIVE,
-            "ownership": OWNED,
-            "currency": "egp",
-            "timezone_name": "Africa/Cairo",
             **fields,
         }
         return self.client.post(f"{ACCOUNT_URL}add/", data)
@@ -470,7 +463,7 @@ class ManualAdAccountTests(MetaTestCase):
     def test_added_by_hand_without_calling_meta(self):
         self.assertEqual(self.add().status_code, 302)
         acc = MetaAdAccount.objects.get()
-        self.assertEqual((acc.meta_account_id, acc.currency), ("act_555", "EGP"))
+        self.assertEqual((acc.meta_account_id, acc.account_status), ("act_555", MetaAdAccount.Status.ACTIVE))
         self.assertFalse(acc.enabled_for_launch)
         self.assertIsNone(acc.last_synced_at)
         self.assertEqual(self.meta.tokens, [])
@@ -587,14 +580,29 @@ class ListViewTests(MetaTestCase):
         self.assertContains(response, "Valid")
         self.assertContains(response, "111")
 
-    def test_ad_account_list_filters_by_business_manager_and_status(self):
+    def test_ad_account_list_filters_by_business_manager(self):
         response = self.client.get(ACCOUNT_URL, {"business_manager__id__exact": self.two.pk})
         self.assertContains(response, "act_3")
         self.assertNotContains(response, "act_1")
-        response = self.client.get(ACCOUNT_URL, {"account_status__exact": 2})
-        self.assertContains(response, "act_2")
-        self.assertContains(response, "Disabled")  # The label, not the raw Meta number.
-        self.assertNotContains(response, "act_3")
+
+    def test_ad_account_pages_hide_meta_details(self):
+        acc = MetaAdAccount.objects.get(meta_account_id="act_1")
+        for url in (ACCOUNT_URL, f"{ACCOUNT_URL}{acc.pk}/change/", f"{ACCOUNT_URL}add/"):
+            with self.subTest(url=url):
+                page = self.client.get(url)
+                for label in ("Ownership", "Currency", "Meta status", "Time zone", "Removed from Meta"):
+                    self.assertNotContains(page, label)
+                for name in ("account_status", "is_removed", "ownership", "currency", "timezone_name"):
+                    self.assertNotContains(page, f'name="{name}"')
+
+    def test_ownership_currency_and_time_zone_are_not_stored(self):
+        names = {f.name for f in MetaAdAccount._meta.get_fields()}
+        self.assertFalse(names & {"ownership", "currency", "timezone_name"})
+        self.assertTrue({"account_status", "is_removed"} <= names)  # Still guard launches (FR-6.12).
+
+    def test_disabled_account_still_blocked_though_hidden(self):
+        acc = MetaAdAccount.objects.get(meta_account_id="act_2")  # Meta status 2: disabled.
+        self.assertNotIn(acc, MetaAdAccount.objects.available_for_launch())
 
     def test_flagged_filter_shows_enabled_accounts_that_cannot_launch(self):
         MetaBusinessManager.objects.filter(pk=self.one.pk).update(token_status=MetaBusinessManager.TokenStatus.INVALID)

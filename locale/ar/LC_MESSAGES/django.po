@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 04:04+0200\n"
+"POT-Creation-Date: 2026-11-16 04:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -141,7 +141,7 @@ msgstr "فئة الإنفاق"
 msgid "feedback score"
 msgstr "درجة التقييم"
 
-#: accounts/models.py:69 ad_channels/models.py:70 ad_channels/models.py:162
+#: accounts/models.py:69 ad_channels/models.py:71 ad_channels/models.py:152
 msgid "created at"
 msgstr "تاريخ الإنشاء"
 
@@ -340,8 +340,8 @@ msgid ""
 "Connected %(bm)s, but its ad accounts couldn't be loaded: %(reason)s Use "
 "Reconnect with Facebook to try again."
 msgstr ""
-"تم ربط %(bm)s، لكن تعذّر تحميل حساباته الإعلانية: %(reason)s استخدم "
-"إعادة الربط عبر فيسبوك للمحاولة مجددًا."
+"تم ربط %(bm)s، لكن تعذّر تحميل حساباته الإعلانية: %(reason)s استخدم إعادة "
+"الربط عبر فيسبوك للمحاولة مجددًا."
 
 #: ad_channels/admin.py:208
 #, python-format
@@ -362,7 +362,7 @@ msgstr "الربط عبر فيسبوك"
 msgid "Reconnect with Facebook"
 msgstr "إعادة الربط عبر فيسبوك"
 
-#: ad_channels/admin.py:265 ad_channels/models.py:53
+#: ad_channels/admin.py:265 ad_channels/models.py:54
 msgid "token status"
 msgstr "حالة الرمز"
 
@@ -425,7 +425,7 @@ msgstr[3] "تمت إعادة تفعيل %(count)d من مديري الأعمال
 msgstr[4] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 msgstr[5] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 
-#: ad_channels/admin.py:309 ad_channels/admin.py:375
+#: ad_channels/admin.py:309 ad_channels/admin.py:361
 msgid "launch"
 msgstr "الإطلاق"
 
@@ -437,23 +437,19 @@ msgstr "متاح للإطلاق"
 msgid "Enabled but blocked"
 msgstr "مفعّل لكنه محظور"
 
-#: ad_channels/admin.py:366 ad_channels/models.py:145
-msgid "Meta status"
-msgstr "الحالة في Meta"
-
-#: ad_channels/admin.py:380
+#: ad_channels/admin.py:366
 msgid "Available"
 msgstr "متاح"
 
-#: ad_channels/admin.py:381
+#: ad_channels/admin.py:367
 msgid "Not enabled"
 msgstr "غير مفعّل"
 
-#: ad_channels/admin.py:383
+#: ad_channels/admin.py:369
 msgid "Enable for launch"
 msgstr "تفعيل للإطلاق"
 
-#: ad_channels/admin.py:400
+#: ad_channels/admin.py:386
 #, python-format
 msgid "%(count)d ad account enabled."
 msgid_plural "%(count)d ad accounts enabled."
@@ -464,11 +460,11 @@ msgstr[3] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[4] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[5] "تم تفعيل %(count)d من الحسابات الإعلانية."
 
-#: ad_channels/admin.py:405
+#: ad_channels/admin.py:391
 msgid "Disable for launch"
 msgstr "إيقاف عن الإطلاق"
 
-#: ad_channels/admin.py:410
+#: ad_channels/admin.py:396
 #, python-format
 msgid "%(count)d ad account disabled."
 msgid_plural "%(count)d ad accounts disabled."
@@ -499,179 +495,155 @@ msgid ""
 "%(bm)s is already connected, and you may not change it. Nothing was changed."
 msgstr "%(bm)s مربوط بالفعل، ولا يحق لك تغييره. لم يتغيّر شيء."
 
-#: ad_channels/models.py:36
+#: ad_channels/models.py:37
 msgid "Unchecked"
 msgstr "لم يُتحقق منه"
 
-#: ad_channels/models.py:37
+#: ad_channels/models.py:38
 msgid "Valid"
 msgstr "صالح"
 
-#: ad_channels/models.py:38
+#: ad_channels/models.py:39
 msgid "Invalid"
 msgstr "غير صالح"
 
-#: ad_channels/models.py:40 ad_channels/models.py:143
+#: ad_channels/models.py:41 ad_channels/models.py:140
 msgid "name"
 msgstr "الاسم"
 
-#: ad_channels/models.py:42
+#: ad_channels/models.py:43
 msgid "Meta business ID"
 msgstr "معرّف النشاط التجاري في Meta"
 
-#: ad_channels/models.py:45
+#: ad_channels/models.py:46
 msgid "The numeric ID in Business Settings → Business info."
 msgstr "المعرّف الرقمي في إعدادات النشاط التجاري ← معلومات النشاط التجاري."
 
-#: ad_channels/models.py:59
+#: ad_channels/models.py:60
 msgid "token last checked"
 msgstr "آخر تحقق من الرمز"
 
-#: ad_channels/models.py:61
+#: ad_channels/models.py:62
 msgid "token problem"
 msgstr "مشكلة الرمز"
 
-#: ad_channels/models.py:64 catalog/models.py:16
+#: ad_channels/models.py:65 catalog/models.py:16
 msgid "active"
 msgstr "نشط"
 
-#: ad_channels/models.py:66 ad_channels/models.py:155
+#: ad_channels/models.py:67 ad_channels/models.py:145
 msgid "last synced"
 msgstr "آخر مزامنة"
 
-#: ad_channels/models.py:67
+#: ad_channels/models.py:68
 msgid "last sync failure"
 msgstr "آخر فشل في المزامنة"
 
-#: ad_channels/models.py:68
+#: ad_channels/models.py:69
 msgid "last sync error"
 msgstr "خطأ آخر مزامنة"
 
-#: ad_channels/models.py:71 ad_channels/models.py:163
+#: ad_channels/models.py:72 ad_channels/models.py:153
 msgid "updated at"
 msgstr "تاريخ التحديث"
 
-#: ad_channels/models.py:75 ad_channels/models.py:133
+#: ad_channels/models.py:76 ad_channels/models.py:130
 msgid "Business Manager"
 msgstr "مدير الأعمال"
 
-#: ad_channels/models.py:76 leadshub/settings.py:320
+#: ad_channels/models.py:77 leadshub/settings.py:320
 msgid "Business Managers"
 msgstr "مديرو الأعمال"
 
-#: ad_channels/models.py:114
+#: ad_channels/models.py:115
 msgid "Active"
 msgstr "نشط"
 
-#: ad_channels/models.py:115
+#: ad_channels/models.py:116
 msgid "Disabled"
 msgstr "معطّل"
 
-#: ad_channels/models.py:116
+#: ad_channels/models.py:117
 msgid "Unsettled"
 msgstr "غير مسدَّد"
 
-#: ad_channels/models.py:117
+#: ad_channels/models.py:118
 msgid "Pending risk review"
 msgstr "بانتظار مراجعة المخاطر"
 
-#: ad_channels/models.py:118
+#: ad_channels/models.py:119
 msgid "Pending settlement"
 msgstr "بانتظار التسوية"
 
-#: ad_channels/models.py:119
+#: ad_channels/models.py:120
 msgid "In grace period"
 msgstr "في فترة السماح"
 
-#: ad_channels/models.py:120
+#: ad_channels/models.py:121
 msgid "Pending closure"
 msgstr "بانتظار الإغلاق"
 
-#: ad_channels/models.py:121
+#: ad_channels/models.py:122
 msgid "Closed"
 msgstr "مغلق"
 
-#: ad_channels/models.py:122
+#: ad_channels/models.py:123
 msgid "Any active"
 msgstr "أي حالة نشطة"
 
-#: ad_channels/models.py:123
+#: ad_channels/models.py:124
 msgid "Any closed"
 msgstr "أي حالة مغلقة"
 
-#: ad_channels/models.py:126
-msgid "Owned"
-msgstr "مملوك"
-
-#: ad_channels/models.py:127
-msgid "Shared with us"
-msgstr "مُشارَك معنا"
-
-#: ad_channels/models.py:136
+#: ad_channels/models.py:133
 msgid "Meta ad account ID"
 msgstr "معرّف الحساب الإعلاني في Meta"
 
-#: ad_channels/models.py:139
+#: ad_channels/models.py:136
 msgid "Starts with \"act_\", e.g. act_1234567890."
 msgstr "يبدأ بـ \"act_\"، مثل act_1234567890."
 
-#: ad_channels/models.py:148
-msgid "ownership"
-msgstr "الملكية"
+#: ad_channels/models.py:142
+msgid "Meta status"
+msgstr "الحالة في Meta"
 
-#: ad_channels/models.py:150
-msgid "currency"
-msgstr "العملة"
-
-#: ad_channels/models.py:150
-msgid "ISO code, e.g. EGP or USD."
-msgstr "رمز ISO، مثل EGP أو USD."
-
-#: ad_channels/models.py:152
-msgid "time zone"
-msgstr "المنطقة الزمنية"
-
-#: ad_channels/models.py:152
-msgid "As in Ads Manager, e.g. Africa/Cairo."
-msgstr "كما في مدير الإعلانات، مثل Africa/Cairo."
-
-#: ad_channels/models.py:157
+#: ad_channels/models.py:147
 msgid "removed from Meta"
 msgstr "أُزيل من Meta"
 
-#: ad_channels/models.py:160
+#: ad_channels/models.py:150
 msgid "enabled for launch"
 msgstr "مفعّل للإطلاق"
 
-#: ad_channels/models.py:169
+#: ad_channels/models.py:159
 msgid "ad account"
 msgstr "حساب إعلاني"
 
-#: ad_channels/models.py:170
+#: ad_channels/models.py:160
 msgid "ad accounts"
 msgstr "الحسابات الإعلانية"
 
-#: ad_channels/models.py:179
+#: ad_channels/models.py:169
 msgid "no longer returned by Meta"
 msgstr "لم تعد Meta تُرجعه"
 
-#: ad_channels/models.py:181
-msgid "Meta status is not active"
-msgstr "الحالة في Meta ليست نشطة"
+#: ad_channels/models.py:171
+msgid "disabled by Meta"
+msgstr "عطّلته Meta"
 
-#: ad_channels/models.py:184
+#: ad_channels/models.py:174
 msgid "Business Manager is deactivated"
 msgstr "مدير الأعمال غير مفعّل"
 
-#: ad_channels/models.py:186
+#: ad_channels/models.py:176
 msgid "Business Manager token is not valid"
 msgstr "رمز مدير الأعمال غير صالح"
 
-#: ad_channels/models.py:193
+#: ad_channels/models.py:183
 msgid "Enter act_ followed by the numeric account ID."
 msgstr "أدخل act_ متبوعًا بالمعرّف الرقمي للحساب."
 
-#: ad_channels/models.py:202
+#: ad_channels/models.py:190
 #, python-format
 msgid "Can't enable for launch: %(reasons)s."
 msgstr "لا يمكن التفعيل للإطلاق: %(reasons)s."
@@ -869,6 +841,30 @@ msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
 #: templates/403.html:11
 msgid "Go to my home page"
 msgstr "الذهاب إلى صفحتي الرئيسية"
+
+#~ msgid "Owned"
+#~ msgstr "مملوك"
+
+#~ msgid "Shared with us"
+#~ msgstr "مُشارَك معنا"
+
+#~ msgid "ownership"
+#~ msgstr "الملكية"
+
+#~ msgid "currency"
+#~ msgstr "العملة"
+
+#~ msgid "ISO code, e.g. EGP or USD."
+#~ msgstr "رمز ISO، مثل EGP أو USD."
+
+#~ msgid "time zone"
+#~ msgstr "المنطقة الزمنية"
+
+#~ msgid "As in Ads Manager, e.g. Africa/Cairo."
+#~ msgstr "كما في مدير الإعلانات، مثل Africa/Cairo."
+
+#~ msgid "Meta status is not active"
+#~ msgstr "الحالة في Meta ليست نشطة"
 
 #, python-format
 #~ msgid "Connected %(bm)s."
