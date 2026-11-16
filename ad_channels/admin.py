@@ -66,30 +66,19 @@ class MetaBusinessManagerAdmin(ModelAdmin):
         "meta_business_id",
         "token_badge",
         "account_counts",
-        "last_synced_at",
-        "sync_badge",
         "is_active",
     ]
     list_filter = ["is_active", "token_status"]
     search_fields = ["name", "meta_business_id"]
     readonly_fields = [
         "meta_business_id",
-        "masked_token",
-        "token_status",
-        "token_checked_at",
-        "token_error",
         "is_active",
-        "last_synced_at",
-        "last_sync_failed_at",
-        "last_sync_error",
     ]
-    actions = ["sync_accounts", "recheck_tokens", "deactivate", "reactivate", "delete_selected"]
+    actions = ["recheck_tokens", "deactivate", "reactivate", "delete_selected"]
     # Business Managers are added with "Connect with Facebook", not the Add form.
     show_add_link = False
     actions_list = ["connect_with_facebook"]
     actions_detail = ["reconnect_with_facebook"]
-    # A "Save and sync" button on the edit page (POST, like Save).
-    actions_submit_line = ["save_and_sync"]
 
     # Facebook Login for Business (US-META-01, FR-6.10). The admin is sent to
     # Meta's dialog and back; the server trades the code for a system-user
@@ -197,7 +186,32 @@ class MetaBusinessManagerAdmin(ModelAdmin):
             self.log_addition(request, connected, [{"added": {}}])
         else:
             self.log_change(request, connected, [{"changed": {"fields": ["token"]}}])
-        self.message_user(request, _("Connected %(bm)s.") % {"bm": connected}, messages.SUCCESS)
+        # Load every ad account the business can use: owned and shared (FR-6.10).
+        # The connection stands even if this fails; Reconnect tries again.
+        try:
+            result = meta_sync.sync_business_manager(connected)
+        except meta_sync.SyncError as error:
+            self.message_user(
+                request,
+                _(
+                    "Connected %(bm)s, but its ad accounts couldn't be loaded: %(reason)s "
+                    "Use Reconnect with Facebook to try again."
+                )
+                % {"bm": connected, "reason": error},
+                messages.WARNING,
+            )
+        else:
+            loaded = result.created + result.updated
+            self.message_user(
+                request,
+                ngettext(
+                    "Connected %(bm)s. %(count)d ad account loaded.",
+                    "Connected %(bm)s. %(count)d ad accounts loaded.",
+                    loaded,
+                )
+                % {"bm": connected, "count": loaded},
+                messages.SUCCESS,
+            )
         return HttpResponseRedirect(self._url("change", connected.pk, lang=lang))
 
     def add_view(self, request, form_url="", extra_context=None):
@@ -232,9 +246,7 @@ class MetaBusinessManagerAdmin(ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         return [
-            (None, {"fields": ["name", "meta_business_id"]}),
-            (_("Token"), {"fields": ["masked_token", "token_status", "token_checked_at", "token_error"]}),
-            (_("Sync"), {"fields": ["is_active", "last_synced_at", "last_sync_failed_at", "last_sync_error"]}),
+            (None, {"fields": ["name", "meta_business_id", "is_active"]}),
         ]
 
     def get_queryset(self, request):
@@ -250,10 +262,6 @@ class MetaBusinessManagerAdmin(ModelAdmin):
             )
         )
 
-    @display(description=_("token"))
-    def masked_token(self, obj):
-        return obj.masked_token
-
     @display(description=_("token status"), label=_TOKEN_LABELS)
     def token_badge(self, obj):
         return obj.token_status, obj.get_token_status_display()
@@ -261,42 +269,6 @@ class MetaBusinessManagerAdmin(ModelAdmin):
     @display(description=_("ad accounts (enabled / total)"))
     def account_counts(self, obj):
         return f"{obj.accounts_enabled} / {obj.accounts_total}"
-
-    @display(description=_("last sync"), label={"ok": "success", "failed": "danger", "never": "info"})
-    def sync_badge(self, obj):
-        # Failed more recently than it last succeeded (criterion 13).
-        if obj.last_sync_failed_at and (not obj.last_synced_at or obj.last_sync_failed_at > obj.last_synced_at):
-            return "failed", _("Failed")
-        if obj.last_synced_at:
-            return "ok", _("OK")
-        return "never", _("Never synced")
-
-    @admin.action(description=_("Sync ad accounts from Meta"), permissions=["change"])
-    def sync_accounts(self, request, queryset):
-        for bm in queryset:
-            self._sync(request, bm)
-
-    @action(description=_("Save and sync"), permissions=["change"])
-    def save_and_sync(self, request, obj):
-        self._sync(request, obj)
-
-    def _sync(self, request, bm):
-        """Sync one Business Manager and report the result as a message."""
-        try:
-            result = meta_sync.sync_business_manager(bm)
-        except meta_sync.SyncError as error:
-            self.message_user(
-                request,
-                _("%(bm)s: sync failed: %(reason)s") % {"bm": bm, "reason": error},
-                messages.ERROR,
-            )
-        else:
-            self.message_user(
-                request,
-                _("%(bm)s: %(new)d new, %(updated)d updated, %(removed)d removed.")
-                % {"bm": bm, "new": result.created, "updated": result.updated, "removed": result.removed},
-                messages.SUCCESS,
-            )
 
     @admin.action(description=_("Recheck token with Meta"), permissions=["change"])
     def recheck_tokens(self, request, queryset):

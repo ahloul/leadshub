@@ -143,11 +143,13 @@ class BusinessManagerPageTests(MetaTestCase):
         response = self.client.get(f"{BM_URL}connect_with_facebook/")
         self.assertRedirects(response, f"{BM_URL}connect/", fetch_redirect_response=False)
 
-    def test_change_page_shows_reconnect_and_no_token_input(self):
+    def test_change_page_shows_reconnect_and_no_token_section(self):
         page = self.client.get(self.change_url)
         self.assertContains(page, "Reconnect with Facebook")
         self.assertNotContains(page, 'name="token"')
-        self.assertContains(page, "••••1234")
+        self.assertNotContains(page, "••••1234")
+        self.assertNotContains(page, "Token problem")
+        self.assertNotContains(page, "Token last checked")
 
     def test_no_save_and_add_another_button(self):
         self.assertNotContains(self.client.get(self.change_url), 'name="_addanother"')
@@ -549,30 +551,21 @@ class AccessTests(MetaTestCase):
                 self.assertEqual(self.client.get(BM_URL).status_code, 403)
                 self.assertEqual(self.client.get(ACCOUNT_URL).status_code, 403)
 
-    def test_save_and_sync_button_on_the_edit_page(self):
+    def test_no_sync_button_or_action_for_the_platform_admin(self):
+        self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
+        self.assertNotContains(self.client.get(f"{BM_URL}{self.bm.pk}/change/"), "save_and_sync")
+        page = self.client.get(BM_URL)
+        self.assertNotContains(page, "sync_accounts")
+        self.assertNotContains(page, "Last sync")
+        self.meta.accounts["111"].append(account("act_2"))
+        self.client.post(BM_URL, {"action": "sync_accounts", "_selected_action": [self.bm.pk]})
+        self.assertEqual(MetaAdAccount.objects.count(), 1)
+
+    def test_no_sync_section_on_the_edit_page(self):
         self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
         page = self.client.get(f"{BM_URL}{self.bm.pk}/change/")
-        self.assertContains(page, "ad_channels_metabusinessmanager_save_and_sync")
-        self.meta.accounts["111"].append(account("act_2"))
-        response = self.client.post(
-            f"{BM_URL}{self.bm.pk}/change/",
-            {"name": "Renamed", "ad_channels_metabusinessmanager_save_and_sync": ""},
-            follow=True,
-        )
-        self.assertContains(response, "1 new, 1 updated, 0 removed")
-        self.assertEqual(MetaBusinessManager.objects.get().name, "Renamed")
-        self.assertEqual(MetaAdAccount.objects.count(), 2)
-
-    def test_lead_does_not_see_the_save_and_sync_button(self):
-        self.client.force_login(make_user("lead", Role.MEDIA_BUYING_LEAD))
-        self.assertNotContains(self.client.get(f"{BM_URL}{self.bm.pk}/change/"), "save_and_sync")
-
-    def test_platform_admin_can_sync_from_the_list(self):
-        self.client.force_login(make_user("admin", Role.PLATFORM_ADMIN))
-        self.meta.accounts["111"].append(account("act_2"))
-        response = self.client.post(BM_URL, {"action": "sync_accounts", "_selected_action": [self.bm.pk]}, follow=True)
-        self.assertContains(response, "1 new, 1 updated, 0 removed")
-        self.assertEqual(MetaAdAccount.objects.count(), 2)
+        self.assertNotContains(page, "Last sync error")
+        self.assertNotContains(page, "Last sync failure")
 
 
 class ListViewTests(MetaTestCase):
@@ -593,12 +586,6 @@ class ListViewTests(MetaTestCase):
         self.assertContains(response, "1 / 2")
         self.assertContains(response, "Valid")
         self.assertContains(response, "111")
-
-    def test_failed_sync_is_flagged_in_the_list(self):
-        MetaBusinessManager.objects.filter(pk=self.one.pk).update(
-            last_sync_failed_at=timezone.now() + timedelta(minutes=1)
-        )
-        self.assertContains(self.client.get(BM_URL), "Failed")
 
     def test_ad_account_list_filters_by_business_manager_and_status(self):
         response = self.client.get(ACCOUNT_URL, {"business_manager__id__exact": self.two.pk})
@@ -792,6 +779,35 @@ class ConnectViewTests(MetaTestCase):
         self.assertRedirects(response, f"{BM_URL}{bm.pk}/change/", fetch_redirect_response=False)
         self.assertEqual(self.meta.exchanged, [("the-code", q["redirect_uri"][0])])
         self.assertContains(self.client.get(response["Location"]), "Connected")
+
+    def test_connect_loads_every_ad_account_of_the_business(self):
+        self.meta.accounts["111"] = [account("act_1"), account("act_2", ownership=SHARED)]
+        self.start()
+        response = self.finish()
+        bm = MetaBusinessManager.objects.get(meta_business_id="111")
+        self.assertEqual(
+            sorted(bm.ad_accounts.values_list("meta_account_id", flat=True)), ["act_1", "act_2"]
+        )
+        self.assertFalse(bm.ad_accounts.filter(enabled_for_launch=True).exists())
+        self.assertContains(self.client.get(response["Location"]), "2 ad accounts loaded")
+
+    def test_reconnect_loads_new_ad_accounts(self):
+        bm = make_bm(token=NEW_TOKEN)
+        self.meta.accounts["111"] = [account("act_1"), account("act_9")]
+        self.start(f"{self.CONNECT}?bm={bm.pk}")
+        self.finish()
+        self.assertEqual(bm.ad_accounts.count(), 2)
+
+    def test_ad_account_load_failure_keeps_the_connection_and_says_so(self):
+        self.meta.list_error = MetaError("Couldn't reach Meta; try again later.")
+        self.start()
+        response = self.finish()
+        bm = MetaBusinessManager.objects.get(meta_business_id="111")
+        self.assertEqual(bm.token_status, MetaBusinessManager.TokenStatus.VALID)
+        self.assertEqual(bm.ad_accounts.count(), 0)
+        page = self.client.get(response["Location"])
+        self.assertContains(page, "ad accounts couldn")
+        self.assertContains(page, "Reconnect")
 
     def test_callback_returns_to_the_language_it_started_in(self):
         self.start(self.CONNECT.replace("/en/", "/ar/"))

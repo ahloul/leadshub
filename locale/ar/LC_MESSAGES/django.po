@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 03:49+0200\n"
+"POT-Creation-Date: 2026-11-16 04:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -325,96 +325,65 @@ msgstr "تسجيل الدخول"
 msgid "Sign in to LeadsHub"
 msgstr "تسجيل الدخول إلى LeadsHub"
 
-#: ad_channels/admin.py:143
+#: ad_channels/admin.py:132
 msgid "Facebook Login isn't set up: set META_APP_ID and META_LOGIN_CONFIG_ID."
 msgstr ""
 "تسجيل الدخول عبر فيسبوك غير مُعدّ: اضبط META_APP_ID و META_LOGIN_CONFIG_ID."
 
-#: ad_channels/admin.py:184
+#: ad_channels/admin.py:173
 msgid "Facebook login was cancelled. Nothing was changed."
 msgstr "أُلغي تسجيل الدخول عبر فيسبوك. لم يتغيّر شيء."
 
-#: ad_channels/admin.py:200
+#: ad_channels/admin.py:197
 #, python-format
-msgid "Connected %(bm)s."
-msgstr "تم ربط %(bm)s."
+msgid ""
+"Connected %(bm)s, but its ad accounts couldn't be loaded: %(reason)s Use "
+"Reconnect with Facebook to try again."
+msgstr ""
+"تم ربط %(bm)s، لكن تعذّر تحميل حساباته الإعلانية: %(reason)s استخدم "
+"إعادة الربط عبر فيسبوك للمحاولة مجددًا."
 
-#: ad_channels/admin.py:220
+#: ad_channels/admin.py:208
+#, python-format
+msgid "Connected %(bm)s. %(count)d ad account loaded."
+msgid_plural "Connected %(bm)s. %(count)d ad accounts loaded."
+msgstr[0] "تم ربط %(bm)s. لم يُحمَّل أي حساب إعلاني (%(count)d)."
+msgstr[1] "تم ربط %(bm)s. حُمِّل حساب إعلاني واحد (%(count)d)."
+msgstr[2] "تم ربط %(bm)s. حُمِّل حسابان إعلانيان (%(count)d)."
+msgstr[3] "تم ربط %(bm)s. حُمِّلت %(count)d حسابات إعلانية."
+msgstr[4] "تم ربط %(bm)s. حُمِّل %(count)d حسابًا إعلانيًا."
+msgstr[5] "تم ربط %(bm)s. حُمِّل %(count)d حساب إعلاني."
+
+#: ad_channels/admin.py:236
 msgid "Connect with Facebook"
 msgstr "الربط عبر فيسبوك"
 
-#: ad_channels/admin.py:224
+#: ad_channels/admin.py:240
 msgid "Reconnect with Facebook"
 msgstr "إعادة الربط عبر فيسبوك"
 
-#: ad_channels/admin.py:234
-msgid "Token"
-msgstr "الرمز"
-
-#: ad_channels/admin.py:235
-msgid "Sync"
-msgstr "المزامنة"
-
-#: ad_channels/admin.py:251
-msgid "token"
-msgstr "الرمز"
-
-#: ad_channels/admin.py:255 ad_channels/models.py:53
+#: ad_channels/admin.py:265 ad_channels/models.py:53
 msgid "token status"
 msgstr "حالة الرمز"
 
-#: ad_channels/admin.py:259
+#: ad_channels/admin.py:269
 msgid "ad accounts (enabled / total)"
 msgstr "الحسابات الإعلانية (المفعّلة / الإجمالي)"
 
-#: ad_channels/admin.py:263
-msgid "last sync"
-msgstr "آخر مزامنة"
-
-#: ad_channels/admin.py:267
-msgid "Failed"
-msgstr "فشلت"
-
-#: ad_channels/admin.py:269
-msgid "OK"
-msgstr "ناجحة"
-
-#: ad_channels/admin.py:270
-msgid "Never synced"
-msgstr "لم تتم المزامنة بعد"
-
-#: ad_channels/admin.py:272
-msgid "Sync ad accounts from Meta"
-msgstr "مزامنة الحسابات الإعلانية من Meta"
-
-#: ad_channels/admin.py:277
-msgid "Save and sync"
-msgstr "حفظ ومزامنة"
-
-#: ad_channels/admin.py:288
-#, python-format
-msgid "%(bm)s: sync failed: %(reason)s"
-msgstr "%(bm)s: فشلت المزامنة: %(reason)s"
-
-#: ad_channels/admin.py:294
-#, python-format
-msgid "%(bm)s: %(new)d new, %(updated)d updated, %(removed)d removed."
-msgstr "%(bm)s: %(new)d جديد، %(updated)d محدَّث، %(removed)d محذوف."
-
-#: ad_channels/admin.py:299
+#: ad_channels/admin.py:273
 msgid "Recheck token with Meta"
 msgstr "إعادة التحقق من الرمز مع Meta"
 
-#: ad_channels/admin.py:304
+#: ad_channels/admin.py:278
 #, python-format
 msgid "%(bm)s: token is %(status)s."
 msgstr "%(bm)s: حالة الرمز %(status)s."
 
-#: ad_channels/admin.py:309
+#: ad_channels/admin.py:283
 msgid "Deactivate (stop all launches)"
 msgstr "إلغاء التفعيل (إيقاف كل الإطلاقات)"
 
-#: ad_channels/admin.py:315
+#: ad_channels/admin.py:289
 #, python-format
 msgid ""
 "%(count)d Business Manager deactivated; its ad accounts are no longer "
@@ -441,11 +410,11 @@ msgstr[5] ""
 "تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
 "للإطلاق."
 
-#: ad_channels/admin.py:322
+#: ad_channels/admin.py:296
 msgid "Reactivate"
 msgstr "إعادة التفعيل"
 
-#: ad_channels/admin.py:327
+#: ad_channels/admin.py:301
 #, python-format
 msgid "%(count)d Business Manager reactivated."
 msgid_plural "%(count)d Business Managers reactivated."
@@ -456,35 +425,35 @@ msgstr[3] "تمت إعادة تفعيل %(count)d من مديري الأعمال
 msgstr[4] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 msgstr[5] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
 
-#: ad_channels/admin.py:335 ad_channels/admin.py:401
+#: ad_channels/admin.py:309 ad_channels/admin.py:375
 msgid "launch"
 msgstr "الإطلاق"
 
-#: ad_channels/admin.py:339
+#: ad_channels/admin.py:313
 msgid "Available for launch"
 msgstr "متاح للإطلاق"
 
-#: ad_channels/admin.py:339
+#: ad_channels/admin.py:313
 msgid "Enabled but blocked"
 msgstr "مفعّل لكنه محظور"
 
-#: ad_channels/admin.py:392 ad_channels/models.py:145
+#: ad_channels/admin.py:366 ad_channels/models.py:145
 msgid "Meta status"
 msgstr "الحالة في Meta"
 
-#: ad_channels/admin.py:406
+#: ad_channels/admin.py:380
 msgid "Available"
 msgstr "متاح"
 
-#: ad_channels/admin.py:407
+#: ad_channels/admin.py:381
 msgid "Not enabled"
 msgstr "غير مفعّل"
 
-#: ad_channels/admin.py:409
+#: ad_channels/admin.py:383
 msgid "Enable for launch"
 msgstr "تفعيل للإطلاق"
 
-#: ad_channels/admin.py:426
+#: ad_channels/admin.py:400
 #, python-format
 msgid "%(count)d ad account enabled."
 msgid_plural "%(count)d ad accounts enabled."
@@ -495,11 +464,11 @@ msgstr[3] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[4] "تم تفعيل %(count)d من الحسابات الإعلانية."
 msgstr[5] "تم تفعيل %(count)d من الحسابات الإعلانية."
 
-#: ad_channels/admin.py:431
+#: ad_channels/admin.py:405
 msgid "Disable for launch"
 msgstr "إيقاف عن الإطلاق"
 
-#: ad_channels/admin.py:436
+#: ad_channels/admin.py:410
 #, python-format
 msgid "%(count)d ad account disabled."
 msgid_plural "%(count)d ad accounts disabled."
@@ -900,6 +869,45 @@ msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
 #: templates/403.html:11
 msgid "Go to my home page"
 msgstr "الذهاب إلى صفحتي الرئيسية"
+
+#, python-format
+#~ msgid "Connected %(bm)s."
+#~ msgstr "تم ربط %(bm)s."
+
+#~ msgid "Token"
+#~ msgstr "الرمز"
+
+#~ msgid "Sync"
+#~ msgstr "المزامنة"
+
+#~ msgid "token"
+#~ msgstr "الرمز"
+
+#~ msgid "last sync"
+#~ msgstr "آخر مزامنة"
+
+#~ msgid "Failed"
+#~ msgstr "فشلت"
+
+#~ msgid "OK"
+#~ msgstr "ناجحة"
+
+#~ msgid "Never synced"
+#~ msgstr "لم تتم المزامنة بعد"
+
+#~ msgid "Sync ad accounts from Meta"
+#~ msgstr "مزامنة الحسابات الإعلانية من Meta"
+
+#~ msgid "Save and sync"
+#~ msgstr "حفظ ومزامنة"
+
+#, python-format
+#~ msgid "%(bm)s: sync failed: %(reason)s"
+#~ msgstr "%(bm)s: فشلت المزامنة: %(reason)s"
+
+#, python-format
+#~ msgid "%(bm)s: %(new)d new, %(updated)d updated, %(removed)d removed."
+#~ msgstr "%(bm)s: %(new)d جديد، %(updated)d محدَّث، %(removed)d محذوف."
 
 #~ msgid "System user token"
 #~ msgstr "رمز مستخدم النظام"
