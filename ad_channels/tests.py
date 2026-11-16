@@ -20,7 +20,8 @@ from accounts.test_utils import make_user
 
 from .meta_ads.client import OWNED, SHARED, AdAccountInfo, MetaError, _TranslateErrors
 from .models import MetaAdAccount, MetaBusinessManager
-from .meta_ads.sync import SyncError, recheck_token, sync_business_manager
+from .meta_ads import client as meta_client
+from .meta_ads.sync import ConnectError, SyncError, connect_business, recheck_token, sync_business_manager
 
 TOKEN = "EAAB-secret-system-user-token-1234"
 NEW_TOKEN = "EAAB-another-secret-token-9876"
@@ -43,6 +44,10 @@ class FakeMeta:
         self.check_error = None
         self.list_error = None
         self.tokens = []
+        self.business = ("111", "BM One")
+        self.business_error = None
+        self.exchanged = []
+        self.exchange_error = None
 
     def __call__(self, token):
         self.tokens.append(token)
@@ -51,6 +56,18 @@ class FakeMeta:
     def check_access(self, business_id):
         if self.check_error:
             raise self.check_error
+
+    def business_for_token(self):
+        if self.business_error:
+            raise self.business_error
+        return self.business
+
+    def exchange_code(self, code, redirect_uri):
+        """Stands in for ``meta_ads.sync.exchange_code``."""
+        self.exchanged.append((code, redirect_uri))
+        if self.exchange_error:
+            raise self.exchange_error
+        return TOKEN
 
     def list_ad_accounts(self, business_id):
         if self.list_error:
@@ -69,9 +86,13 @@ def make_bm(name="BM One", business_id="111", *, token=TOKEN, status=MetaBusines
 class MetaTestCase(TestCase):
     def setUp(self):
         self.meta = FakeMeta()
-        patcher = mock.patch("ad_channels.meta_ads.sync.client_for", self.meta)
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        for target, fake in (
+            ("ad_channels.meta_ads.sync.client_for", self.meta),
+            ("ad_channels.meta_ads.sync.exchange_code", self.meta.exchange_code),
+        ):
+            patcher = mock.patch(target, fake)
+            patcher.start()
+            self.addCleanup(patcher.stop)
 
 
 class TokenStorageTests(MetaTestCase):
@@ -629,3 +650,104 @@ class MetaErrorTests(TestCase):
         self.assertIn("Meta error 190", str(caught.exception))
         self.assertTrue(caught.exception.token_rejected)
         self.assertIsNone(caught.exception.__cause__)
+
+
+class ConnectBusinessTests(MetaTestCase):
+    """Facebook Login for Business: a login code becomes a Business Manager (US-META-01, FR-6.10)."""
+
+    def test_creates_bm_with_encrypted_valid_token(self):
+        bm, created = connect_business("the-code", "https://x/cb/")
+        self.assertTrue(created)
+        self.assertEqual((bm.meta_business_id, bm.name), ("111", "BM One"))
+        self.assertEqual(bm.get_token(), TOKEN)
+        self.assertNotIn(TOKEN, bm.token_ciphertext)
+        self.assertEqual(bm.token_status, MetaBusinessManager.TokenStatus.VALID)
+        self.assertIsNotNone(bm.token_checked_at)
+        self.assertEqual(self.meta.exchanged, [("the-code", "https://x/cb/")])
+
+    def test_existing_business_updates_token_no_new_row(self):
+        old = make_bm(name="Kept name", token=NEW_TOKEN, status=MetaBusinessManager.TokenStatus.INVALID, token_error="old")
+        bm, created = connect_business("c", "u")
+        self.assertFalse(created)
+        self.assertEqual(MetaBusinessManager.objects.count(), 1)
+        old.refresh_from_db()
+        self.assertEqual((old.name, old.get_token(), old.token_status, old.token_error), ("Kept name", TOKEN, "valid", ""))
+
+    def test_connect_existing_inactive_keeps_inactive(self):
+        make_bm(is_active=False)
+        bm, _ = connect_business("c", "u")
+        bm.refresh_from_db()
+        self.assertFalse(bm.is_active)
+
+    def test_reconnect_to_different_business_refused(self):
+        other = make_bm(name="Other", business_id="222", token=NEW_TOKEN)
+        with self.assertRaisesMessage(ConnectError, "different business"):
+            connect_business("c", "u", expected=other)
+        other.refresh_from_db()
+        self.assertEqual(other.get_token(), NEW_TOKEN)
+        self.assertFalse(MetaBusinessManager.objects.filter(meta_business_id="111").exists())
+
+    def test_reconnect_same_business_replaces_token(self):
+        bm = make_bm(token=NEW_TOKEN)
+        connect_business("c", "u", expected=bm)
+        bm.refresh_from_db()
+        self.assertEqual(bm.get_token(), TOKEN)
+
+    def test_meta_errors_save_nothing(self):
+        for attr in ("exchange_error", "business_error", "check_error"):
+            with self.subTest(attr):
+                setattr(self.meta, attr, REJECTED)
+                with self.assertRaisesMessage(ConnectError, "Meta refused the connection"):
+                    connect_business("c", "u")
+                setattr(self.meta, attr, None)
+        self.assertEqual(MetaBusinessManager.objects.count(), 0)
+
+
+@override_settings(META_APP_ID="1", META_APP_SECRET="app-secret-xyz", META_API_VERSION="v25.0")
+class ExchangeCodeTests(TestCase):
+    """The code-for-token call and the business lookup, with HTTP mocked."""
+
+    def response(self, status, body):
+        r = mock.Mock(status_code=status, ok=status < 400)
+        r.json.return_value = body
+        return r
+
+    def test_returns_access_token_and_sends_params(self):
+        with mock.patch.object(meta_client.requests, "get", return_value=self.response(200, {"access_token": TOKEN})) as get:
+            self.assertEqual(meta_client.exchange_code("the-code", "https://x/cb/"), TOKEN)
+        args, kwargs = get.call_args
+        self.assertEqual(args[0], "https://graph.facebook.com/v25.0/oauth/access_token")
+        self.assertEqual(
+            kwargs["params"],
+            {"client_id": "1", "client_secret": "app-secret-xyz", "redirect_uri": "https://x/cb/", "code": "the-code"},
+        )
+        self.assertTrue(kwargs["timeout"])
+
+    def test_graph_error_is_scrubbed(self):
+        body = {"error": {"message": "Bad code the-code for secret app-secret-xyz", "code": 100}}
+        with mock.patch.object(meta_client.requests, "get", return_value=self.response(400, body)):
+            with self.assertRaises(MetaError) as caught:
+                meta_client.exchange_code("the-code", "u")
+        text = str(caught.exception)
+        self.assertNotIn("the-code", text)
+        self.assertNotIn("app-secret-xyz", text)
+        self.assertIn("Meta error 100", text)
+        self.assertIsNone(caught.exception.__cause__)
+
+    def test_exchange_network_error_is_scrubbed(self):
+        import requests
+
+        with mock.patch.object(meta_client.requests, "get", side_effect=requests.ConnectionError("x?code=the-code")):
+            with self.assertRaisesMessage(MetaError, "Couldn't reach Meta; try again later."):
+                meta_client.exchange_code("the-code", "u")
+
+    def test_business_for_token_reads_id_and_name(self):
+        with mock.patch.object(meta_client.User, "api_get", return_value={"client_business_id": "111"}), \
+                mock.patch.object(meta_client.Business, "api_get", return_value={"id": "111", "name": "BM One"}):
+            self.assertEqual(meta_client.MetaClient(TOKEN).business_for_token(), ("111", "BM One"))
+
+    def test_missing_client_business_id_refused(self):
+        with mock.patch.object(meta_client.User, "api_get", return_value={"id": "me"}):
+            with self.assertRaisesMessage(MetaError, "system-user token") as caught:
+                meta_client.MetaClient(TOKEN).business_for_token()
+        self.assertTrue(caught.exception.token_rejected)

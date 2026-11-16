@@ -1,22 +1,28 @@
-"""Token checks and ad account sync for Business Managers (US-META-01).
+"""Connecting, token checks and ad account sync for Business Managers (US-META-01).
 
-Called only from the admin: saving a Business Manager, and the Sync and
-Recheck token actions. Nothing runs on a schedule; the Platform Admin either
+Called only from the admin: the Facebook Login callback, saving a Business
+Manager, and the Sync and Recheck token actions. Nothing runs on a schedule; the Platform Admin either
 adds ad accounts by hand or presses Sync.
 """
 
 from dataclasses import dataclass
 
 from django.db import transaction
+from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 
 from ..models import MetaAdAccount, MetaBusinessManager
+from . import client as _client
 from .client import OWNED, MetaClient, MetaError
 
 
 class SyncError(Exception):
     """Sync didn't run or failed. The message is safe to show."""
+
+
+class ConnectError(Exception):
+    """Connecting a Business Manager failed. The message is safe to show."""
 
 
 @dataclass(frozen=True)
@@ -29,6 +35,48 @@ class SyncResult:
 def client_for(token: str) -> MetaClient:
     """The Meta client for a token. Tests replace this with a fake."""
     return MetaClient(token)
+
+
+@sensitive_variables("code")
+def exchange_code(code: str, redirect_uri: str) -> str:
+    """The system-user token for a login code. Tests replace this with a fake."""
+    return _client.exchange_code(code, redirect_uri)
+
+
+@sensitive_variables("code", "token")
+def connect_business(
+    code: str, redirect_uri: str, *, expected: MetaBusinessManager | None = None
+) -> tuple[MetaBusinessManager, bool]:
+    """Save the Business Manager a Facebook Login for Business code grants (FR-6.10).
+
+    Creates it, or replaces the token of the one with the same Meta business
+    ID. ``expected`` is the Business Manager being reconnected: the login
+    must be for that same business. Every Meta call happens before any write,
+    so a failure saves nothing.
+    """
+    try:
+        token = exchange_code(code, redirect_uri)
+        meta = client_for(token)
+        business_id, name = meta.business_for_token()
+        if expected is not None and business_id != expected.meta_business_id:
+            raise ConnectError(
+                _("You picked a different business than %(bm)s. Nothing was changed.") % {"bm": expected}
+            )
+        meta.check_access(business_id)
+    except MetaError as error:
+        raise ConnectError(_("Meta refused the connection: %(reason)s") % {"reason": error}) from None
+
+    with transaction.atomic():
+        bm = MetaBusinessManager.objects.select_for_update().filter(meta_business_id=business_id).first()
+        created = bm is None
+        if created:
+            bm = MetaBusinessManager(name=name, meta_business_id=business_id)
+        bm.set_token(token)
+        bm.token_status = MetaBusinessManager.TokenStatus.VALID
+        bm.token_error = ""
+        bm.token_checked_at = timezone.now()
+        bm.save()
+    return bm, created
 
 
 @sensitive_variables("token")

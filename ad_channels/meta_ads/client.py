@@ -120,6 +120,21 @@ class MetaClient:
                     )
         return list(found.values())
 
+    def business_for_token(self) -> tuple[str, str]:
+        """The business a system-user token from Facebook Login for Business belongs to: (id, name)."""
+        with self._errors():
+            me = User(fbid="me", api=self._api).api_get(fields=["client_business_id"])
+        business_id = me.get("client_business_id")
+        if not business_id:
+            raise MetaError(
+                "This login didn't return a business. Check that the Facebook Login for Business "
+                "configuration uses a system-user token.",
+                token_rejected=True,
+            )
+        with self._errors():
+            business = Business(fbid=business_id, api=self._api).api_get(fields=[Business.Field.name])
+        return str(business_id), business.get(Business.Field.name, "") or str(business_id)
+
     def _errors(self):
         return _TranslateErrors(self._token)
 
@@ -153,3 +168,34 @@ class _TranslateErrors:
 
 def scrub(text: str, token: str) -> str:
     return text.replace(token, "[token]") if token else text
+
+
+@sensitive_variables("code")
+def exchange_code(code: str, redirect_uri: str) -> str:
+    """Trade a Facebook Login for Business code for its system-user token (US-META-01).
+
+    The code, the app secret and the token never appear in the ``MetaError``
+    text, because Meta can echo request parameters in its messages.
+    """
+    url = f"https://graph.facebook.com/{settings.META_API_VERSION}/oauth/access_token"
+    params = {
+        "client_id": settings.META_APP_ID,
+        "client_secret": settings.META_APP_SECRET,
+        "redirect_uri": redirect_uri,
+        "code": code,
+    }
+    secrets_ = [code, settings.META_APP_SECRET or ""]
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        body = response.json()
+    except (requests.RequestException, ValueError):
+        raise MetaError("Couldn't reach Meta; try again later.") from None
+    token = body.get("access_token") if isinstance(body, dict) else None
+    if response.ok and token:
+        return token
+    error = body.get("error", {}) if isinstance(body, dict) else {}
+    message = error.get("message") or "Meta refused the login code."
+    text = f"{message} (Meta error {error['code']})" if error.get("code") else message
+    for secret in secrets_:
+        text = scrub(text, secret)
+    raise MetaError(text, token_rejected=True)
