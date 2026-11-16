@@ -12,15 +12,22 @@ Access follows model permissions (AGENTS.md, permission step 6):
   can't be deleted (criterion 19).
 """
 
+import secrets
+from urllib.parse import urlencode
+
 from django import forms
+from django.conf import settings
 from django.contrib import admin, messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Count, Q
-from django.utils import timezone
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.urls import path, reverse
+from django.utils import timezone, translation
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
-from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from unfold.admin import ModelAdmin
 from unfold.decorators import action, display
 from unfold.widgets import UnfoldAdminPasswordWidget
@@ -95,6 +102,11 @@ class MetaBusinessManagerForm(forms.ModelForm):
         return bm
 
 
+# Session key for one Facebook Login round trip: the CSRF state, the
+# Business Manager being reconnected (or None) and the admin's language.
+CONNECT_SESSION_KEY = "meta_connect"
+
+
 @admin.register(MetaBusinessManager)
 class MetaBusinessManagerAdmin(ModelAdmin):
     form = MetaBusinessManagerForm
@@ -123,6 +135,100 @@ class MetaBusinessManagerAdmin(ModelAdmin):
     actions = ["sync_accounts", "recheck_tokens", "deactivate", "reactivate", "delete_selected"]
     # A "Save and sync" button on the edit page (POST, like Save).
     actions_submit_line = ["save_and_sync"]
+
+    # Facebook Login for Business (US-META-01, FR-6.10). The admin is sent to
+    # Meta's dialog and back; the server trades the code for a system-user
+    # token, so nobody copies a token.
+
+    def get_urls(self):
+        view = self.admin_site.admin_view
+        info = self.opts.app_label, self.opts.model_name
+        return [
+            path("connect/", view(self.connect_view), name="%s_%s_connect" % info),
+            path("connect/callback/", view(self.callback_view), name="%s_%s_connect_callback" % info),
+            *super().get_urls(),
+        ]
+
+    @staticmethod
+    def login_configured() -> bool:
+        return bool(settings.META_APP_ID and settings.META_LOGIN_CONFIG_ID)
+
+    def _url(self, name, *args, lang=None):
+        info = self.opts.app_label, self.opts.model_name
+        with translation.override(lang or translation.get_language()):
+            return reverse(f"admin:{info[0]}_{info[1]}_{name}", args=args)
+
+    def _callback_uri(self, request):
+        # Meta matches redirect_uri exactly, so it is the same whatever the
+        # admin's language: register only the /en/ one in the Meta app.
+        return request.build_absolute_uri(self._url("connect_callback", lang="en"))
+
+    def _target(self, request, pk):
+        """The Business Manager being reconnected (or None), with the permission checked."""
+        if pk is None:
+            if not self.has_add_permission(request):
+                raise PermissionDenied
+            return None
+        try:
+            bm = get_object_or_404(MetaBusinessManager, pk=int(pk))
+        except (TypeError, ValueError):
+            raise Http404 from None
+        if not self.has_change_permission(request, bm):
+            raise PermissionDenied
+        return bm
+
+    def connect_view(self, request):
+        bm = self._target(request, request.GET.get("bm"))
+        back = self._url("change", bm.pk) if bm else self._url("changelist")
+        if not self.login_configured():
+            self.message_user(
+                request,
+                _("Facebook Login isn't set up: set META_APP_ID and META_LOGIN_CONFIG_ID."),
+                messages.ERROR,
+            )
+            return HttpResponseRedirect(back)
+        state = secrets.token_urlsafe(32)
+        request.session[CONNECT_SESSION_KEY] = {
+            "state": state,
+            "bm": bm.pk if bm else None,
+            "lang": translation.get_language(),
+        }
+        query = urlencode(
+            {
+                "client_id": settings.META_APP_ID,
+                "redirect_uri": self._callback_uri(request),
+                "state": state,
+                "config_id": settings.META_LOGIN_CONFIG_ID,
+                "response_type": "code",
+                "override_default_response_type": "true",
+            }
+        )
+        return HttpResponseRedirect(f"https://www.facebook.com/{settings.META_API_VERSION}/dialog/oauth?{query}")
+
+    @method_decorator(sensitive_variables("code"))
+    def callback_view(self, request):
+        pending = request.session.pop(CONNECT_SESSION_KEY, None)  # Single use.
+        state = request.GET.get("state", "")
+        if not pending or not state or not secrets.compare_digest(state, pending["state"]):
+            raise PermissionDenied
+        bm = self._target(request, pending["bm"])
+        lang = pending.get("lang")
+        back = self._url("change", bm.pk, lang=lang) if bm else self._url("changelist", lang=lang)
+        code = request.GET.get("code", "")
+        if request.GET.get("error") or not code:
+            self.message_user(request, _("Facebook login was cancelled. Nothing was changed."), messages.WARNING)
+            return HttpResponseRedirect(back)
+        try:
+            connected, created = meta_sync.connect_business(code, self._callback_uri(request), expected=bm)
+        except meta_sync.ConnectError as error:
+            self.message_user(request, str(error), messages.ERROR)
+            return HttpResponseRedirect(back)
+        if created:
+            self.log_addition(request, connected, [{"added": {}}])
+        else:
+            self.log_change(request, connected, [{"changed": {"fields": ["token"]}}])
+        self.message_user(request, _("Connected %(bm)s.") % {"bm": connected}, messages.SUCCESS)
+        return HttpResponseRedirect(self._url("change", connected.pk, lang=lang))
 
     def get_fieldsets(self, request, obj=None):
         details = (None, {"fields": ["name", "meta_business_id"]})

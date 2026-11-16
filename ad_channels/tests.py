@@ -4,6 +4,7 @@ Meta is never called: ``meta_ads.sync.client_for`` is replaced by ``FakeMeta``.
 """
 
 import json
+from urllib.parse import parse_qs, urlparse
 from datetime import timedelta
 from unittest import mock
 
@@ -751,3 +752,143 @@ class ExchangeCodeTests(TestCase):
             with self.assertRaisesMessage(MetaError, "system-user token") as caught:
                 meta_client.MetaClient(TOKEN).business_for_token()
         self.assertTrue(caught.exception.token_rejected)
+
+
+@override_settings(META_APP_ID="1", META_APP_SECRET="app-secret-xyz", META_LOGIN_CONFIG_ID="cfg-9", META_API_VERSION="v25.0")
+class ConnectViewTests(MetaTestCase):
+    """The admin's Facebook Login for Business round trip (US-META-01, FR-6.10)."""
+
+    CONNECT = BM_URL + "connect/"
+    CALLBACK = BM_URL + "connect/callback/"
+
+    def setUp(self):
+        super().setUp()
+        self.admin_user = make_user("platform", Role.PLATFORM_ADMIN)
+        self.client.force_login(self.admin_user)
+
+    def start(self, url=None):
+        response = self.client.get(url or self.CONNECT)
+        self.assertEqual(response.status_code, 302)
+        return parse_qs(urlparse(response["Location"]).query)
+
+    def finish(self, **params):
+        state = self.client.session["meta_connect"]["state"]
+        return self.client.get(self.CALLBACK, {"state": state, "code": "the-code", **params})
+
+    def test_connect_redirects_to_dialog_with_state(self):
+        response = self.client.get(self.CONNECT)
+        url = urlparse(response["Location"])
+        q = parse_qs(url.query)
+        self.assertEqual(url.netloc + url.path, "www.facebook.com/v25.0/dialog/oauth")
+        self.assertEqual(q["client_id"], ["1"])
+        self.assertEqual(q["config_id"], ["cfg-9"])
+        self.assertEqual(q["response_type"], ["code"])
+        self.assertEqual(q["override_default_response_type"], ["true"])
+        self.assertEqual(q["state"], [self.client.session["meta_connect"]["state"]])
+        self.assertTrue(q["redirect_uri"][0].endswith("/en/admin/ad_channels/metabusinessmanager/connect/callback/"))
+        self.assertNotIn("app-secret-xyz", response["Location"])
+
+    def test_redirect_uri_is_language_independent(self):
+        en = self.start()["redirect_uri"]
+        ar = self.start(self.CONNECT.replace("/en/", "/ar/"))["redirect_uri"]
+        self.assertEqual(en, ar)
+        self.assertIn("/en/admin/", en[0])
+
+    def test_callback_creates_and_opens_change_page(self):
+        q = self.start()
+        response = self.finish()
+        bm = MetaBusinessManager.objects.get(meta_business_id="111")
+        self.assertRedirects(response, f"{BM_URL}{bm.pk}/change/", fetch_redirect_response=False)
+        self.assertEqual(self.meta.exchanged, [("the-code", q["redirect_uri"][0])])
+        self.assertContains(self.client.get(response["Location"]), "Connected")
+
+    def test_callback_returns_to_the_language_it_started_in(self):
+        self.start(self.CONNECT.replace("/en/", "/ar/"))
+        response = self.finish()
+        self.assertTrue(response["Location"].startswith("/ar/admin/"))
+
+    def test_wrong_or_missing_state_refused_without_calling_meta(self):
+        self.assertEqual(self.client.get(self.CALLBACK, {"code": "c", "state": "x"}).status_code, 403)
+        self.start()
+        self.assertEqual(self.client.get(self.CALLBACK, {"code": "c", "state": "wrong"}).status_code, 403)
+        self.assertEqual(self.client.get(self.CALLBACK, {"code": "c"}).status_code, 403)
+        self.assertEqual(self.meta.exchanged, [])
+        self.assertEqual(MetaBusinessManager.objects.count(), 0)
+
+    def test_state_is_single_use(self):
+        self.start()
+        state = self.client.session["meta_connect"]["state"]
+        self.client.get(self.CALLBACK, {"state": state, "code": "the-code"})
+        again = self.client.get(self.CALLBACK, {"state": state, "code": "the-code"})
+        self.assertEqual(again.status_code, 403)
+        self.assertEqual(len(self.meta.exchanged), 1)
+
+    def test_cancelled_login_saves_nothing(self):
+        self.start()
+        response = self.finish(code="", error="access_denied", error_description="Permissions error")
+        self.assertRedirects(response, BM_URL, fetch_redirect_response=False)
+        self.assertContains(self.client.get(BM_URL), "cancelled")
+        self.assertEqual(self.meta.exchanged, [])
+        self.assertEqual(MetaBusinessManager.objects.count(), 0)
+
+    def test_connect_error_shown_and_nothing_saved(self):
+        self.meta.check_error = REJECTED
+        self.start()
+        response = self.finish()
+        self.assertRedirects(response, BM_URL, fetch_redirect_response=False)
+        self.assertContains(self.client.get(BM_URL), "Meta refused the connection")
+        self.assertEqual(MetaBusinessManager.objects.count(), 0)
+
+    def test_reconnect_same_business_replaces_token(self):
+        bm = make_bm(token=NEW_TOKEN, status=MetaBusinessManager.TokenStatus.INVALID)
+        self.start(f"{self.CONNECT}?bm={bm.pk}")
+        response = self.finish()
+        self.assertRedirects(response, f"{BM_URL}{bm.pk}/change/", fetch_redirect_response=False)
+        bm.refresh_from_db()
+        self.assertEqual((bm.get_token(), bm.token_status), (TOKEN, "valid"))
+
+    def test_reconnect_to_other_business_refused(self):
+        bm = make_bm(name="Other", business_id="222", token=NEW_TOKEN)
+        self.start(f"{self.CONNECT}?bm={bm.pk}")
+        response = self.finish()
+        self.assertRedirects(response, f"{BM_URL}{bm.pk}/change/", fetch_redirect_response=False)
+        bm.refresh_from_db()
+        self.assertEqual(bm.get_token(), NEW_TOKEN)
+        self.assertEqual(MetaBusinessManager.objects.count(), 1)
+
+    def test_reconnect_unknown_bm_is_404(self):
+        self.assertEqual(self.client.get(f"{self.CONNECT}?bm=999").status_code, 404)
+        self.assertEqual(self.client.get(f"{self.CONNECT}?bm=abc").status_code, 404)
+
+    def test_media_buying_lead_refused(self):
+        bm = make_bm()
+        self.client.force_login(make_user("lead", Role.MEDIA_BUYING_LEAD))
+        self.assertEqual(self.client.get(self.CONNECT).status_code, 403)
+        self.assertEqual(self.client.get(f"{self.CONNECT}?bm={bm.pk}").status_code, 403)
+        self.assertEqual(self.client.get(self.CALLBACK, {"code": "c", "state": "x"}).status_code, 403)
+        self.assertEqual(self.meta.exchanged, [])
+
+    def test_anonymous_goes_to_login(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(self.CONNECT).status_code, 302)
+        self.assertNotIn("facebook.com", self.client.get(self.CONNECT)["Location"])
+
+    @override_settings(META_LOGIN_CONFIG_ID=None)
+    def test_not_configured_shows_error(self):
+        response = self.client.get(self.CONNECT)
+        self.assertRedirects(response, BM_URL, fetch_redirect_response=False)
+        self.assertContains(self.client.get(BM_URL), "META_LOGIN_CONFIG_ID")
+        self.assertNotIn("meta_connect", self.client.session)
+
+    def test_no_secret_in_any_response(self):
+        self.meta.check_error = MetaError("bad")
+        self.start()
+        failed = self.finish()
+        self.meta.check_error = None
+        self.start()
+        ok = self.finish()
+        for response in (failed, ok):
+            page = self.client.get(response["Location"]).content.decode()
+            for secret in (TOKEN, "the-code", "app-secret-xyz"):
+                self.assertNotIn(secret, page)
+                self.assertNotIn(secret, response["Location"])
