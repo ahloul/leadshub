@@ -176,9 +176,12 @@ class BusinessManagerPageTests(MetaTestCase):
         self.assertEqual(self.client.get(f"{BM_URL}{self.bm.pk}/reconnect_with_facebook/").status_code, 403)
 
     @override_settings(META_LOGIN_CONFIG_ID=None)
-    def test_buttons_hidden_when_not_configured(self):
-        self.assertNotContains(self.client.get(BM_URL), "Connect with Facebook")
-        self.assertNotContains(self.client.get(self.change_url), "Reconnect with Facebook")
+    def test_buttons_shown_and_explain_when_not_configured(self):
+        self.assertContains(self.client.get(BM_URL), "Connect with Facebook")
+        self.assertContains(self.client.get(self.change_url), "Reconnect with Facebook")
+        response = self.client.get(f"{BM_URL}connect_with_facebook/", follow=True)
+        self.assertContains(response, "META_LOGIN_CONFIG_ID")
+        self.assertNotIn("facebook.com", response.redirect_chain[-1][0])
 
     def test_token_never_appears_in_pages_or_history(self):
         for url in (BM_URL, self.change_url, f"{self.change_url}../history/"):

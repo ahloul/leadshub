@@ -210,12 +210,14 @@ class MetaBusinessManagerAdmin(ModelAdmin):
         extra_context = {**(extra_context or {}), "show_save_and_add_another": False}
         return super().changeform_view(request, object_id, form_url, extra_context)
 
+    # The buttons show even before Facebook Login is set up; connect_view
+    # then explains which settings are missing.
     def has_connect_permission(self, request):
-        return self.has_add_permission(request) and self.login_configured()
+        return self.has_add_permission(request)
 
     def has_reconnect_permission(self, request, object_id):
         bm = self.get_object(request, object_id)
-        return bm is not None and self.has_change_permission(request, bm) and self.login_configured()
+        return bm is not None and self.has_change_permission(request, bm)
 
     @action(description=_("Connect with Facebook"), permissions=["connect"], icon="add")
     def connect_with_facebook(self, request):
