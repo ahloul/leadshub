@@ -57,6 +57,15 @@ class RoleMatrixTests(TestCase):
                 Role.PLATFORM_ADMIN, Role.MEDIA_BUYING_LEAD, Role.MEDIA_BUYER,
                 Role.FINANCE_MANAGER, Role.DEVELOPER_VIEW,
             },
+            # US-META-01 criterion 22: the lead reads, only the Platform Admin edits.
+            "ad_channels.view_metabusinessmanager": {Role.PLATFORM_ADMIN, Role.MEDIA_BUYING_LEAD},
+            "ad_channels.view_metaadaccount": {Role.PLATFORM_ADMIN, Role.MEDIA_BUYING_LEAD},
+            "ad_channels.add_metabusinessmanager": {Role.PLATFORM_ADMIN},
+            "ad_channels.change_metabusinessmanager": {Role.PLATFORM_ADMIN},
+            "ad_channels.add_metaadaccount": {Role.PLATFORM_ADMIN},
+            "ad_channels.change_metaadaccount": {Role.PLATFORM_ADMIN},
+            "ad_channels.delete_metabusinessmanager": {Role.PLATFORM_ADMIN},
+            "ad_channels.delete_metaadaccount": {Role.PLATFORM_ADMIN},
         }
         for perm, roles in allowed.items():
             for role in Role:

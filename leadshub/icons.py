@@ -13,6 +13,10 @@ path here (from the font, or the SVG download on fonts.google.com/icons).
 VIEWBOX = "0 -960 960 960"
 
 PATHS = {
+    "account_balance": (
+        "M200 -280V-560H280V-280ZM440 -280V-560H520V-280ZM80 -120V-200H880V-120ZM680 -280V-560H760V"
+        "-280ZM80 -640V-720L480 -920L880 -720V-640ZM258 -720H480H702ZM258 -720H702L480 -830Z"
+    ),
     "admin_panel_settings": (
         "M680 -280Q705 -280 722.5 -297.5Q740 -315 740 -340Q740 -365 722.5 -382.5Q705 -400 680 -40"
         "0Q655 -400 637.5 -382.5Q620 -365 620 -340Q620 -315 637.5 -297.5Q655 -280 680 -280ZM680 -"
@@ -221,3 +225,6 @@ PATHS = {
         "0 -111.5Q563 -80 480 -80ZM424 -296 254 -466 310 -522 424 -408 824 -809 880 -753Z"
     ),
 }
+
+# The font draws the "business" ligature with the "domain" glyph.
+PATHS["business"] = PATHS["domain"]

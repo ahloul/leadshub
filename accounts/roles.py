@@ -135,6 +135,22 @@ _BACKGROUND_JOBS = [
     "django_q.view_ormq",
 ]
 
+# Meta Business Managers and ad accounts (US-META-01, FR-6.10, FR-6.11).
+# Platform Admin: full CRUD on both, plus Sync and deactivate. The Media
+# Buying Lead only reads, since they spread campaigns across the accounts.
+_AD_CHANNELS_VIEW = [
+    f"ad_channels.view_{model}" for model in ("metabusinessmanager", "metaadaccount")
+]
+_AD_CHANNELS_ADMIN = [
+    *_AD_CHANNELS_VIEW,
+    "ad_channels.add_metabusinessmanager",
+    "ad_channels.change_metabusinessmanager",
+    "ad_channels.add_metaadaccount",
+    "ad_channels.change_metaadaccount",
+    "ad_channels.delete_metabusinessmanager",
+    "ad_channels.delete_metaadaccount",
+]
+
 # Creating roles and giving them to people, in the admin (SRS §2.1 Platform Admin).
 _ROLE_ADMIN = [
     "accounts.view_user",
@@ -164,6 +180,7 @@ AUDIENCE_PERMISSIONS = {
             "accounts.view_project_metrics",
             "accounts.manage_creative_library",
             *_CATALOG_ADMIN,
+            *_AD_CHANNELS_ADMIN,
             *_CREATIVE_LIBRARY,
             *_CONNECTED_ACCOUNTS_ADMIN,
             *_ROLE_ADMIN,
@@ -198,6 +215,7 @@ ROLE_PERMISSIONS = {
         *_CATALOG_ADMIN,
         *_CREATIVE_LIBRARY,
         *_CONNECTED_ACCOUNTS_ADMIN,
+        *_AD_CHANNELS_ADMIN,
         *_ROLE_ADMIN,
         *_BACKGROUND_JOBS,
     ],
@@ -207,6 +225,7 @@ ROLE_PERMISSIONS = {
         "accounts.assign_campaign_tasks",
         *_CATALOG_ADMIN,
         *_CONNECTED_ACCOUNTS_ADMIN,
+        *_AD_CHANNELS_VIEW,
     ],
     Role.MEDIA_BUYER: [
         "accounts.view_internal_financials",

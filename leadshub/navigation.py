@@ -84,6 +84,13 @@ MENU = [
         _admin(_("Finished tasks"), "task_alt", "admin:django_q_success_changelist", "django_q.view_success"),
         _admin(_("Waiting tasks"), "pending", "admin:django_q_ormq_changelist", "django_q.view_ormq"),
     ]),
+    # US-META-01: Platform Admin edits, Media Buying Lead reads.
+    (_("Meta ads"), [
+        _admin(_("Business Managers"), "business", "admin:ad_channels_metabusinessmanager_changelist",
+               "ad_channels.view_metabusinessmanager"),
+        _admin(_("Ad accounts"), "account_balance", "admin:ad_channels_metaadaccount_changelist",
+               "ad_channels.view_metaadaccount"),
+    ]),
 ]
 
 

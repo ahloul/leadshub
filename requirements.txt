@@ -29,3 +29,6 @@ redis==8.1.0
 # must be two weeks old.
 django-q2==1.11.1
 croniter==6.2.4
+# Meta Marketing API SDK (ad_channels/meta). Major version tracks the Graph API version.
+facebook-business>=25.0,<27
+cryptography>=45,<47

@@ -19,3 +19,4 @@ static/css/output.css
 media/
 # Makefile: when the Docker images were last built.
 .docker-images
+.idea/

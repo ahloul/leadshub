@@ -1,0 +1,114 @@
+# Development environment: edit code on the host, the container reloads.
+# NOT for production: debug is on and the secrets below are throwaway values.
+#
+#   make docker-dev-up      app on http://localhost:8000, reloads on change
+#   make docker-dev-logs    follow the app and CSS watcher logs
+#   make docker-dev-test    run the test suite against your current code
+#   make docker-dev-down    stop everything (docker-dev-clean also drops the DB)
+#
+# Its own project name, so it never shares containers or the database volume
+# with the test stack in docker-compose.yml.
+name: leadshub-dev
+
+# djust 1.2.8 ships Linux wheels for x86_64 only, so the app image is amd64
+# (emulated on Apple Silicon). Drop this once djust publishes arm64 wheels.
+x-app-platform: &app-platform linux/amd64
+
+# Settings that must point inside the stack, whatever .env says. .env is
+# written for running on the host (DB_HOST=localhost), so these override it;
+# `environment` wins over `env_file`. .env still supplies the rest (META_*).
+x-app-env: &app-env
+  DB_NAME: leadshub
+  DB_USER: leadshub
+  DB_PASSWORD: leadshub
+  DB_HOST: db
+  DB_PORT: "5432"
+  PYTHONUNBUFFERED: "1"         # show logs immediately
+  PYTHONDONTWRITEBYTECODE: "1"  # no __pycache__ written into your checkout
+
+services:
+  db:
+    image: postgres:18-alpine
+    ports:
+      # 5433 on the host, so it doesn't clash with a local PostgreSQL or the
+      # test stack: psql -h localhost -p 5433 -U leadshub
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: leadshub
+      POSTGRES_USER: leadshub
+      POSTGRES_PASSWORD: leadshub
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks:
+      - leadshub
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadshub -d leadshub"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    platform: *app-platform
+    env_file:
+      - .env
+    environment: *app-env
+    # uvicorn (not runserver) serves the ASGI app, so djust's WebSocket works.
+    # It restarts on .py changes; *.html is included because djust's engine
+    # caches compiled templates.
+    command: >
+      uvicorn leadshub.asgi:application --host 0.0.0.0 --port 8000
+      --reload --reload-include "*.html"
+      --reload-exclude "node_modules/*" --reload-exclude ".venv/*"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - leadshub
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Rebuilds static/css/output.css (into your checkout) when templates or
+  # input.css change. Uses the Dockerfile's css stage for its node_modules.
+  css:
+    build:
+      context: .
+      target: css
+    # Your host user, so output.css isn't owned by root on the host.
+    user: "${UID:-1000}:${GID:-1000}"
+    # --watch=always: Tailwind's plain --watch exits when stdin closes.
+    command: npx tailwindcss -i static/css/input.css -o static/css/output.css --watch=always
+    volumes:
+      - .:/app
+      # Keeps the image's node_modules instead of the host's (or none).
+      # `up -V` refreshes it after package.json changes.
+      - /app/node_modules
+    networks:
+      - leadshub
+
+  test:
+    build: .
+    platform: *app-platform
+    env_file:
+      - .env
+    environment: *app-env
+    command: python manage.py test
+    volumes:
+      - .:/app  # tests run against your current code, no rebuild
+    networks:
+      - leadshub
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["test"]
+
+volumes:
+  pgdata:
+
+# One bridge network for the whole dev stack. With the project name above,
+# Docker creates it as "leadshub-dev_leadshub".
+networks:
+  leadshub:
+    driver: bridge
