@@ -10,9 +10,10 @@ from unittest import mock
 
 from cryptography.fernet import Fernet
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
 from django.test import SimpleTestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from facebook_business.exceptions import FacebookRequestError
 
@@ -655,6 +656,34 @@ class ManageLaunchTests(BuildSetup):
         with self.assertRaisesMessage(services.LaunchError, "end date"):
             self.act("change_budget", budget_usd=Decimal("30"), ends_on=broker_end + datetime.timedelta(days=1))
 
+    def test_end_date_cannot_be_removed_when_the_broker_set_one(self):
+        self.set_campaign(ends_on=self.campaign.starts_on + datetime.timedelta(days=10))
+        with self.assertRaisesMessage(services.LaunchError, "end date"):
+            self.act("change_budget", budget_usd=Decimal("20"), ends_on=None)
+        self.assertEqual(self.meta.called("update_adset"), [])
+
+    def test_refresh_never_undoes_a_stop_made_meanwhile(self):
+        def stop_meanwhile(campaign_id, adset_id):
+            services.stop(actor=self.lead, campaign_id=self.campaign.pk)
+            return LaunchState(campaign_status="ACTIVE", adset_status="ACTIVE", budget_cents=3000, end=None)
+
+        with mock.patch.object(self.meta, "read_launch", side_effect=stop_meanwhile):
+            self.act("refresh")
+        self.assertEqual(MetaLaunch.objects.get().status, MetaLaunch.Status.ARCHIVED)
+
+    def test_pause_never_undoes_a_stop_made_meanwhile(self):
+        real_set_status = self.meta.set_status
+
+        def stop_meanwhile(object_id, status):
+            real_set_status(object_id, status)
+            if status == "PAUSED":
+                services.stop(actor=self.lead, campaign_id=self.campaign.pk)
+
+        with mock.patch.object(self.meta, "set_status", side_effect=stop_meanwhile):
+            with self.assertRaises(services.LaunchError):
+                self.act("pause")
+        self.assertEqual(MetaLaunch.objects.get().status, MetaLaunch.Status.ARCHIVED)
+
     def test_stop_archives_and_ends_but_keeps_the_ad_set_id(self):
         launch = self.act("stop")
         self.assertEqual(launch.status, MetaLaunch.Status.ARCHIVED)
@@ -713,3 +742,60 @@ class ManageLaunchTests(BuildSetup):
         for name in ("pause", "resume", "stop", "refresh"):
             with self.subTest(name), self.assertRaises(services.LaunchError):
                 getattr(services, name)(actor=self.buyer, campaign_id=other.pk)
+
+
+LIST_URL = "/en/back-office/meta/campaigns/"
+
+
+class ListPageTests(BuildSetup):
+    def get(self, user, url=LIST_URL, status=200):
+        self.client.force_login(user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status, url)
+        return response.content.decode()
+
+    def test_ready_tab_lists_ready_campaigns_with_office_and_budget(self):
+        html = self.get(self.buyer)
+        self.assertIn(self.campaign.code, html)
+        self.assertIn("Nour Realty", html)
+        self.assertIn("30", html)
+        self.assertIn(f"/en/back-office/meta/campaigns/{self.campaign.pk}/", html)
+
+    def test_launched_tab_filters_by_status(self):
+        launch = self.build()
+        ready = self.get(self.buyer)
+        self.assertNotIn(f'data-key="ready-{self.campaign.pk}"', ready)
+        launched = self.get(self.buyer, f"{LIST_URL}?tab=launched")
+        self.assertIn(f'data-key="launch-{launch.pk}"', launched)
+        paused = self.get(self.buyer, f"{LIST_URL}?tab=launched&status=paused")
+        self.assertNotIn(f'data-key="launch-{launch.pk}"', paused)
+        # Unknown values fall back to all statuses and the first page.
+        anything = self.get(self.buyer, f"{LIST_URL}?tab=launched&status=x&page=zz")
+        self.assertIn(f'data-key="launch-{launch.pk}"', anything)
+
+    def test_no_token_or_business_manager_id_in_page(self):
+        self.build()
+        for url in (LIST_URL, f"{LIST_URL}?tab=launched"):
+            html = self.get(self.lead, url)
+            self.assertNotIn(TOKEN, html)
+            self.assertNotIn(self.account.business_manager.token_ciphertext, html)
+
+    def test_others_are_refused(self):
+        for user in (self.content, self.finance, self.owner, self.admin):
+            with self.subTest(user=user.username):
+                self.get(user, status=403)
+
+    def test_ready_tab_query_count_stays_flat(self):
+        for _ in range(5):
+            task = self.sent_campaign().review_tasks.get()
+            review_services.approve(actor=self.buyer, task_id=task.pk)
+        self.client.force_login(self.buyer)
+        self.client.get(LIST_URL)  # warm caches (session, permissions)
+        with CaptureQueriesContext(connection) as few:
+            self.client.get(LIST_URL)
+        for _ in range(10):
+            task = self.sent_campaign().review_tasks.get()
+            review_services.approve(actor=self.buyer, task_id=task.pk)
+        with CaptureQueriesContext(connection) as many:
+            self.client.get(LIST_URL)
+        self.assertEqual(len(few), len(many))

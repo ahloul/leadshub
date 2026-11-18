@@ -1,0 +1,6 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Meta campaign" %} · LeadsHub{% endblock %}
+{% block content %}
+<div dj-root dj-view="ad_channels.views.MetaCampaignView"></div>
+{% endblock %}

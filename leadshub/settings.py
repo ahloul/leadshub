@@ -212,6 +212,7 @@ TEMPLATES = [
             BASE_DIR / "accounts" / "templates",
             BASE_DIR / "campaigns" / "templates",
             BASE_DIR / "reviews" / "templates",
+            BASE_DIR / "ad_channels" / "templates",
         ],
         "APP_DIRS": False,
         "OPTIONS": {
@@ -494,5 +495,6 @@ LIVEVIEW_ALLOWED_MODULES = [
     "leadshub.views",
     "campaigns.views",
     "reviews.views",
+    "ad_channels.views",
     "djust",
 ]

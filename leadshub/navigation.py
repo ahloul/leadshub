@@ -45,6 +45,7 @@ MENU = [
     (None, [
         _page(_("Back office"), "space_dashboard", "back_office", BACK_OFFICE),
         _page(_("Review queue"), "fact_check", "review_queue", BACK_OFFICE, "accounts.review_campaign_tasks"),
+        _page(_("Meta campaigns"), "campaign", "meta_campaigns", BACK_OFFICE, "accounts.launch_meta_campaigns"),
         _page(_("Dashboard"), "space_dashboard", "dashboard", PORTAL),
         _page(_("Campaigns"), "campaign", "campaigns", PORTAL),
         _page(_("Creative library"), "photo_library", "library", PORTAL),
