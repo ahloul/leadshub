@@ -2,8 +2,19 @@
 
 This is for the developer connecting LeadsHub to the Meta Marketing API
 (Facebook and Instagram) and Google Ads. The campaign builder, the office's
-own accounts and the hooks are built; no call to Meta or Google exists yet.
-Everything below is in `campaigns/`.
+own accounts and the hooks are built in `campaigns/`.
+
+**Meta is connected in `ad_channels/`** (US-META-01, US-META-02):
+Business Managers come in through Facebook Login for Business, and the
+media buying team launches approved campaigns at
+`/back-office/meta/campaigns/` (`ad_channels.services.build`, then pause,
+`change_budget`, `stop`, `refresh`). The Graph calls are on
+`ad_channels.meta_ads.client.MetaClient`; tests replace
+`ad_channels.meta_ads.sync.client_for` with
+`ad_channels.test_utils.FakeMetaLauncher`. Each Meta ID is saved in
+`MetaLaunch` as soon as Meta returns it, so a failed build resumes. The
+`AdPlatformClient` hooks below are still unused for Meta; Google has no
+calls yet.
 
 ## What exists today
 

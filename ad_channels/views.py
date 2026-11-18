@@ -83,16 +83,6 @@ class MetaCampaignListView(
         )
         return context
 
-    @live.permission_required(LAUNCH)
-    @live.event_handler()
-    def show(self, tab: str = "", status: str = "", **kwargs):
-        """Switch tab or status filter. Sets the URL exactly, so filters can be cleared."""
-        self._apply({"tab": tab, "status": status})
-        params = {"tab": self.tab}
-        if self.status:
-            params["status"] = self.status
-        self.live_patch(params=params)
-
 
 class MetaCampaignView(
     LoginRequiredLiveViewMixin,

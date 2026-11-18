@@ -14,13 +14,13 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div role="group" aria-label="{% translate 'Show' %}" class="segmented flex-wrap">
             {% for value, label in tabs %}
-            <button type="button" class="segmented-option px-3" dj-click="show" data-tab="{{ value }}" aria-pressed="{% if value == tab %}true{% else %}false{% endif %}">{{ label }}</button>
+            <a class="segmented-option px-3" href="?tab={{ value }}&status=&page=1" dj-patch="?tab={{ value }}&status=&page=1" aria-current="{% if value == tab %}page{% else %}false{% endif %}" aria-pressed="{% if value == tab %}true{% else %}false{% endif %}">{{ label }}</a>
             {% endfor %}
         </div>
         {% if tab == "launched" %}
         <div role="group" aria-label="{% translate 'Status' %}" class="segmented flex-wrap">
             {% for value, label in statuses %}
-            <button type="button" class="segmented-option px-3" dj-click="show" data-tab="launched" data-status="{{ value }}" aria-pressed="{% if value == status %}true{% else %}false{% endif %}">{{ label }}</button>
+            <a class="segmented-option px-3" href="?tab=launched&status={{ value }}&page=1" dj-patch="?tab=launched&status={{ value }}&page=1" aria-pressed="{% if value == status %}true{% else %}false{% endif %}">{{ label }}</a>
             {% endfor %}
         </div>
         {% endif %}

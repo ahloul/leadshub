@@ -974,3 +974,27 @@ class MetaPagesOverTheSocketTests(TemporaryUploadsMixin, TransactionTestCase):
         self.assertEqual(reply.get("type"), "navigate")
         self.assertEqual(self.meta.calls, [])
         await socket.disconnect()
+
+
+class ArabicPageTests(BuildSetup):
+    def test_arabic_page_shows_arabic_refusal(self):
+        from reviews.tests import live
+
+        from .views import MetaCampaignView
+
+        self.client.force_login(self.buyer)
+        html = self.client.get(page_url(self.campaign.pk, "ar")).content.decode()
+        self.assertIn('dir="rtl"', html)
+        self.assertIn("ابنِ على ميتا", html)
+        self.assertIn("حملات ميتا", self.client.get("/ar/back-office/meta/campaigns/").content.decode())
+
+        self.meta.currency = "EGP"
+        client = live(MetaCampaignView, self.buyer, page_url(self.campaign.pk, "ar"), pk=self.campaign.pk)
+        client.send_event("choose_account", value=str(self.account.pk))
+        client.send_event("choose_page", value="p1")
+        client.send_event("choose_form", value="f1")
+        client.send_event("build_on_meta")
+        client.render_async()
+        error = client.get_state()["error"]
+        self.assertIn("EGP", error)
+        self.assertIn("بالدولار", error)
