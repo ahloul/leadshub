@@ -34,6 +34,15 @@ class RoleMatrixTests(TestCase):
                 own = role_permissions(role) - {AUDIENCE_ENTRY[audience]}
                 self.assertLessEqual(own, AUDIENCE_PERMISSIONS[audience])
 
+    def test_media_buyers_and_their_lead_launch_on_meta(self):
+        """US-META-02: the media buying team launches ready campaigns on Meta."""
+        for role in (Role.MEDIA_BUYER, Role.MEDIA_BUYING_LEAD):
+            with self.subTest(role=role):
+                self.assertIn("accounts.launch_meta_campaigns", self.perms(role))
+        for role in (Role.CONTENT_MANAGER, Role.FINANCE_MANAGER, Role.BROKER_OWNER, Role.DEVELOPER_VIEW):
+            with self.subTest(role=role):
+                self.assertNotIn("accounts.launch_meta_campaigns", self.perms(role))
+
     def test_essential_roles_have_arabic_names(self):
         profile = Group.objects.get(name=Role.MEDIA_BUYER).role_profile
         self.assertEqual(profile.name_ar, "مشتري الوسائط")

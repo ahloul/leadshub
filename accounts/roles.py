@@ -54,6 +54,8 @@ CAPABILITIES = [
     ("manage_team", _("Invite and manage office team members")),
     ("assign_campaign_tasks", _("Assign campaign tasks to media buyers")),
     ("manage_connected_accounts", _("Connect the office's own pages and ad accounts")),
+    # US-META-02: build ready campaigns on Meta and manage them there.
+    ("launch_meta_campaigns", _("Launch and manage campaigns on Meta")),
     # Entry to each audience's pages.
     ("access_back_office", _("Open the internal back office")),
     ("access_client_portal", _("Open the broker client portal")),
@@ -173,6 +175,7 @@ AUDIENCE_PERMISSIONS = {
             "accounts.view_internal_financials",
             "accounts.review_campaign_tasks",
             "accounts.assign_campaign_tasks",
+            "accounts.launch_meta_campaigns",
             "accounts.manage_master_data",
             "accounts.manage_fx_and_pricing",
             "accounts.run_campaigns",
@@ -230,6 +233,8 @@ ROLE_PERMISSIONS = {
     Role.MEDIA_BUYER: [
         "accounts.view_internal_financials",
         "accounts.review_campaign_tasks",
+        # US-META-02; the lead gets it through ROLE_INCLUDES.
+        "accounts.launch_meta_campaigns",
         "accounts.view_project_metrics",
     ],
     Role.CONTENT_MANAGER: [
