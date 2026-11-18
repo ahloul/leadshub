@@ -48,5 +48,19 @@ def launched(status="", page=1):
     return page
 
 
-def launch_for(campaign_id):
-    return MetaLaunch.objects.select_related("ad_account").filter(campaign_id=campaign_id).first()
+def page_campaign(campaign_id):
+    """(campaign, ready task or None, launch or None) for the Meta campaign page, or None.
+
+    A campaign shows when it is ready to build (failed builds included) or
+    has been launched. Anything else isn't the media buying team's page.
+    """
+    launch = MetaLaunch.objects.select_related(
+        "ad_account", "campaign__office", "campaign__project", "campaign__developer", "campaign__area",
+        "campaign__unit_type", "campaign__audience",
+    ).filter(campaign_id=campaign_id).first()
+    task = review_selectors.ready_task_for(campaign_id)
+    if task is not None:
+        return task.campaign, task, launch
+    if launch is not None and launch.status not in (MetaLaunch.Status.BUILDING, MetaLaunch.Status.BUILD_FAILED):
+        return launch.campaign, None, launch
+    return None

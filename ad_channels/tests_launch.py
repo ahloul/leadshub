@@ -12,13 +12,18 @@ from cryptography.fernet import Fernet
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, connection, transaction
 from django.db.models import ProtectedError
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TransactionTestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from facebook_business.exceptions import FacebookRequestError
 
-from campaigns.models import Campaign, Channel, Destination, Status
+from accounts.roles import Role
+from accounts.test_utils import make_office, make_user
+from campaigns import services as campaign_services
+from campaigns.models import Campaign, Channel, Destination, Status, TargetKind
+from catalog.models import AudiencePreset
 from creatives.models import AssetType
+from creatives.test_utils import TemporaryUploadsMixin, make_creative, make_project
 from reviews import selectors as review_selectors
 from reviews import services as review_services
 from reviews.tests import ReviewSetup
@@ -799,3 +804,173 @@ class ListPageTests(BuildSetup):
         with CaptureQueriesContext(connection) as many:
             self.client.get(LIST_URL)
         self.assertEqual(len(few), len(many))
+
+
+def page_url(campaign_id, language="en"):
+    return f"/{language}/back-office/meta/campaigns/{campaign_id}/"
+
+
+class DetailPageTests(BuildSetup):
+    def page(self, user=None, campaign=None):
+        from reviews.tests import live
+
+        from .views import MetaCampaignView
+
+        campaign = campaign or self.campaign
+        return live(MetaCampaignView, user or self.buyer, page_url(campaign.pk), pk=campaign.pk)
+
+    def choose(self, client):
+        client.send_event("choose_account", value=str(self.account.pk))
+        client.send_event("choose_page", value="p1")
+        client.send_event("choose_form", value="f1")
+
+    def test_ready_campaign_shows_the_build_form(self):
+        self.client.force_login(self.buyer)
+        html = self.client.get(page_url(self.campaign.pk)).content.decode()
+        self.assertIn(self.campaign.code, html)
+        self.assertIn("Nour Realty", html)
+        self.assertIn("O West launch", html)
+        self.assertIn('dj-change="choose_account"', html)
+        self.assertIn("act_1001", html)
+        self.assertNotIn(TOKEN, html)
+
+    def test_build_from_the_page_makes_the_campaign_live(self):
+        client = self.page()
+        self.choose(client)
+        client.assert_state(ad_account_id=self.account.pk, page_id="p1", lead_form_id="f1")
+        client.send_event("build_on_meta")
+        client.assert_state(building=True)
+        client.render_async()
+        client.assert_state(building=False, error="")
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.LIVE)
+        html = client.render()
+        self.assertIn(self.stored().meta_adset_id, html)
+        self.assertIn('dj-click="pause"', html)
+
+    def test_failed_build_shows_the_error_and_a_build_again_button(self):
+        self.meta.fail_on["create_ad"] = MetaError("Ad account has no payment method")
+        client = self.page()
+        self.choose(client)
+        client.send_event("build_on_meta")
+        client.render_async()
+        self.assertIn("no payment method", client.get_state()["error"])
+        html = client.render()
+        self.assertIn('dj-click="build_on_meta"', html)
+        self.assertIn('dj-click="discard"', html)
+
+    def test_manage_handlers_change_meta(self):
+        launch = self.build()
+        client = self.page()
+        client.send_event("pause")
+        self.assertEqual(MetaLaunch.objects.get().status, MetaLaunch.Status.PAUSED)
+        client.send_event("resume")
+        client.send_event("save_budget", budget_usd="99", ends_on="")
+        self.assertIn("30", client.get_state()["error"])
+        client.send_event("save_budget", budget_usd="20", ends_on="")
+        self.assertEqual(MetaLaunch.objects.get().budget_usd, Decimal("20"))
+        client.send_event("save_budget", budget_usd="abc", ends_on="2026-02-30")
+        self.assertTrue(client.get_state()["error"])
+        client.send_event("refresh")
+        client.send_event("stop")
+        self.assertEqual(MetaLaunch.objects.get().status, MetaLaunch.Status.ARCHIVED)
+        self.assertEqual(launch.pk, MetaLaunch.objects.get().pk)
+
+    def test_each_handler_refuses_a_role_without_the_capability(self):
+        client = self.page(user=self.content)
+        for name, params in (("choose_account", {"value": "1"}), ("choose_page", {"value": "p1"}),
+                             ("choose_form", {"value": "f1"}), ("build_on_meta", {}), ("discard", {}),
+                             ("pause", {}), ("resume", {}), ("stop", {}), ("refresh", {}),
+                             ("save_budget", {"budget_usd": "1", "ends_on": ""})):
+            with self.subTest(name):
+                self.assertEqual(client.send_event(name, **params)["error"], "Permission denied")
+        self.assertEqual([c for c in self.meta.calls if not c[0].startswith("list_")], [])
+
+    def test_unknown_or_unready_campaign_is_404(self):
+        self.client.force_login(self.buyer)
+        self.assertEqual(self.client.get(page_url(self.campaign.pk + 999)).status_code, 404)
+        open_campaign = self.sent_campaign()  # not approved yet
+        self.assertEqual(self.client.get(page_url(open_campaign.pk)).status_code, 404)
+
+    def test_others_are_refused(self):
+        for user in (self.content, self.owner, self.admin):
+            with self.subTest(user=user.username):
+                self.client.force_login(user)
+                self.assertEqual(self.client.get(page_url(self.campaign.pk)).status_code, 403)
+
+
+@override_settings(META_TOKEN_KEYS=[Fernet.generate_key().decode()])
+class MetaPagesOverTheSocketTests(TemporaryUploadsMixin, TransactionTestCase):
+    """The Meta campaign page through djust's real WebSocket consumer (mount auth, re-check per event)."""
+
+    def setUp(self):
+        office = make_office("Nour Realty")
+        owner = make_user("owner", Role.BROKER_OWNER, office=office)
+        self.buyer = make_user("buyer", Role.MEDIA_BUYER)
+        self.content = make_user("content", Role.CONTENT_MANAGER)
+        project = make_project("O West", area="6th of October", developer="Orascom")
+        creative = make_creative("O West launch", project=project)
+        campaign = Campaign.objects.create(
+            office=office, target_kind=TargetKind.PROJECT, project=project, developer=project.developer,
+            area=project.area, audience=AudiencePreset.objects.create(name_en="October buyers"),
+            budget_usd=Decimal("30"), starts_on=timezone.localdate() + datetime.timedelta(days=1),
+        )
+        campaign.creatives.add(creative)
+        campaign_services.run_campaign(actor=owner, campaign_id=campaign.pk)
+        review_services.approve(actor=self.buyer, task_id=campaign.review_tasks.get().pk)
+        self.campaign = campaign
+        make_account()
+        self.meta = FakeMetaLauncher()
+        patcher = mock.patch("ad_channels.meta_ads.sync.client_for", self.meta)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def socket_for(self, user):
+        from channels.testing import WebsocketCommunicator
+        from django.test import Client
+
+        from leadshub.asgi import application
+
+        web = Client()
+        web.force_login(user)
+        cookie = f"sessionid={web.cookies['sessionid'].value}".encode()
+        headers = [(b"cookie", cookie), (b"origin", b"http://testserver"), (b"host", b"testserver")]
+        return WebsocketCommunicator(application, "/ws/live/", headers=headers)
+
+    async def open(self, user):
+        from asgiref.sync import sync_to_async
+
+        socket = await sync_to_async(self.socket_for)(user)
+        connected, _ = await socket.connect()
+        self.assertTrue(connected)
+        self.assertEqual((await socket.receive_json_from())["type"], "connect")
+        await socket.send_json_to({"type": "mount", "view": "ad_channels.views.MetaCampaignView",
+                                   "url": page_url(self.campaign.pk)})
+        return socket, await socket.receive_json_from(timeout=5)
+
+    async def test_a_role_without_the_capability_is_refused_at_mount(self):
+        socket, reply = await self.open(self.content)
+        self.assertEqual(reply, {"type": "error", "error": "Permission denied"})
+        await socket.disconnect()
+
+    async def test_capability_removed_mid_session_refuses_next_event(self):
+        from asgiref.sync import sync_to_async
+        from django.contrib.auth.models import Group
+
+        socket, reply = await self.open(self.buyer)
+        self.assertEqual(reply["type"], "mount")
+        self.assertIn(self.campaign.code, reply["html"])
+
+        @sync_to_async
+        def revoke():
+            Group.objects.get(name=Role.MEDIA_BUYER).user_set.remove(self.buyer)
+
+        await revoke()
+        await socket.send_json_to({"type": "event", "event": "choose_account", "params": {"value": "1"}})
+        reply = await socket.receive_json_from(timeout=5)
+        # djust re-checks the page's permissions on every event and sends the
+        # page away (as for a deactivated user, leadshub.tests); the handler,
+        # which would load the account's pages from Meta, never runs.
+        self.assertEqual(reply.get("type"), "navigate")
+        self.assertEqual(self.meta.calls, [])
+        await socket.disconnect()
