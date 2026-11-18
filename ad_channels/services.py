@@ -328,12 +328,27 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
         _save(launch, "status", "last_error")
         raise LaunchError(str(error)) from None
 
-    with transaction.atomic():
-        campaign_services.mark_live(campaign.pk, adset_id=launch.meta_adset_id,
-                                    ad_account_id=account.meta_account_id)
-        review_services.record_deployment(task_id=task.pk, actor=actor, now=now)
-        launch.status = MetaLaunch.Status.ACTIVE
-        _save(launch, "status")
+    try:
+        with transaction.atomic():
+            campaign_services.mark_live(campaign.pk, adset_id=launch.meta_adset_id,
+                                        ad_account_id=account.meta_account_id)
+            review_services.record_deployment(task_id=task.pk, actor=actor, now=now)
+            launch.status = MetaLaunch.Status.ACTIVE
+            _save(launch, "status")
+    except Exception as error:
+        # It is switched on at Meta but not Live here: switch it off again so
+        # nothing delivers that LeadsHub doesn't know about.
+        message = " ".join(getattr(error, "messages", [str(error)]))
+        try:
+            meta.set_status(launch.meta_campaign_id, "PAUSED")
+        except MetaError as meta_error:
+            message = f"{message} {meta_error}"
+        launch.status = MetaLaunch.Status.BUILD_FAILED
+        launch.last_error = _("Built on Meta and paused again, because LeadsHub couldn't record it: %(reason)s") % {
+            "reason": message
+        }
+        _save(launch, "status", "last_error")
+        raise LaunchError(launch.last_error) from None
     return launch
 
 
@@ -362,21 +377,142 @@ def _run_build(meta, launch, campaign, creatives, now):
 def discard_build(*, actor, campaign_id):
     """Delete a failed build from Meta so the campaign is ready again from scratch."""
     _require(actor)
-    launch = MetaLaunch.objects.select_related("ad_account__business_manager").filter(
-        campaign_id=campaign_id
-    ).first()
-    if launch is None:
-        return
-    stuck = launch.status == MetaLaunch.Status.BUILD_FAILED or launch.is_stale_build()
-    if not stuck:
-        raise LaunchError(_("Only a build that failed can be discarded."))
+    with transaction.atomic():
+        launch = (
+            MetaLaunch.objects.select_for_update(of=("self",))
+            .select_related("ad_account__business_manager")
+            .filter(campaign_id=campaign_id)
+            .first()
+        )
+        if launch is None:
+            return
+        stuck = launch.status == MetaLaunch.Status.BUILD_FAILED or launch.is_stale_build()
+        if not stuck:
+            raise LaunchError(_("Only a build that failed can be discarded."))
+        # Claim it: a build started meanwhile sees "already being built".
+        launch.status = MetaLaunch.Status.BUILDING
+        _save(launch, "status")
     if launch.meta_campaign_id:
         try:
             # Deleting the campaign deletes its ad set and ads on Meta.
             _client(launch.ad_account).delete_object(launch.meta_campaign_id)
         except MetaError as error:
             _note_token(launch.ad_account, error)
+            launch.status = MetaLaunch.Status.BUILD_FAILED
             launch.last_error = str(error)
-            _save(launch, "last_error")
+            _save(launch, "status", "last_error")
             raise LaunchError(str(error)) from None
     launch.delete()
+
+
+# Managing a launched campaign (design §5.5)
+
+_LIVE_ON_META = (MetaLaunch.Status.ACTIVE, MetaLaunch.Status.PAUSED)
+
+
+def _launched(campaign_id, *, allow_stopped=False):
+    statuses = (*_LIVE_ON_META, MetaLaunch.Status.ARCHIVED) if allow_stopped else _LIVE_ON_META
+    launch = (
+        MetaLaunch.objects.select_related("ad_account__business_manager", "campaign")
+        .filter(campaign_id=campaign_id, status__in=statuses)
+        .first()
+    )
+    if launch is None:
+        raise LaunchError(_("This campaign isn't running on Meta."))
+    return launch
+
+
+def _on_meta(launch, call):
+    """Run one Meta call for a launch; keep and show Meta's reason if it fails."""
+    try:
+        return call(_client(launch.ad_account))
+    except MetaError as error:
+        _note_token(launch.ad_account, error)
+        launch.last_error = str(error)
+        _save(launch, "last_error")
+        raise LaunchError(str(error)) from None
+
+
+def _set_status(actor, campaign_id, meta_status, status):
+    _require(actor)
+    launch = _launched(campaign_id)
+    if launch.status != status:
+        _on_meta(launch, lambda meta: meta.set_status(launch.meta_campaign_id, meta_status))
+        launch.status = status
+        launch.last_error = ""
+        _save(launch, "status", "last_error")
+    return launch
+
+
+def pause(*, actor, campaign_id):
+    """Pause delivery on Meta. The broker still sees Live (design §8.4)."""
+    return _set_status(actor, campaign_id, "PAUSED", MetaLaunch.Status.PAUSED)
+
+
+def resume(*, actor, campaign_id):
+    return _set_status(actor, campaign_id, "ACTIVE", MetaLaunch.Status.ACTIVE)
+
+
+def change_budget(*, actor, campaign_id, budget_usd, ends_on, today=None):
+    """New budget (never above the broker's) and end date (never after the broker's) on the ad set."""
+    _require(actor)
+    launch = _launched(campaign_id)
+    campaign = launch.campaign
+    today = today or timezone.localdate()
+    budget_usd = Decimal(budget_usd)
+    if budget_usd <= 0:
+        raise LaunchError(_("Enter a budget above zero."))
+    if budget_usd > campaign.budget_usd:
+        raise LaunchError(_("The budget can't go above the broker's %(amount)s USD.")
+                          % {"amount": campaign.budget_usd})
+    if ends_on is not None and ends_on <= today:
+        raise LaunchError(_("Choose an end date after today."))
+    if ends_on is not None and campaign.ends_on is not None and ends_on > campaign.ends_on:
+        raise LaunchError(_("The end date can't be after the broker's end date, %(date)s.")
+                          % {"date": campaign.ends_on.isoformat()})
+    if ends_on is None and launch.budget_kind == "lifetime":
+        raise LaunchError(_("A total budget needs an end date."))
+    end = None
+    if ends_on is not None:
+        end = timezone.make_aware(datetime.datetime.combine(ends_on + datetime.timedelta(days=1),
+                                                            datetime.time.min))
+    _on_meta(launch, lambda meta: meta.update_adset(launch.meta_adset_id, budget_kind=launch.budget_kind,
+                                                    budget_cents=budget_cents(budget_usd), end=end))
+    launch.budget_usd = budget_usd.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    launch.ends_on = ends_on
+    launch.last_error = ""
+    _save(launch, "budget_usd", "ends_on", "last_error")
+    return launch
+
+
+def stop(*, actor, campaign_id):
+    """Archive it on Meta and end the campaign. The ad set ID stays for late leads (M7)."""
+    _require(actor)
+    launch = _launched(campaign_id, allow_stopped=True)
+    if launch.status == MetaLaunch.Status.ARCHIVED:
+        return launch
+    _on_meta(launch, lambda meta: meta.set_status(launch.meta_campaign_id, "ARCHIVED"))
+    with transaction.atomic():
+        launch.status = MetaLaunch.Status.ARCHIVED
+        launch.last_error = ""
+        _save(launch, "status", "last_error")
+        if launch.campaign.status in ("live", "paused_low_balance"):
+            campaign_services.end_campaign(launch.campaign_id)
+    return launch
+
+
+def refresh(*, actor, campaign_id, now=None):
+    """Read what Meta says now, including changes made in Ads Manager (edge 18, 19)."""
+    _require(actor)
+    launch = _launched(campaign_id, allow_stopped=True)
+    state = _on_meta(launch, lambda meta: meta.read_launch(launch.meta_campaign_id, launch.meta_adset_id))
+    launch.meta_status = state.campaign_status
+    if launch.status in _LIVE_ON_META and state.campaign_status in ("ACTIVE", "PAUSED"):
+        launch.status = MetaLaunch.Status(state.campaign_status.lower())
+    if state.budget_cents:
+        launch.budget_usd = Decimal(state.budget_cents) / 100
+    if state.end is not None:
+        launch.ends_on = (timezone.localtime(state.end) - datetime.timedelta(microseconds=1)).date()
+    launch.meta_status_checked_at = now or timezone.now()
+    _save(launch, "meta_status", "status", "budget_usd", "ends_on", "meta_status_checked_at")
+    return launch

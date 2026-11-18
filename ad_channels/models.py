@@ -266,6 +266,8 @@ class MetaLaunch(models.Model):
     launched_at = models.DateTimeField(_("launched at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     meta_status_checked_at = models.DateTimeField(_("last checked on Meta"), null=True, blank=True)
+    # Meta's own effective_status at the last refresh (ACTIVE, PAUSED, DELETED…).
+    meta_status = models.CharField(_("status on Meta"), max_length=32, blank=True)
 
     class Meta:
         ordering = ["-launched_at"]

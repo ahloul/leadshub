@@ -80,6 +80,7 @@ class Migration(migrations.Migration):
                 ('launched_at', models.DateTimeField(auto_now_add=True, verbose_name='launched at')),
                 ('updated_at', models.DateTimeField(auto_now=True, verbose_name='updated at')),
                 ('meta_status_checked_at', models.DateTimeField(blank=True, null=True, verbose_name='last checked on Meta')),
+                ('meta_status', models.CharField(blank=True, max_length=32, verbose_name='status on Meta')),
                 ('ad_account', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='launches', to='ad_channels.metaadaccount', verbose_name='ad account')),
                 ('campaign', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='meta_launch', to='campaigns.campaign', verbose_name='campaign')),
                 ('launched_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL, verbose_name='launched by')),

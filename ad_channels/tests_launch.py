@@ -23,7 +23,7 @@ from reviews import services as review_services
 from reviews.tests import ReviewSetup
 
 from . import services
-from .meta_ads.client import MetaClient, MetaError
+from .meta_ads.client import LaunchState, MetaClient, MetaError
 from .test_utils import FakeMetaLauncher
 from .models import MetaAdAccount, MetaBusinessManager, MetaLaunch
 
@@ -537,6 +537,34 @@ class BuildTests(BuildSetup):
         self.assertFalse(MetaLaunch.objects.exists())
         self.assertEqual(review_selectors.ready_for_meta().count(), 1)
 
+    def test_build_during_discard_is_refused(self):
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        seen = []
+
+        def build_meanwhile(object_id):
+            try:
+                self.build()
+            except services.LaunchError as error:
+                seen.append(str(error))
+
+        with mock.patch.object(self.meta, "delete_object", side_effect=build_meanwhile):
+            services.discard_build(actor=self.buyer, campaign_id=self.campaign.pk)
+        self.assertEqual(len(seen), 1)
+        self.assertIn("already being built", seen[0])
+
+    def test_final_step_failure_pauses_on_meta(self):
+        with mock.patch("reviews.services.record_deployment", side_effect=ValidationError("deployed meanwhile")):
+            with self.assertRaises(services.LaunchError):
+                self.build()
+        launch = self.stored()
+        self.assertEqual(launch.status, MetaLaunch.Status.BUILD_FAILED)
+        self.assertEqual(self.meta.called("set_status")[-1],
+                         {"object_id": launch.meta_campaign_id, "status": "PAUSED"})
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.AI_BUILDING)
+
     def test_discard_failure_keeps_the_record_with_the_error(self):
         self.meta.fail_on["create_ad"] = MetaError("boom")
         with self.assertRaises(services.LaunchError):
@@ -579,3 +607,109 @@ class BuildTests(BuildSetup):
         options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
                                          ad_account_id=self.account.pk)
         self.assertIn("Meta is down", " ".join(map(str, options.problems)))
+
+
+class ManageLaunchTests(BuildSetup):
+    def setUp(self):
+        super().setUp()
+        self.launched = self.build()
+        self.meta.calls.clear()
+
+    def act(self, name, actor=None, **kwargs):
+        return getattr(services, name)(actor=actor or self.buyer, campaign_id=self.campaign.pk, **kwargs)
+
+    def test_pause_and_resume_keep_the_campaign_live(self):
+        launch = self.act("pause")
+        self.assertEqual(launch.status, MetaLaunch.Status.PAUSED)
+        self.assertEqual(self.meta.called("set_status"),
+                         [{"object_id": launch.meta_campaign_id, "status": "PAUSED"}])
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.LIVE)
+        self.act("pause")  # already paused: no call
+        self.assertEqual(len(self.meta.called("set_status")), 1)
+        self.assertEqual(self.act("resume").status, MetaLaunch.Status.ACTIVE)
+        self.assertEqual(self.meta.called("set_status")[-1]["status"], "ACTIVE")
+
+    def test_budget_above_broker_figure_is_refused(self):
+        with self.assertRaisesMessage(services.LaunchError, "30"):
+            self.act("change_budget", budget_usd=Decimal("30.01"), ends_on=None)
+        with self.assertRaises(services.LaunchError):
+            self.act("change_budget", budget_usd=Decimal("0"), ends_on=None)
+        self.assertEqual(self.meta.called("update_adset"), [])
+
+    def test_budget_change_sent_in_cents_with_end(self):
+        ends_on = self.campaign.starts_on + datetime.timedelta(days=10)
+        launch = self.act("change_budget", budget_usd=Decimal("25.50"), ends_on=ends_on)
+        call = self.meta.called("update_adset")[0]
+        self.assertEqual((call["adset_id"], call["budget_kind"], call["budget_cents"]),
+                         (launch.meta_adset_id, "daily", 2550))
+        self.assertEqual(timezone.localtime(call["end"]).date(), ends_on + datetime.timedelta(days=1))
+        launch.refresh_from_db()
+        self.assertEqual((launch.budget_usd, launch.ends_on), (Decimal("25.50"), ends_on))
+
+    def test_end_date_must_be_in_the_future_and_within_the_broker_end(self):
+        with self.assertRaisesMessage(services.LaunchError, "end date"):
+            self.act("change_budget", budget_usd=Decimal("30"), ends_on=timezone.localdate())
+        broker_end = self.campaign.starts_on + datetime.timedelta(days=10)
+        self.set_campaign(ends_on=broker_end)
+        with self.assertRaisesMessage(services.LaunchError, "end date"):
+            self.act("change_budget", budget_usd=Decimal("30"), ends_on=broker_end + datetime.timedelta(days=1))
+
+    def test_stop_archives_and_ends_but_keeps_the_ad_set_id(self):
+        launch = self.act("stop")
+        self.assertEqual(launch.status, MetaLaunch.Status.ARCHIVED)
+        self.assertEqual(self.meta.called("set_status"),
+                         [{"object_id": launch.meta_campaign_id, "status": "ARCHIVED"}])
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.ENDED)
+        self.assertEqual(self.campaign.external_id, launch.meta_adset_id)
+        self.assertTrue(MetaLaunch.objects.get().meta_adset_id)
+
+    def test_stop_twice_is_a_no_op(self):
+        self.act("stop")
+        self.act("stop")
+        self.assertEqual(len(self.meta.called("set_status")), 1)
+
+    def test_stopped_launch_cannot_pause_or_change(self):
+        self.act("stop")
+        for name, kwargs in (("pause", {}), ("resume", {}),
+                             ("change_budget", {"budget_usd": Decimal("10"), "ends_on": None})):
+            with self.subTest(name), self.assertRaises(services.LaunchError):
+                self.act(name, **kwargs)
+
+    def test_refresh_shows_changes_made_in_ads_manager(self):
+        self.meta.state = LaunchState(campaign_status="PAUSED", adset_status="ACTIVE", budget_cents=2000,
+                                      end=None)
+        launch = self.act("refresh")
+        self.assertEqual(launch.status, MetaLaunch.Status.PAUSED)
+        self.assertEqual(launch.meta_status, "PAUSED")
+        self.assertEqual(launch.budget_usd, Decimal("20.00"))
+        self.assertIsNotNone(launch.meta_status_checked_at)
+
+    def test_refresh_shows_a_campaign_meta_deleted(self):
+        self.meta.state = LaunchState(campaign_status="DELETED", adset_status="DELETED", budget_cents=3000,
+                                      end=None)
+        launch = self.act("refresh")
+        self.assertEqual(launch.meta_status, "DELETED")
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)  # no automatic change (M9)
+
+    def test_meta_error_is_shown_and_kept(self):
+        self.meta.fail_on["set_status"] = MetaError("Rate limited (Meta error 17)")
+        with self.assertRaisesMessage(services.LaunchError, "Rate limited"):
+            self.act("pause")
+        launch = MetaLaunch.objects.get()
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)
+        self.assertIn("Rate limited", launch.last_error)
+
+    def test_each_action_refuses_a_role_without_the_capability(self):
+        for name, kwargs in (("pause", {}), ("resume", {}), ("stop", {}), ("refresh", {}),
+                             ("change_budget", {"budget_usd": Decimal("10"), "ends_on": None})):
+            with self.subTest(name), self.assertRaises(PermissionDenied):
+                self.act(name, actor=self.content, **kwargs)
+        self.assertEqual(self.meta.calls, [])
+
+    def test_actions_on_a_campaign_not_launched_raise_launch_error(self):
+        other = self.sent_campaign()
+        for name in ("pause", "resume", "stop", "refresh"):
+            with self.subTest(name), self.assertRaises(services.LaunchError):
+                getattr(services, name)(actor=self.buyer, campaign_id=other.pk)
