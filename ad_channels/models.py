@@ -23,8 +23,12 @@ with ``on_delete=models.PROTECT``, so nothing a campaign uses can be deleted
 (criterion 19); deactivate a Business Manager to stop launches but keep it.
 """
 
+import datetime
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from . import crypto
@@ -196,3 +200,82 @@ class MetaAdAccount(models.Model):
         if self.pk is None:
             return False
         return MetaAdAccount.objects.filter(pk=self.pk, enabled_for_launch=True).exists()
+
+
+class MetaLaunch(models.Model):
+    """One LeadsHub campaign built on Meta by the media buying team (US-META-02).
+
+    Each Meta ID is saved the moment Meta returns it, so a build that fails
+    halfway resumes from the last saved step instead of creating duplicates.
+    ``meta_adset_id`` is the routing key lead delivery matches on (FR-7.6).
+    """
+
+    class Status(models.TextChoices):
+        BUILDING = "building", _("Building")
+        BUILD_FAILED = "build_failed", _("Build failed")
+        ACTIVE = "active", _("Active")
+        PAUSED = "paused", _("Paused")
+        ARCHIVED = "archived", _("Stopped")
+
+    # A build left "building" this long ago crashed; it may be resumed.
+    STALE_AFTER = datetime.timedelta(minutes=5)
+
+    campaign = models.OneToOneField(
+        "campaigns.Campaign",
+        on_delete=models.PROTECT,
+        related_name="meta_launch",
+        verbose_name=_("campaign"),
+    )
+    ad_account = models.ForeignKey(
+        MetaAdAccount,
+        on_delete=models.PROTECT,  # Nothing a campaign uses can be deleted.
+        related_name="launches",
+        verbose_name=_("ad account"),
+    )
+    page_id = models.CharField(_("Facebook page ID"), max_length=64)
+    page_name = models.CharField(_("Facebook page"), max_length=255, blank=True)
+    instagram_actor_id = models.CharField(_("Instagram account ID"), max_length=64, blank=True)
+    lead_form_id = models.CharField(_("lead form ID"), max_length=64)
+    lead_form_name = models.CharField(_("lead form"), max_length=255, blank=True)
+
+    meta_campaign_id = models.CharField(_("Meta campaign ID"), max_length=64, blank=True)
+    meta_adset_id = models.CharField(_("Meta ad set ID"), max_length=64, blank=True, db_index=True)
+    # One entry per creative: {creative_pk, image_hash, video_id, creative_id, ad_id}.
+    ads = models.JSONField(_("ads"), default=list, blank=True)
+    # Interest names from the audience preset that Meta didn't recognise.
+    skipped_interests = models.JSONField(_("interests not found on Meta"), default=list, blank=True)
+
+    status = models.CharField(
+        _("status"), max_length=16, choices=Status.choices, default=Status.BUILDING, db_index=True
+    )
+    # Meta's reason, token scrubbed (MetaError).
+    last_error = models.TextField(_("last error"), blank=True)
+
+    # What is on Meta now.
+    budget_kind = models.CharField(_("budget type"), max_length=10)
+    budget_usd = models.DecimalField(_("budget (USD)"), max_digits=10, decimal_places=2)
+    ends_on = models.DateField(_("end date"), null=True, blank=True)
+
+    launched_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        verbose_name=_("launched by"),
+    )
+    launched_at = models.DateTimeField(_("launched at"), auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+    meta_status_checked_at = models.DateTimeField(_("last checked on Meta"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-launched_at"]
+        verbose_name = _("Meta launch")
+        verbose_name_plural = _("Meta launches")
+
+    def __str__(self) -> str:
+        return f"{self.campaign_id} on {self.ad_account_id} ({self.status})"
+
+    def is_stale_build(self, now=None) -> bool:
+        """A build that has said "building" for over five minutes crashed (Review Focus 1)."""
+        now = now or timezone.now()
+        return self.status == self.Status.BUILDING and self.updated_at < now - self.STALE_AFTER

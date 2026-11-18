@@ -205,6 +205,24 @@ def mark_deployed(*, actor, task_id, network_id, ad_account, now=None):
     return task
 
 
+@transaction.atomic
+def record_deployment(*, task_id, actor, now=None):
+    """The campaign was launched on Meta from the Meta campaigns page (US-META-02).
+
+    Unlike ``mark_deployed`` it doesn't check who may decide the task: the
+    caller has already checked ``launch_meta_campaigns``, which is its own
+    capability, and recorded the ad set with ``campaigns.services.mark_live``.
+    """
+    task = _locked(task_id)
+    if not task.awaiting_deployment:
+        raise ValidationError(_("Only an approved task waiting for launch can be marked deployed."),
+                              code="state")
+    task.deployed_by = actor
+    task.deployed_at = now or timezone.now()
+    task.save(update_fields=["deployed_by", "deployed_at"])
+    return task
+
+
 # SLA escalation (FR-6.7; scheduled in leadshub.jobs)
 
 
