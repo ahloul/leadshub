@@ -433,14 +433,28 @@ def _on_meta(launch, call):
         raise LaunchError(str(error)) from None
 
 
+def _locked_status(launch):
+    """The launch's status now, with its row locked for the rest of the transaction."""
+    return MetaLaunch.objects.select_for_update().values_list("status", flat=True).get(pk=launch.pk)
+
+
+def _commit(launch, seen_status, *fields):
+    """Save, unless someone changed the launch's status while Meta was answering."""
+    with transaction.atomic():
+        if _locked_status(launch) != seen_status:
+            raise LaunchError(_("Someone changed this campaign meanwhile. Reload the page and try again."))
+        _save(launch, *fields)
+
+
 def _set_status(actor, campaign_id, meta_status, status):
     _require(actor)
     launch = _launched(campaign_id)
-    if launch.status != status:
+    seen = launch.status
+    if seen != status:
         _on_meta(launch, lambda meta: meta.set_status(launch.meta_campaign_id, meta_status))
         launch.status = status
         launch.last_error = ""
-        _save(launch, "status", "last_error")
+        _commit(launch, seen, "status", "last_error")
     return launch
 
 
@@ -472,6 +486,9 @@ def change_budget(*, actor, campaign_id, budget_usd, ends_on, today=None):
                           % {"date": campaign.ends_on.isoformat()})
     if ends_on is None and launch.budget_kind == "lifetime":
         raise LaunchError(_("A total budget needs an end date."))
+    if ends_on is None and campaign.ends_on is not None:
+        raise LaunchError(_("Keep an end date: the broker's campaign ends on %(date)s.")
+                          % {"date": campaign.ends_on.isoformat()})
     end = None
     if ends_on is not None:
         end = timezone.make_aware(datetime.datetime.combine(ends_on + datetime.timedelta(days=1),
@@ -481,7 +498,7 @@ def change_budget(*, actor, campaign_id, budget_usd, ends_on, today=None):
     launch.budget_usd = budget_usd.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     launch.ends_on = ends_on
     launch.last_error = ""
-    _save(launch, "budget_usd", "ends_on", "last_error")
+    _commit(launch, launch.status, "budget_usd", "ends_on", "last_error")
     return launch
 
 
@@ -493,6 +510,9 @@ def stop(*, actor, campaign_id):
         return launch
     _on_meta(launch, lambda meta: meta.set_status(launch.meta_campaign_id, "ARCHIVED"))
     with transaction.atomic():
+        if _locked_status(launch) == MetaLaunch.Status.ARCHIVED:
+            launch.refresh_from_db()
+            return launch  # Stopped meanwhile by someone else.
         launch.status = MetaLaunch.Status.ARCHIVED
         launch.last_error = ""
         _save(launch, "status", "last_error")
@@ -506,13 +526,19 @@ def refresh(*, actor, campaign_id, now=None):
     _require(actor)
     launch = _launched(campaign_id, allow_stopped=True)
     state = _on_meta(launch, lambda meta: meta.read_launch(launch.meta_campaign_id, launch.meta_adset_id))
-    launch.meta_status = state.campaign_status
-    if launch.status in _LIVE_ON_META and state.campaign_status in ("ACTIVE", "PAUSED"):
-        launch.status = MetaLaunch.Status(state.campaign_status.lower())
-    if state.budget_cents:
-        launch.budget_usd = Decimal(state.budget_cents) / 100
-    if state.end is not None:
-        launch.ends_on = (timezone.localtime(state.end) - datetime.timedelta(microseconds=1)).date()
-    launch.meta_status_checked_at = now or timezone.now()
-    _save(launch, "meta_status", "status", "budget_usd", "ends_on", "meta_status_checked_at")
+    with transaction.atomic():
+        # Read the status again under the lock: a stop or pause made while
+        # Meta answered wins over what this refresh saw.
+        launch.status = _locked_status(launch)
+        fields = ["meta_status", "budget_usd", "ends_on", "meta_status_checked_at"]
+        launch.meta_status = state.campaign_status
+        if launch.status in _LIVE_ON_META and state.campaign_status in ("ACTIVE", "PAUSED"):
+            launch.status = MetaLaunch.Status(state.campaign_status.lower())
+            fields.append("status")
+        if state.budget_cents:
+            launch.budget_usd = Decimal(state.budget_cents) / 100
+        if state.end is not None:
+            launch.ends_on = (timezone.localtime(state.end) - datetime.timedelta(microseconds=1)).date()
+        launch.meta_status_checked_at = now or timezone.now()
+        _save(launch, *fields)
     return launch
