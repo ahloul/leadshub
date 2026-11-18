@@ -5,21 +5,26 @@ Meta is never called: ``meta_ads.sync.client_for`` is replaced by a fake.
 
 import datetime
 import json
+from decimal import Decimal
+from unittest import mock
 
 from cryptography.fernet import Fernet
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError
 from django.test import SimpleTestCase, override_settings
 from django.utils import timezone
 from facebook_business.exceptions import FacebookRequestError
 
-from campaigns.models import Channel, Destination
+from campaigns.models import Campaign, Channel, Destination, Status
+from creatives.models import AssetType
 from reviews import selectors as review_selectors
 from reviews import services as review_services
 from reviews.tests import ReviewSetup
 
+from . import services
 from .meta_ads.client import MetaClient, MetaError
+from .test_utils import FakeMetaLauncher
 from .models import MetaAdAccount, MetaBusinessManager, MetaLaunch
 
 TOKEN = "EAAG-system-user-token-1234"
@@ -216,6 +221,22 @@ class MetaClientWriteTests(SimpleTestCase):
         self.assertEqual([(f.id, f.name) for f in forms], [("f1", "Buyers")])
         self.assertEqual(self.graph.calls[1]["params"]["access_token"], "PAGE-TOKEN")
 
+    def test_lead_form_errors_never_show_the_page_token(self):
+        body = {"error": {"message": "Bad token PAGE-TOKEN", "code": 190, "type": "OAuthException"}}
+        error = FacebookRequestError("boom", {"method": "GET", "path": "/x"}, 400, {}, json.dumps(body))
+        meta = self.meta_for(replies={("GET", "p1"): {"access_token": "PAGE-TOKEN"}})
+        calls = self.graph
+
+        def second_call_fails(method, path, **kwargs):
+            if "leadgen_forms" in path:
+                raise error
+            return calls(method, path, **kwargs)
+
+        meta._api.call = second_call_fails
+        with self.assertRaises(MetaError) as caught:
+            meta.list_lead_forms("p1")
+        self.assertNotIn("PAGE-TOKEN", str(caught.exception))
+
     def test_search_interest_needs_an_exact_name(self):
         meta = self.meta_for(replies={("GET", "search"): [
             {"data": [{"id": "600", "name": "Real estate"}]},
@@ -288,3 +309,273 @@ class MetaClientWriteTests(SimpleTestCase):
         params = self.graph.calls[0]["params"]
         self.assertEqual(params["creative"], {"creative_id": "cr1"})
         self.assertEqual(params["status"], "PAUSED")
+
+
+class BuildSetup(LaunchSetup):
+    """A ready campaign, a healthy USD account and a fake Meta behind ``sync.client_for``."""
+
+    def setUp(self):
+        super().setUp()
+        self.meta = FakeMetaLauncher()
+        patcher = mock.patch("ad_channels.meta_ads.sync.client_for", self.meta)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        sleeper = mock.patch("ad_channels.services._sleep")
+        self.sleep = sleeper.start()
+        self.addCleanup(sleeper.stop)
+
+    def build(self, actor=None, **kwargs):
+        kwargs.setdefault("ad_account_id", self.account.pk)
+        kwargs.setdefault("page_id", "p1")
+        kwargs.setdefault("lead_form_id", "f1")
+        return services.build(actor=actor or self.buyer, campaign_id=self.campaign.pk, **kwargs)
+
+    def set_campaign(self, **fields):
+        Campaign.objects.filter(pk=self.campaign.pk).update(**fields)
+        self.campaign.refresh_from_db()
+
+    def stored(self):
+        return MetaLaunch.objects.get(campaign=self.campaign)
+
+
+class BuildTests(BuildSetup):
+    def test_build_creates_everything_paused_then_activates(self):
+        launch = self.build()
+        order = [name for name, _ in self.meta.calls if name.startswith(("create_", "set_status", "upload_"))]
+        self.assertEqual(order, ["create_campaign", "create_adset", "upload_image", "create_ad_creative",
+                                 "create_ad", "set_status", "set_status", "set_status"])
+        activated = [c["object_id"] for c in self.meta.called("set_status")]
+        ad_id = launch.ads[0]["ad_id"]
+        self.assertEqual(activated, [ad_id, launch.meta_adset_id, launch.meta_campaign_id])
+        self.assertTrue(all(c["status"] == "ACTIVE" for c in self.meta.called("set_status")))
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)
+        self.assertEqual((launch.page_name, launch.instagram_actor_id, launch.lead_form_name),
+                         ("LeadsHub Homes", "ig1", "Buyers form"))
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.LIVE)
+        self.assertEqual(self.campaign.external_id, launch.meta_adset_id)
+        self.assertEqual(self.campaign.platform_data["ad_account_id"], "act_1001")
+        self.assertEqual(self.task.deployed_by, self.buyer)
+        self.assertEqual(self.meta.called("create_campaign")[0]["name"], self.campaign.code)
+        self.assertEqual(self.meta.called("create_adset")[0]["name"], self.campaign.code)
+
+    def test_lead_can_build_a_task_assigned_to_someone_else(self):
+        self.build(actor=self.lead)
+        self.assertEqual(self.stored().launched_by, self.lead)
+
+    def test_role_without_capability_is_refused(self):
+        for user in (self.content, self.finance, self.owner):
+            with self.subTest(user=user.username), self.assertRaises(PermissionDenied):
+                self.build(actor=user)
+        self.assertEqual(self.meta.calls, [])
+
+    def test_campaign_no_longer_ready_is_refused(self):
+        review_services.mark_deployed(actor=self.buyer, task_id=self.task.pk, network_id="120210000000001",
+                                      ad_account="act_1234567890")
+        with self.assertRaisesMessage(services.LaunchError, "isn't ready"):
+            self.build()
+
+    def test_google_campaign_is_refused(self):
+        self.set_campaign(channel=Channel.GOOGLE)
+        with self.assertRaises(services.LaunchError):
+            self.build()
+
+    def test_second_build_while_building_is_refused(self):
+        self.launch(status=MetaLaunch.Status.BUILDING)
+        with self.assertRaisesMessage(services.LaunchError, "already being built"):
+            self.build()
+
+    def test_stale_building_can_resume(self):
+        launch = self.launch(status=MetaLaunch.Status.BUILDING)
+        MetaLaunch.objects.filter(pk=launch.pk).update(updated_at=timezone.now() - datetime.timedelta(minutes=6))
+        self.assertEqual(self.build().status, MetaLaunch.Status.ACTIVE)
+
+    def test_account_no_longer_available_is_refused(self):
+        MetaAdAccount.objects.filter(pk=self.account.pk).update(enabled_for_launch=False)
+        with self.assertRaisesMessage(services.LaunchError, "ad account"):
+            self.build()
+        self.assertFalse(MetaLaunch.objects.exists())
+
+    def test_non_usd_account_is_refused(self):
+        self.meta.currency = "EGP"
+        with self.assertRaisesMessage(services.LaunchError, "EGP"):
+            self.build()
+        self.assertEqual(self.meta.called("create_campaign"), [])
+
+    def test_unknown_page_or_form_is_refused(self):
+        with self.assertRaisesMessage(services.LaunchError, "page"):
+            self.build(page_id="p-other")
+        with self.assertRaisesMessage(services.LaunchError, "form"):
+            self.build(lead_form_id="f-other")
+        self.assertEqual(self.meta.called("create_campaign"), [])
+
+    def test_expired_creative_is_refused_by_name(self):
+        self.creative.offer_expires_on = timezone.localdate() - datetime.timedelta(days=1)
+        self.creative.save()
+        with self.assertRaisesMessage(services.LaunchError, "O West launch"):
+            self.build()
+
+    def test_carousel_creative_is_refused(self):
+        self.creative.asset_type = AssetType.CAROUSEL
+        self.creative.save()
+        with self.assertRaisesMessage(services.LaunchError, "O West launch"):
+            self.build()
+
+    def test_past_start_starts_now(self):
+        self.set_campaign(starts_on=timezone.localdate() - datetime.timedelta(days=3))
+        before = timezone.now()
+        self.build()
+        self.assertGreaterEqual(self.meta.called("create_adset")[0]["start"], before)
+
+    def test_future_start_starts_that_morning_in_cairo(self):
+        self.build()
+        start = timezone.localtime(self.meta.called("create_adset")[0]["start"])
+        self.assertEqual((start.date(), start.hour), (self.campaign.starts_on, 0))
+
+    def test_end_date_passed_is_refused(self):
+        today = timezone.localdate()
+        self.set_campaign(starts_on=today - datetime.timedelta(days=5), ends_on=today)
+        with self.assertRaisesMessage(services.LaunchError, "end date"):
+            self.build()
+
+    def test_lifetime_budget_without_end_is_refused(self):
+        self.set_campaign(budget_kind="lifetime", ends_on=None)
+        with self.assertRaisesMessage(services.LaunchError, "end date"):
+            self.build()
+
+    def test_failure_mid_build_resumes_without_duplicates(self):
+        self.meta.fail_on["create_ad"] = MetaError("Temporary problem (Meta error 2)")
+        with self.assertRaisesMessage(services.LaunchError, "Temporary problem"):
+            self.build()
+        failed = self.stored()
+        self.assertEqual(failed.status, MetaLaunch.Status.BUILD_FAILED)
+        self.assertIn("Temporary problem", failed.last_error)
+        self.assertTrue(failed.meta_campaign_id and failed.meta_adset_id)
+        self.assertEqual(review_selectors.ready_for_meta().count(), 1)  # still ready to resume
+
+        launch = self.build()
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)
+        self.assertEqual(launch.last_error, "")
+        for method in ("create_campaign", "create_adset", "upload_image", "create_ad_creative"):
+            self.assertEqual(len(self.meta.called(method)), 1, method)
+
+    def test_resume_keeps_the_account_once_meta_objects_exist(self):
+        self.meta.fail_on["create_adset"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        other = make_account("act_2002", bm=self.account.business_manager)
+        with self.assertRaisesMessage(services.LaunchError, "act_1001"):
+            self.build(ad_account_id=other.pk)
+
+    def test_lost_response_reuses_existing_campaign_by_name(self):
+        self.meta.existing[("campaigns", self.campaign.code)] = "c99"
+        self.meta.existing[("adsets", self.campaign.code)] = "s99"
+        launch = self.build()
+        self.assertEqual((launch.meta_campaign_id, launch.meta_adset_id), ("c99", "s99"))
+        self.assertEqual(self.meta.called("create_campaign"), [])
+        self.assertEqual(self.meta.called("create_adset"), [])
+
+    def test_token_rejected_marks_business_manager_invalid(self):
+        self.meta.fail_on["create_campaign"] = MetaError("Error validating access token (190)", token_rejected=True)
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        bm = MetaBusinessManager.objects.get()
+        self.assertEqual(bm.token_status, MetaBusinessManager.TokenStatus.INVALID)
+        self.assertEqual(self.stored().status, MetaLaunch.Status.BUILD_FAILED)
+
+    def test_reel_waits_for_processing(self):
+        self.creative.asset_type = AssetType.REEL
+        self.creative.save()
+        launch = self.build()
+        self.assertTrue(launch.ads[0]["video_id"])
+        self.assertEqual(self.meta.called("create_ad_creative")[0]["video_id"], launch.ads[0]["video_id"])
+
+    def test_reel_still_processing_fails_resumably(self):
+        self.creative.asset_type = AssetType.REEL
+        self.creative.save()
+        self.meta.video_ready_answer = False
+        with self.assertRaisesMessage(services.LaunchError, "still processing"):
+            self.build()
+        self.assertLessEqual(sum(call.args[0] for call in self.sleep.call_args_list), 60)
+        self.meta.video_ready_answer = True
+        self.build()
+        self.assertEqual(len(self.meta.called("upload_video")), 1)
+
+    def test_missing_creative_file_fails_resumably(self):
+        self.creative.file.storage.delete(self.creative.file.name)
+        with self.assertRaisesMessage(services.LaunchError, "O West launch"):
+            self.build()
+        self.assertEqual(self.stored().status, MetaLaunch.Status.BUILD_FAILED)
+
+    def test_no_interest_matches_builds_country_only(self):
+        self.meta.interests = {}
+        launch = self.build()
+        targeting = self.meta.called("create_adset")[0]["targeting"]
+        self.assertEqual(targeting, {"geo_locations": {"countries": ["EG"]}})
+        self.assertEqual(launch.skipped_interests, ["Real estate", "Compounds"])
+
+    def test_matched_interests_are_sent(self):
+        self.build()
+        targeting = self.meta.called("create_adset")[0]["targeting"]
+        self.assertEqual(targeting["flexible_spec"], [{"interests": [{"id": "600"}, {"id": "700"}]}])
+        for banned in ("age_min", "age_max", "genders", "zips"):
+            self.assertNotIn(banned, targeting)
+
+    def test_budget_cents_round_half_up(self):
+        self.assertEqual(services.budget_cents(Decimal("30.005")), 3001)
+        self.assertEqual(services.budget_cents(Decimal("30")), 3000)
+        self.build()
+        self.assertEqual(self.meta.called("create_adset")[0]["budget_cents"], 3000)
+
+    def test_discard_deletes_on_meta_and_returns_campaign_to_ready(self):
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        campaign_id = self.stored().meta_campaign_id
+        services.discard_build(actor=self.buyer, campaign_id=self.campaign.pk)
+        self.assertEqual(self.meta.called("delete_object"), [{"object_id": campaign_id}])
+        self.assertFalse(MetaLaunch.objects.exists())
+        self.assertEqual(review_selectors.ready_for_meta().count(), 1)
+
+    def test_discard_failure_keeps_the_record_with_the_error(self):
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        self.meta.fail_on["delete_object"] = MetaError("Can't delete now")
+        with self.assertRaisesMessage(services.LaunchError, "Can't delete now"):
+            services.discard_build(actor=self.buyer, campaign_id=self.campaign.pk)
+        self.assertIn("Can't delete now", self.stored().last_error)
+
+    def test_discard_refuses_an_active_launch_and_other_roles(self):
+        self.build()
+        with self.assertRaises(services.LaunchError):
+            services.discard_build(actor=self.buyer, campaign_id=self.campaign.pk)
+        with self.assertRaises(PermissionDenied):
+            services.discard_build(actor=self.content, campaign_id=self.campaign.pk)
+
+    def test_build_options_lists_only_available_accounts(self):
+        make_account("act_3003", bm=self.account.business_manager, enabled=False)
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk)
+        self.assertEqual(options.accounts, [self.account])
+        self.assertEqual(options.pages, [])
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
+                                         ad_account_id=self.account.pk, page_id="p1")
+        self.assertEqual([p.id for p in options.pages], ["p1"])
+        self.assertEqual([f.id for f in options.forms], ["f1"])
+        self.assertEqual(options.problems, [])
+
+    def test_page_without_forms_is_a_problem(self):
+        self.meta.forms = {}
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
+                                         ad_account_id=self.account.pk, page_id="p1")
+        self.assertTrue(any("lead form" in str(p) for p in options.problems))
+
+    def test_no_pages_and_meta_errors_are_problems(self):
+        self.meta.pages = {}
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
+                                         ad_account_id=self.account.pk)
+        self.assertTrue(any("page" in str(p) for p in options.problems))
+        self.meta.fail_on["list_pages"] = MetaError("Meta is down")
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
+                                         ad_account_id=self.account.pk)
+        self.assertIn("Meta is down", " ".join(map(str, options.problems)))
