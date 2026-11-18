@@ -161,13 +161,14 @@ class MetaClient:
     # Launching and managing campaigns (US-META-02). Every call goes through
     # ``FacebookAdsApi.call`` with plain Graph paths and parameters.
 
-    def _call(self, method: str, *path, params=None, files=None) -> dict:
-        with self._errors():
+    def _call(self, method: str, *path, params=None, files=None, secrets=()) -> dict:
+        """``secrets``: other tokens in ``params`` that must be scrubbed from errors too."""
+        with _TranslateErrors(self._token, *secrets):
             return self._api.call(method, tuple(path), params=params or {}, files=files).json()
 
-    def _list(self, *path, params=None) -> list[dict]:
+    def _list(self, *path, params=None, secrets=()) -> list[dict]:
         """One page of an edge, up to 100 items: enough for pages, forms and name lookups."""
-        return self._call("GET", *path, params={"limit": 100, **(params or {})}).get("data", [])
+        return self._call("GET", *path, params={"limit": 100, **(params or {})}, secrets=secrets).get("data", [])
 
     def list_pages(self, business_id: str) -> list[PageInfo]:
         """Pages the Business Manager owns, then pages other businesses shared with it."""
@@ -180,11 +181,12 @@ class MetaClient:
                 ))
         return list(found.values())
 
+    @sensitive_variables("page_token")
     def list_lead_forms(self, page_id: str) -> list[LeadFormInfo]:
-        """The page's active instant forms. Reading them needs the page's own token."""
+        """The page's active instant forms. Reading them needs the page's own token, never kept."""
         page_token = self._call("GET", page_id, params={"fields": "access_token"}).get("access_token", "")
-        forms = self._list(page_id, "leadgen_forms",
-                           params={"fields": "id,name,status", "access_token": page_token})
+        forms = self._list(page_id, "leadgen_forms", params={"fields": "id,name,status", "access_token": page_token},
+                           secrets=(page_token,))
         return [LeadFormInfo(id=f["id"], name=f.get("name", "")) for f in forms if f.get("status") == "ACTIVE"]
 
     def ad_account_currency(self, account_id: str) -> str:
@@ -300,8 +302,9 @@ class MetaClient:
 class _TranslateErrors:
     """Turns SDK and network exceptions into ``MetaError`` with the token scrubbed."""
 
-    def __init__(self, token: str):
+    def __init__(self, token: str, *others: str):
         self._token = token
+        self._others = others
 
     def __enter__(self):
         return self
@@ -321,7 +324,9 @@ class _TranslateErrors:
         else:
             return False  # A bug in our code: let it surface.
         # `from None`: the original exception can carry request URLs and params.
-        raise MetaError(scrub(text, self._token), token_rejected=rejected) from None
+        for secret in (self._token, *self._others):
+            text = scrub(text, secret)
+        raise MetaError(text, token_rejected=rejected) from None
 
 
 def _budget(kind: str, cents: int) -> dict:
