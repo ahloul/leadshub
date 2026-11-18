@@ -54,6 +54,7 @@ class PageInfo:
     id: str
     name: str
     instagram_actor_id: str  # "" when no Instagram account is linked
+    owned: bool = True  # False: another business (a broker) shared it with the platform's Business Manager
 
 
 @dataclass(frozen=True)
@@ -178,6 +179,7 @@ class MetaClient:
                 found.setdefault(page["id"], PageInfo(
                     id=page["id"], name=page.get("name", ""),
                     instagram_actor_id=(page.get("instagram_business_account") or {}).get("id", ""),
+                    owned=edge == "owned_pages",
                 ))
         return list(found.values())
 
@@ -221,7 +223,12 @@ class MetaClient:
             "bid_strategy": "LOWEST_COST_WITHOUT_CAP",
             "destination_type": "ON_AD",
             "promoted_object": {"page_id": page_id},
-            "targeting": {k: v for k, v in targeting.items() if k not in _BANNED_TARGETING},
+            "targeting": {
+                **{k: v for k, v in targeting.items() if k not in _BANNED_TARGETING},
+                # Newer API versions require the choice; Advantage+ audience
+                # would widen targeting beyond the preset.
+                "targeting_automation": {"advantage_audience": 0},
+            },
             "start_time": start.isoformat(),
             "status": "PAUSED",
             **_budget(budget_kind, budget_cents),
@@ -250,15 +257,19 @@ class MetaClient:
         status = self._call("GET", video_id, params={"fields": "status"}).get("status") or {}
         return status.get("video_status") == "ready"
 
+    def video_thumbnail(self, video_id: str) -> str:
+        """The processed video's thumbnail URL; video ads need one."""
+        return self._call("GET", video_id, params={"fields": "picture"}).get("picture", "")
+
     def create_ad_creative(self, account_id: str, *, name, page_id, instagram_actor_id, lead_form_id,
-                           message: str, image_hash: str = "", video_id: str = "") -> str:
+                           message: str, image_hash: str = "", video_id: str = "", image_url: str = "") -> str:
         cta = {"type": "SIGN_UP", "value": {"lead_gen_form_id": lead_form_id}}
         spec = {"page_id": page_id}
         if instagram_actor_id:
             spec["instagram_user_id"] = instagram_actor_id
         if video_id:
-            spec["video_data"] = {"video_id": video_id, "message": message, "call_to_action": cta,
-                                  **({"image_hash": image_hash} if image_hash else {})}
+            thumbnail = {"image_hash": image_hash} if image_hash else {"image_url": image_url} if image_url else {}
+            spec["video_data"] = {"video_id": video_id, "message": message, "call_to_action": cta, **thumbnail}
         else:
             # Lead ads need a link; Meta's own placeholder for instant forms.
             spec["link_data"] = {"image_hash": image_hash, "message": message,

@@ -17,7 +17,7 @@ import logging
 import re
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.urls import reverse
 from django.utils import timezone, translation
@@ -189,6 +189,9 @@ def mark_deployed(*, actor, task_id, network_id, ad_account, now=None):
     if not task.awaiting_deployment:
         raise ValidationError(_("Only an approved task waiting for launch can be marked deployed."),
                               code="state")
+    if built_on_meta(task.campaign):
+        raise ValidationError(_("This campaign is being launched from the Meta campaigns page. Finish it there."),
+                              code="meta")
     network_id = (network_id or "").strip()
     ad_account = (ad_account or "").strip()
     errors = {}
@@ -203,6 +206,14 @@ def mark_deployed(*, actor, task_id, network_id, ad_account, now=None):
     task.deployed_at = now or timezone.now()
     task.save(update_fields=["deployed_by", "deployed_at"])
     return task
+
+
+def built_on_meta(campaign):
+    """A Meta build was started for it (US-META-02), so it isn't deployed by hand."""
+    try:
+        return campaign.meta_launch is not None
+    except ObjectDoesNotExist:
+        return False
 
 
 @transaction.atomic

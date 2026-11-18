@@ -15,7 +15,7 @@ class FakeMetaLauncher:
         self.fail_on = {}  # method name -> MetaError, raised once
         self.fail_always = {}  # method name -> MetaError, raised every time
         self.currency = "USD"
-        self.pages = {"111": [PageInfo(id="p1", name="LeadsHub Homes", instagram_actor_id="ig1")]}
+        self.pages = {"111": [PageInfo(id="p1", name="LeadsHub Homes", instagram_actor_id="ig1", owned=True)]}
         self.forms = {"p1": [LeadFormInfo(id="f1", name="Buyers form")]}
         self.interests = {"real estate": "600", "compounds": "700"}
         self.existing = {}  # (edge, name) -> id, for find_by_name
@@ -80,6 +80,10 @@ class FakeMetaLauncher:
     def video_ready(self, video_id):
         self._record("video_ready", video_id=video_id)
         return self.video_ready_answer
+
+    def video_thumbnail(self, video_id):
+        self._record("video_thumbnail", video_id=video_id)
+        return "https://thumb.test/v.jpg"
 
     def create_ad_creative(self, account_id, **kwargs):
         self._record("create_ad_creative", account_id=account_id, **kwargs)

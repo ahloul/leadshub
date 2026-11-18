@@ -20,7 +20,7 @@ from facebook_business.exceptions import FacebookRequestError
 from accounts.roles import Role
 from accounts.test_utils import make_office, make_user
 from campaigns import services as campaign_services
-from campaigns.models import Campaign, Channel, Destination, Status, TargetKind
+from campaigns.models import AccountStatus, Campaign, Channel, ConnectedAccount, Destination, Platform, Status, TargetKind
 from catalog.models import AudiencePreset
 from creatives.models import AssetType
 from creatives.test_utils import TemporaryUploadsMixin, make_creative, make_project
@@ -29,7 +29,7 @@ from reviews import services as review_services
 from reviews.tests import ReviewSetup
 
 from . import services
-from .meta_ads.client import LaunchState, MetaClient, MetaError
+from .meta_ads.client import LaunchState, LeadFormInfo, MetaClient, MetaError, PageInfo
 from .test_utils import FakeMetaLauncher
 from .models import MetaAdAccount, MetaBusinessManager, MetaLaunch
 
@@ -998,3 +998,139 @@ class ArabicPageTests(BuildSetup):
         error = client.get_state()["error"]
         self.assertIn("EGP", error)
         self.assertIn("بالدولار", error)
+
+
+class FinalReviewFixTests(BuildSetup):
+    """Fixes from the whole-branch review (US-META-02)."""
+
+    def test_second_build_cannot_pause_a_campaign_that_just_went_live(self):
+        real_forms = self.meta.list_lead_forms
+        finished = []
+
+        def other_buyer_finishes(page_id):
+            if not finished:
+                finished.append(True)
+                services.build(actor=self.lead, campaign_id=self.campaign.pk, ad_account_id=self.account.pk,
+                               page_id="p1", lead_form_id="f1")
+            return real_forms(page_id)
+
+        with mock.patch.object(self.meta, "list_lead_forms", side_effect=other_buyer_finishes):
+            with self.assertRaises(services.LaunchError):
+                self.build()
+        self.assertEqual(self.stored().status, MetaLaunch.Status.ACTIVE)
+        self.refresh()
+        self.assertEqual(self.campaign.status, Status.LIVE)
+        self.assertNotIn("PAUSED", [c["status"] for c in self.meta.called("set_status")])
+
+    def test_manual_mark_deployed_is_refused_once_a_meta_build_exists(self):
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        with self.assertRaises(ValidationError):
+            review_services.mark_deployed(actor=self.buyer, task_id=self.task.pk, network_id="120210000000001",
+                                          ad_account="act_1234567890")
+
+    def test_review_page_hides_mark_deployed_once_a_meta_build_exists(self):
+        self.client.force_login(self.buyer)
+        url = f"/en/back-office/queue/{self.task.pk}/"
+        self.assertIn('dj-submit="mark_deployed"', self.client.get(url).content.decode())
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        self.assertNotIn('dj-submit="mark_deployed"', self.client.get(url).content.decode())
+
+    def test_a_failed_build_stays_reachable_after_its_task_was_deployed(self):
+        self.meta.fail_on["create_ad"] = MetaError("boom")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        type(self.task).objects.filter(pk=self.task.pk).update(deployed_at=timezone.now())
+        self.client.force_login(self.buyer)
+        html = self.client.get(page_url(self.campaign.pk)).content.decode()
+        self.assertIn('dj-click="discard"', html)
+
+    def own_page_campaign(self, platform, external_id):
+        account = ConnectedAccount.objects.create(
+            office=self.office, platform=platform, handle="@nour.realty", status=AccountStatus.VERIFIED,
+            external_id=external_id)
+        self.set_campaign(destination=Destination.OWN_ACCOUNT, connected_account=account)
+
+    def test_own_account_needs_the_brokers_own_page(self):
+        self.meta.pages = {"111": [PageInfo(id="p1", name="LeadsHub Homes", instagram_actor_id="ig1", owned=True),
+                                   PageInfo(id="p9", name="Nour", instagram_actor_id="ig9", owned=False)]}
+        self.meta.forms["p9"] = [LeadFormInfo(id="f9", name="Nour form")]
+        self.own_page_campaign(Platform.FACEBOOK, "p9")
+        with self.assertRaisesMessage(services.LaunchError, "broker"):
+            self.build()
+        options = services.build_options(actor=self.buyer, campaign_id=self.campaign.pk,
+                                         ad_account_id=self.account.pk)
+        self.assertEqual([p.id for p in options.pages], ["p9"])
+        self.assertEqual(self.build(page_id="p9", lead_form_id="f9").page_id, "p9")
+
+    def test_own_instagram_matches_the_pages_instagram_account(self):
+        self.meta.pages = {"111": [PageInfo(id="p9", name="Nour", instagram_actor_id="ig9", owned=False)]}
+        self.meta.forms["p9"] = [LeadFormInfo(id="f9", name="Nour form")]
+        self.own_page_campaign(Platform.INSTAGRAM, "ig9")
+        self.assertEqual(self.build(page_id="p9", lead_form_id="f9").page_id, "p9")
+
+    def test_unverified_own_account_is_refused(self):
+        account = ConnectedAccount.objects.create(office=self.office, platform=Platform.FACEBOOK,
+                                                  handle="@nour.realty")
+        self.set_campaign(destination=Destination.OWN_ACCOUNT, connected_account=account)
+        with self.assertRaisesMessage(services.LaunchError, "verified"):
+            self.build()
+
+    def test_dark_page_needs_a_platform_owned_page(self):
+        self.meta.pages = {"111": [PageInfo(id="p9", name="Nour", instagram_actor_id="", owned=False)]}
+        self.meta.forms["p9"] = [LeadFormInfo(id="f9", name="Nour form")]
+        with self.assertRaisesMessage(services.LaunchError, "page"):
+            self.build(page_id="p9", lead_form_id="f9")
+
+    def test_landing_page_destination_is_refused_for_now(self):
+        self.set_campaign(destination=Destination.LANDING_PAGE)
+        with self.assertRaisesMessage(services.LaunchError, "landing page"):
+            self.build()
+
+    def test_reel_sends_its_thumbnail(self):
+        self.creative.asset_type = AssetType.REEL
+        self.creative.save()
+        self.build()
+        call = self.meta.called("create_ad_creative")[0]
+        self.assertEqual(call["image_url"], "https://thumb.test/v.jpg")
+
+    def test_unexpected_error_marks_the_build_failed(self):
+        self.meta.fail_on["create_ad"] = KeyError("id")
+        with self.assertRaises(services.LaunchError):
+            self.build()
+        launch = self.stored()
+        self.assertEqual(launch.status, MetaLaunch.Status.BUILD_FAILED)
+        self.assertTrue(launch.last_error)
+
+    def test_creative_without_a_file_fails_resumably_by_name(self):
+        type(self.creative).objects.filter(pk=self.creative.pk).update(file="")
+        with self.assertRaisesMessage(services.LaunchError, "O West launch"):
+            self.build()
+        self.assertEqual(self.stored().status, MetaLaunch.Status.BUILD_FAILED)
+
+
+class AdvantageAudienceTests(SimpleTestCase):
+    def test_adset_turns_advantage_audience_off(self):
+        meta = MetaClient(TOKEN)
+        graph = _Graph()
+        meta._api.call = graph
+        meta.create_adset("act_1", name="n", campaign_id="c1", page_id="p1", budget_kind="daily",
+                          budget_cents=3000, start=timezone.now(), end=None, targeting={})
+        self.assertEqual(graph.calls[0]["params"]["targeting"]["targeting_automation"], {"advantage_audience": 0})
+
+    def test_video_creative_carries_the_thumbnail(self):
+        meta = MetaClient(TOKEN)
+        graph = _Graph()
+        meta._api.call = graph
+        meta.create_ad_creative("act_1", name="n", page_id="p1", instagram_actor_id="", lead_form_id="f1",
+                                message="m", video_id="v1", image_url="https://thumb.test/v.jpg")
+        self.assertEqual(graph.calls[0]["params"]["object_story_spec"]["video_data"]["image_url"],
+                         "https://thumb.test/v.jpg")
+
+    def test_video_thumbnail(self):
+        meta = MetaClient(TOKEN)
+        meta._api.call = _Graph(replies={("GET", "v1"): {"picture": "https://thumb.test/v.jpg"}})
+        self.assertEqual(meta.video_thumbnail("v1"), "https://thumb.test/v.jpg")

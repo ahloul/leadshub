@@ -61,6 +61,7 @@ def page_campaign(campaign_id):
     task = review_selectors.ready_task_for(campaign_id)
     if task is not None:
         return task.campaign, task, launch
-    if launch is not None and launch.status not in (MetaLaunch.Status.BUILDING, MetaLaunch.Status.BUILD_FAILED):
+    if launch is not None:
+        # Any launch stays reachable, a failed one too, so it can be discarded.
         return launch.campaign, None, launch
     return None

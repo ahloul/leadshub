@@ -11,6 +11,7 @@ what was made on Meta.
 """
 
 import datetime
+import logging
 import time
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
@@ -41,6 +42,8 @@ VIDEO_WAIT_SECONDS = 60
 VIDEO_POLL_SECONDS = 5
 
 COUNTRY = "EG"
+
+logger = logging.getLogger(__name__)
 
 
 class LaunchError(Exception):
@@ -96,10 +99,31 @@ def _available_account(ad_account_id):
 # Choosing where to build
 
 
+def _destination_errors(campaign):
+    """What the campaign's destination (FR-4.3, FR-4.4) rules out before any Meta call."""
+    if campaign.destination == "landing_page":
+        return [_("Campaigns for the platform landing page don't launch here yet.")]
+    if campaign.destination == "own_account":
+        account = campaign.connected_account
+        if account is None or account.status != "verified" or not account.external_id:
+            return [_("The broker's own page isn't verified yet. Verify it before launching.")]
+    return []
+
+
+def _page_fits(campaign, page):
+    """Dark page: a page the platform owns. Own account: exactly the broker's verified page (tenancy)."""
+    if campaign.destination == "own_account":
+        account = campaign.connected_account
+        if account.platform == "instagram":
+            return page.instagram_actor_id == account.external_id
+        return page.id == account.external_id
+    return page.owned
+
+
 def build_options(*, actor, campaign_id, ad_account_id=None, page_id=""):
     """What the build form offers: accounts, then the account's pages, then the page's forms."""
     _require(actor)
-    _ready_task(campaign_id)
+    campaign = _ready_task(campaign_id).campaign
     options = BuildOptions(
         accounts=list(MetaAdAccount.objects.available_for_launch().select_related("business_manager"))
     )
@@ -110,8 +134,12 @@ def build_options(*, actor, campaign_id, ad_account_id=None, page_id=""):
     if account is None:
         return options
     meta = _client(account)
+    if errors := _destination_errors(campaign):
+        options.problems.extend(errors)
+        return options
     try:
-        options.pages = meta.list_pages(account.business_manager.meta_business_id)
+        options.pages = [p for p in meta.list_pages(account.business_manager.meta_business_id)
+                         if _page_fits(campaign, p)]
         if not options.pages:
             options.problems.append(
                 _("This Business Manager can't use any Facebook page. Share the page with it in Meta first.")
@@ -136,9 +164,15 @@ def _claim(task, account, page, form, actor, now):
     campaign = task.campaign
     with transaction.atomic():
         launch = MetaLaunch.objects.select_for_update().filter(campaign=campaign).first()
+        # Checked again under the lock: another build may have finished while
+        # this one read Meta (review finding 1).
+        if review_selectors.ready_task_for(campaign.pk) is None:
+            raise LaunchError(_("This campaign isn't ready to launch on Meta."))
         if launch is not None:
             if launch.status == MetaLaunch.Status.BUILDING and not launch.is_stale_build(now):
                 raise LaunchError(_("This campaign is already being built on Meta. Wait a moment."))
+            if launch.status not in (MetaLaunch.Status.BUILDING, MetaLaunch.Status.BUILD_FAILED):
+                raise LaunchError(_("This campaign isn't ready to launch on Meta."))
             if launch.meta_campaign_id and launch.ad_account_id != account.pk:
                 raise LaunchError(
                     _("This build already started on %(account)s. Build again there, or discard it first.")
@@ -222,11 +256,26 @@ def _read_file(creative):
     try:
         with creative.file.open("rb") as handle:
             return handle.read()
-    except OSError:
+    except _STORAGE_ERRORS:
         raise LaunchError(
             _("The file of %(title)s can't be read. Ask a Content Manager to upload it again.")
             % {"title": creative.title}
         ) from None
+
+
+def _storage_errors():
+    """Missing or unreadable files: disk (OSError), no file (ValueError), S3 (botocore)."""
+    errors = [OSError, ValueError]
+    try:
+        from botocore.exceptions import BotoCoreError, ClientError
+
+        errors += [BotoCoreError, ClientError]
+    except ImportError:  # Disk storage only.
+        pass
+    return tuple(errors)
+
+
+_STORAGE_ERRORS = _storage_errors()
 
 
 def _wait_for_video(meta, video_id, title):
@@ -244,7 +293,8 @@ def _build_ad(meta, launch, campaign, creative):
     """Upload, creative, ad: one creative's entry in ``launch.ads``, saved after each step."""
     entry = next((e for e in launch.ads if e["creative_pk"] == creative.pk), None)
     if entry is None:
-        entry = {"creative_pk": creative.pk, "image_hash": "", "video_id": "", "creative_id": "", "ad_id": ""}
+        entry = {"creative_pk": creative.pk, "image_hash": "", "video_id": "", "image_url": "",
+                 "creative_id": "", "ad_id": ""}
         launch.ads = [*launch.ads, entry]
     account_id = launch.ad_account.meta_account_id
     name = f"{campaign.code} · {creative.pk}"
@@ -255,6 +305,9 @@ def _build_ad(meta, launch, campaign, creative):
             _save(launch, "ads")
         if not entry["creative_id"]:
             _wait_for_video(meta, entry["video_id"], creative.title)
+            if not entry.get("image_url"):
+                entry["image_url"] = meta.video_thumbnail(entry["video_id"])
+                _save(launch, "ads")
     elif not entry["image_hash"]:
         entry["image_hash"] = meta.upload_image(account_id, creative.file.name.rsplit("/", 1)[-1],
                                                 _read_file(creative))
@@ -263,7 +316,7 @@ def _build_ad(meta, launch, campaign, creative):
         entry["creative_id"] = meta.create_ad_creative(
             account_id, name=name, page_id=launch.page_id, instagram_actor_id=launch.instagram_actor_id,
             lead_form_id=launch.lead_form_id, message=creative.offer or creative.title,
-            image_hash=entry["image_hash"], video_id=entry["video_id"],
+            image_hash=entry["image_hash"], video_id=entry["video_id"], image_url=entry.get("image_url", ""),
         )
         _save(launch, "ads")
     if not entry["ad_id"]:
@@ -295,7 +348,7 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
     task = _ready_task(campaign_id)
     campaign = task.campaign
     creatives = list(campaign.creatives.order_by("pk"))
-    if errors := _campaign_errors(campaign, creatives, today):
+    if errors := _campaign_errors(campaign, creatives, today) or _destination_errors(campaign):
         raise LaunchError(" ".join(str(e) for e in errors))
     account = _available_account(ad_account_id)
     meta = _client(account)
@@ -310,6 +363,10 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
                     None)
         if page is None:
             raise LaunchError(_("This Business Manager can't use that Facebook page. Choose the page again."))
+        if not _page_fits(campaign, page):
+            if campaign.destination == "own_account":
+                raise LaunchError(_("This campaign runs on the broker's own page. Choose that page."))
+            raise LaunchError(_("Dark page campaigns run on a page the platform owns. Choose one of those."))
         form = next((f for f in meta.list_lead_forms(page.id) if f.id == lead_form_id), None)
         if form is None:
             raise LaunchError(_("That lead form isn't active on the page. Choose the form again."))
@@ -320,13 +377,19 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
     launch = _claim(task, account, page, form, actor, now)
     try:
         _run_build(meta, launch, campaign, creatives, now)
-    except (MetaError, LaunchError) as error:
+    except Exception as error:
         if isinstance(error, MetaError):
             _note_token(account, error)
+        if isinstance(error, (MetaError, LaunchError)):
+            message = str(error)
+        else:
+            # Never leave it "building": say so, and keep the details in the log.
+            logger.exception("Meta build of campaign %s failed unexpectedly", campaign.pk)
+            message = _("Something went wrong while building. Build again; if it keeps failing, tell a developer.")
         launch.status = MetaLaunch.Status.BUILD_FAILED
-        launch.last_error = str(error)
+        launch.last_error = message
         _save(launch, "status", "last_error")
-        raise LaunchError(str(error)) from None
+        raise LaunchError(message) from None
 
     try:
         with transaction.atomic():

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-18 21:48+0200\n"
+"POT-Creation-Date: 2026-11-18 22:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -1386,135 +1386,168 @@ msgstr "إطلاق على ميتا"
 msgid "Meta launches"
 msgstr "عمليات الإطلاق على ميتا"
 
-#: ad_channels/services.py:80
+#: ad_channels/services.py:83 ad_channels/services.py:170
+#: ad_channels/services.py:175
 msgid "This campaign isn't ready to launch on Meta."
 msgstr "هذه الحملة غير جاهزة للإطلاق على ميتا."
 
-#: ad_channels/services.py:92
+#: ad_channels/services.py:95
 msgid "That ad account can't take a launch right now. Choose another one."
 msgstr "لا يمكن الإطلاق على هذا الحساب الإعلاني الآن. اختر حسابًا آخر."
 
-#: ad_channels/services.py:107
+#: ad_channels/services.py:105
+msgid "Campaigns for the platform landing page don't launch here yet."
+msgstr "حملات صفحة الهبوط الخاصة بالمنصة لا تُطلق من هنا بعد."
+
+#: ad_channels/services.py:109
+msgid "The broker's own page isn't verified yet. Verify it before launching."
+msgstr "صفحة الوسيط الخاصة لم يتم التحقق منها بعد. تحقق منها قبل الإطلاق."
+
+#: ad_channels/services.py:131
 msgid "No ad account is ready for launch. A Platform Admin enables them."
 msgstr "لا يوجد حساب إعلاني جاهز للإطلاق. يفعّلها مدير المنصة."
 
-#: ad_channels/services.py:117
+#: ad_channels/services.py:145
 msgid ""
 "This Business Manager can't use any Facebook page. Share the page with it in "
 "Meta first."
-msgstr "لا يستطيع مدير الأعمال هذا استخدام أي صفحة فيسبوك. شارك الصفحة معه في ميتا أولًا."
+msgstr ""
+"لا يستطيع مدير الأعمال هذا استخدام أي صفحة فيسبوك. شارك الصفحة معه في ميتا "
+"أولًا."
 
-#: ad_channels/services.py:123
+#: ad_channels/services.py:151
 msgid ""
 "This page has no active lead form. Create one in Meta, then choose the page "
 "again."
-msgstr "لا يوجد في هذه الصفحة نموذج عملاء محتملين نشط. أنشئ نموذجًا في ميتا، ثم اختر الصفحة مرة أخرى."
+msgstr ""
+"لا يوجد في هذه الصفحة نموذج عملاء محتملين نشط. أنشئ نموذجًا في ميتا، ثم اختر "
+"الصفحة مرة أخرى."
 
-#: ad_channels/services.py:141 ad_channels/services.py:161
+#: ad_channels/services.py:173 ad_channels/services.py:195
 msgid "This campaign is already being built on Meta. Wait a moment."
 msgstr "هذه الحملة قيد البناء على ميتا بالفعل. انتظر قليلًا."
 
-#: ad_channels/services.py:144
+#: ad_channels/services.py:178
 #, python-format
 msgid ""
 "This build already started on %(account)s. Build again there, or discard it "
 "first."
 msgstr "بدأ هذا البناء على %(account)s. أعد البناء هناك، أو تجاهله أولًا."
 
-#: ad_channels/services.py:172
+#: ad_channels/services.py:206
 msgid "Only Meta campaigns launch here."
 msgstr "تُطلق هنا حملات ميتا فقط."
 
-#: ad_channels/services.py:175
+#: ad_channels/services.py:209
 msgid "The end date has passed. Ask the broker for a new end date."
 msgstr "انقضى تاريخ الانتهاء. اطلب من الوسيط تاريخ انتهاء جديدًا."
 
-#: ad_channels/services.py:177 ad_channels/services.py:488
+#: ad_channels/services.py:211 ad_channels/services.py:551
 #: campaigns/services.py:268
 msgid "A total budget needs an end date."
 msgstr "تحتاج الميزانية الإجمالية إلى تاريخ انتهاء."
 
-#: ad_channels/services.py:179
+#: ad_channels/services.py:213
 msgid "The campaign has no creatives."
 msgstr "لا توجد مواد إعلانية في الحملة."
 
-#: ad_channels/services.py:183
+#: ad_channels/services.py:217
 #, python-format
 msgid "%(title)s is no longer published or its offer ended."
 msgstr "لم تعد %(title)s منشورة أو انتهى عرضها."
 
-#: ad_channels/services.py:186
+#: ad_channels/services.py:220
 #, python-format
 msgid "%(title)s is a %(type)s; only images and reels launch on Meta for now."
 msgstr "%(title)s من نوع %(type)s؛ تُطلق الصور والريلز فقط على ميتا حاليًا."
 
-#: ad_channels/services.py:227
+#: ad_channels/services.py:261
 #, python-format
 msgid ""
 "The file of %(title)s can't be read. Ask a Content Manager to upload it "
 "again."
 msgstr "تعذّرت قراءة ملف %(title)s. اطلب من مدير المحتوى رفعه مرة أخرى."
 
-#: ad_channels/services.py:237
+#: ad_channels/services.py:286
 #, python-format
 msgid ""
 "Meta is still processing the video of %(title)s. Build again in a minute."
 msgstr "ما زالت ميتا تعالج فيديو %(title)s. أعد البناء بعد دقيقة."
 
-#: ad_channels/services.py:306
+#: ad_channels/services.py:359
 #, python-format
 msgid ""
 "%(account)s bills in %(currency)s. Campaign budgets are in USD: choose a USD "
 "account."
-msgstr "يحاسب %(account)s بعملة %(currency)s. ميزانيات الحملات بالدولار: اختر حسابًا بالدولار."
+msgstr ""
+"يحاسب %(account)s بعملة %(currency)s. ميزانيات الحملات بالدولار: اختر حسابًا "
+"بالدولار."
 
-#: ad_channels/services.py:312
+#: ad_channels/services.py:365
 msgid ""
 "This Business Manager can't use that Facebook page. Choose the page again."
-msgstr "لا يستطيع مدير الأعمال هذا استخدام صفحة فيسبوك تلك. اختر الصفحة مرة أخرى."
+msgstr ""
+"لا يستطيع مدير الأعمال هذا استخدام صفحة فيسبوك تلك. اختر الصفحة مرة أخرى."
 
-#: ad_channels/services.py:315
+#: ad_channels/services.py:368
+msgid "This campaign runs on the broker's own page. Choose that page."
+msgstr "تعمل هذه الحملة على صفحة الوسيط الخاصة. اختر تلك الصفحة."
+
+#: ad_channels/services.py:369
+msgid ""
+"Dark page campaigns run on a page the platform owns. Choose one of those."
+msgstr "تعمل حملات الصفحة الداكنة على صفحة تملكها المنصة. اختر إحداها."
+
+#: ad_channels/services.py:372
 msgid "That lead form isn't active on the page. Choose the form again."
 msgstr "نموذج العملاء المحتملين هذا غير نشط على الصفحة. اختر النموذج مرة أخرى."
 
-#: ad_channels/services.py:347
+#: ad_channels/services.py:388
+msgid ""
+"Something went wrong while building. Build again; if it keeps failing, tell "
+"a developer."
+msgstr "حدث خطأ أثناء البناء. أعد البناء؛ وإن استمر الفشل فأبلغ مطورًا."
+
+#: ad_channels/services.py:410
 #, python-format
 msgid ""
 "Built on Meta and paused again, because LeadsHub couldn't record it: "
 "%(reason)s"
-msgstr "بُنيت على ميتا ثم أُوقفت مؤقتًا مرة أخرى، لأن LeadsHub لم يتمكن من تسجيلها: %(reason)s"
+msgstr ""
+"بُنيت على ميتا ثم أُوقفت مؤقتًا مرة أخرى، لأن LeadsHub لم يتمكن من تسجيلها: "
+"%(reason)s"
 
-#: ad_channels/services.py:391
+#: ad_channels/services.py:454
 msgid "Only a build that failed can be discarded."
 msgstr "لا يمكن تجاهل إلا بناء تعذّر."
 
-#: ad_channels/services.py:421
+#: ad_channels/services.py:484
 msgid "This campaign isn't running on Meta."
 msgstr "هذه الحملة لا تعمل على ميتا."
 
-#: ad_channels/services.py:445
+#: ad_channels/services.py:508
 msgid "Someone changed this campaign meanwhile. Reload the page and try again."
 msgstr "غيّر شخص آخر هذه الحملة في الأثناء. أعد تحميل الصفحة وحاول مرة أخرى."
 
-#: ad_channels/services.py:478
+#: ad_channels/services.py:541
 msgid "Enter a budget above zero."
 msgstr "أدخل ميزانية أكبر من صفر."
 
-#: ad_channels/services.py:480
+#: ad_channels/services.py:543
 #, python-format
 msgid "The budget can't go above the broker's %(amount)s USD."
 msgstr "لا يمكن أن تتجاوز الميزانية %(amount)s دولار التي حددها الوسيط."
 
-#: ad_channels/services.py:483
+#: ad_channels/services.py:546
 msgid "Choose an end date after today."
 msgstr "اختر تاريخ انتهاء بعد اليوم."
 
-#: ad_channels/services.py:485
+#: ad_channels/services.py:548
 #, python-format
 msgid "The end date can't be after the broker's end date, %(date)s."
 msgstr "لا يمكن أن يكون تاريخ الانتهاء بعد تاريخ انتهاء الوسيط، %(date)s."
 
-#: ad_channels/services.py:490
+#: ad_channels/services.py:553
 #, python-format
 msgid "Keep an end date: the broker's campaign ends on %(date)s."
 msgstr "احتفظ بتاريخ انتهاء: تنتهي حملة الوسيط في %(date)s."
@@ -1644,7 +1677,9 @@ msgstr "ابنِ على ميتا"
 msgid ""
 "Choose where it runs. LeadsHub creates the campaign, ad set and ads paused, "
 "then switches them on."
-msgstr "اختر مكان تشغيلها. ينشئ LeadsHub الحملة والمجموعة الإعلانية والإعلانات متوقفة، ثم يشغّلها."
+msgstr ""
+"اختر مكان تشغيلها. ينشئ LeadsHub الحملة والمجموعة الإعلانية والإعلانات "
+"متوقفة، ثم يشغّلها."
 
 #: ad_channels/templates/ad_channels/campaign.html:96
 msgid "The last build stopped:"
@@ -1670,7 +1705,8 @@ msgstr "تجاهل البناء"
 
 #: ad_channels/templates/ad_channels/list.html:12
 msgid "Build approved campaigns on Meta, then pause, change or stop them here."
-msgstr "ابنِ الحملات المعتمدة على ميتا، ثم أوقفها مؤقتًا أو غيّرها أو أوقفها من هنا."
+msgstr ""
+"ابنِ الحملات المعتمدة على ميتا، ثم أوقفها مؤقتًا أو غيّرها أو أوقفها من هنا."
 
 #: ad_channels/templates/ad_channels/list.html:16
 #: reviews/templates/reviews/queue.html:42
@@ -1735,39 +1771,39 @@ msgstr "جاهزة للإطلاق"
 msgid "All"
 msgstr "الكل"
 
-#: ad_channels/views.py:216
+#: ad_channels/views.py:206
 msgid "Built on Meta and switched on. The campaign is Live."
 msgstr "بُنيت على ميتا وشُغّلت. الحملة قيد التشغيل."
 
-#: ad_channels/views.py:220
+#: ad_channels/views.py:210
 msgid "You can no longer launch campaigns on Meta."
 msgstr "لم يعد بإمكانك إطلاق الحملات على ميتا."
 
-#: ad_channels/views.py:228
+#: ad_channels/views.py:218
 msgid "The build was deleted from Meta. Start again when ready."
 msgstr "حُذف البناء من ميتا. ابدأ من جديد عندما تكون جاهزًا."
 
-#: ad_channels/views.py:248
+#: ad_channels/views.py:238
 msgid "Paused on Meta. The broker still sees Live."
 msgstr "أُوقفت مؤقتًا على ميتا. ما زال الوسيط يراها قيد التشغيل."
 
-#: ad_channels/views.py:253
+#: ad_channels/views.py:243
 msgid "Running on Meta again."
 msgstr "تعمل على ميتا مرة أخرى."
 
-#: ad_channels/views.py:262 ad_channels/views.py:265
+#: ad_channels/views.py:252 ad_channels/views.py:255
 msgid "Enter the budget in USD and the end date as a date."
 msgstr "أدخل الميزانية بالدولار وتاريخ الانتهاء كتاريخ."
 
-#: ad_channels/views.py:267
+#: ad_channels/views.py:257
 msgid "Budget saved on Meta."
 msgstr "حُفظت الميزانية على ميتا."
 
-#: ad_channels/views.py:272
+#: ad_channels/views.py:262
 msgid "Stopped on Meta. The campaign has ended."
 msgstr "أُوقفت على ميتا. انتهت الحملة."
 
-#: ad_channels/views.py:277
+#: ad_channels/views.py:267
 msgid "Up to date with Meta."
 msgstr "محدّثة مع ميتا."
 
@@ -3638,32 +3674,38 @@ msgstr "اكتب للوسيط ما يجب تعديله."
 msgid "Keep the reasons under %(count)d characters."
 msgstr "اجعل الأسباب أقل من %(count)d حرف."
 
-#: reviews/services.py:190 reviews/services.py:218
+#: reviews/services.py:190 reviews/services.py:229
 msgid "Only an approved task waiting for launch can be marked deployed."
 msgstr "لا يمكن تسجيل الإطلاق إلا لمهمة موافق عليها بانتظار الإطلاق."
 
-#: reviews/services.py:196
+#: reviews/services.py:193
+msgid ""
+"This campaign is being launched from the Meta campaigns page. Finish it "
+"there."
+msgstr "يجري إطلاق هذه الحملة من صفحة حملات ميتا. أكملها هناك."
+
+#: reviews/services.py:199
 msgid "Enter the ID the network gave, digits only."
 msgstr "أدخل المعرّف الذي أعطته الشبكة، أرقامًا فقط."
 
-#: reviews/services.py:198
+#: reviews/services.py:201
 msgid "Enter the ad account, for example act_1234567890 or 123-456-7890."
 msgstr "أدخل الحساب الإعلاني، مثل act_1234567890 أو 123-456-7890."
 
-#: reviews/services.py:274
+#: reviews/services.py:285
 msgid "past due"
 msgstr "تجاوزت الموعد"
 
-#: reviews/services.py:276
+#: reviews/services.py:287
 #, python-format
 msgid "%(minutes)d min left"
 msgstr "متبقٍ %(minutes)d دقيقة"
 
-#: reviews/services.py:277
+#: reviews/services.py:288
 msgid "nobody"
 msgstr "لا أحد"
 
-#: reviews/services.py:280
+#: reviews/services.py:291
 #, python-format
 msgid "%(campaign)s for %(office)s · %(when)s · assigned to %(who)s"
 msgstr "%(campaign)s لمكتب %(office)s · %(when)s · مسندة إلى %(who)s"
@@ -3925,7 +3967,7 @@ msgstr "أكثر من 4 ساعات"
 msgid "Take this task"
 msgstr "تولَّ هذه المهمة"
 
-#: reviews/templates/reviews/task.html:164 reviews/views.py:180
+#: reviews/templates/reviews/task.html:164 reviews/views.py:181
 msgid "This task is assigned to someone else. Ask the lead to reassign it."
 msgstr "هذه المهمة مسندة إلى شخص آخر. اطلب من قائد الفريق إعادة إسنادها."
 
@@ -3985,23 +4027,23 @@ msgstr "مهامي"
 msgid "Unassigned"
 msgstr "غير مسندة"
 
-#: reviews/views.py:191
+#: reviews/views.py:192
 msgid "Assignment saved."
 msgstr "تم حفظ الإسناد."
 
-#: reviews/views.py:196
+#: reviews/views.py:197
 msgid "The task is yours. Decide it before the time runs out."
 msgstr "المهمة لك الآن. اتخذ القرار قبل انتهاء الوقت."
 
-#: reviews/views.py:201
+#: reviews/views.py:202
 msgid "Approved. The brief is ready; launch the campaign and mark it deployed."
 msgstr "تمت الموافقة. الموجز جاهز؛ أطلق الحملة ثم سجّل الإطلاق."
 
-#: reviews/views.py:207
+#: reviews/views.py:208
 msgid "Sent back to the broker with your reasons."
 msgstr "أُعيدت إلى الوسيط مع أسبابك."
 
-#: reviews/views.py:216
+#: reviews/views.py:217
 msgid "Recorded. The campaign is Live."
 msgstr "تم التسجيل. الحملة قيد التشغيل."
 

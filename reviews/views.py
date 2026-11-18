@@ -155,7 +155,8 @@ class ReviewTaskView(
                 "can_take": task.is_open and task.assigned_to_id is None,
                 "can_decide": task.is_open and may_decide,
                 "assigned_elsewhere": task.is_open and not may_decide,
-                "can_deploy": task.awaiting_deployment and may_decide,
+                # Launched from the Meta campaigns page instead (US-META-02).
+                "can_deploy": task.awaiting_deployment and may_decide and not services.built_on_meta(campaign),
                 "is_meta": campaign.channel == "meta",
                 "is_resent": task.kind == Kind.CAMPAIGN_RESENT,
                 "rejected": task.status == TaskStatus.REJECTED,
