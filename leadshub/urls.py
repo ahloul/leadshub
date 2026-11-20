@@ -19,6 +19,7 @@ from accounts.views import (
 )
 
 from campaigns import views as campaign_views
+from ad_channels import views as meta_views
 from reviews import views as review_views
 
 from .files import PrivateFileView
@@ -51,6 +52,9 @@ urlpatterns += i18n_patterns(
     # The office's own Instagram, Facebook and Google accounts (FR-4.4).
     path("portal/pages/", campaign_views.ConnectedAccountsView.as_view(), name="connected_accounts"),
     path("back-office/", BackOfficeView.as_view(), name="back_office"),
+    # Launching ready campaigns on Meta (ad_channels/views.py, US-META-02).
+    path("back-office/meta/campaigns/", meta_views.MetaCampaignListView.as_view(), name="meta_campaigns"),
+    path("back-office/meta/campaigns/<int:pk>/", meta_views.MetaCampaignView.as_view(), name="meta_campaign"),
     # The review queue for media buyers and their lead (reviews/views.py, ROADMAP M4).
     path("back-office/queue/", review_views.ReviewQueueView.as_view(), name="review_queue"),
     path("back-office/queue/<int:pk>/", review_views.ReviewTaskView.as_view(), name="review_task"),

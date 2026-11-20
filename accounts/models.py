@@ -27,7 +27,9 @@ class User(AbstractUser):
 
     # Never sent to the browser by djust (password/is_staff/is_superuser are
     # excluded by djust already).
-    djust_exclude_fields = ("last_login",)
+    # is_internal_staff runs a query; no template reads it, so lists of
+    # users or campaigns don't pay it per row (US-META-02).
+    djust_exclude_fields = ("last_login", "is_internal_staff")
 
     def has_role(self, role):
         return self.groups.filter(name=Role(role).value).exists()

@@ -121,3 +121,23 @@ def brief_of(task):
 def reviewers():
     """Who a task can be assigned to: active internal staff who may decide tasks."""
     return account_selectors.staff_with(REVIEW)
+
+
+# US-META-02: what the media buying team may build on Meta. Ready means
+# approved and not deployed yet; a build that failed halfway stays ready so
+# it can be resumed.
+_STILL_BUILDING = ("building", "build_failed")
+
+
+def ready_for_meta():
+    """Approved Meta campaigns not on Meta yet, oldest approval first."""
+    from django.db.models import Q
+
+    return awaiting_deployment().filter(campaign__channel="meta").filter(
+        Q(campaign__meta_launch__isnull=True) | Q(campaign__meta_launch__status__in=_STILL_BUILDING)
+    )
+
+
+def ready_task_for(campaign_id):
+    """The approved task of a campaign ready for Meta, or None."""
+    return ready_for_meta().filter(campaign_id=campaign_id).first()

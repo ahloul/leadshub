@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-16 04:24+0200\n"
+"POT-Creation-Date: 2026-11-20 04:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Arabic\n"
@@ -18,829 +18,46 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
-#: accounts/admin.py:27
+#: accounts/admin.py:30
 msgid "view"
 msgstr "عرض"
 
-#: accounts/admin.py:28
+#: accounts/admin.py:31
 msgid "add"
 msgstr "إضافة"
 
 #
-#: accounts/admin.py:29
+#: accounts/admin.py:32
 msgid "change"
 msgstr "تعديل"
 
-#: accounts/admin.py:30
+#: accounts/admin.py:33
 msgid "delete"
 msgstr "حذف"
 
-#: accounts/admin.py:52 accounts/admin.py:88 accounts/models.py:132
+#: accounts/admin.py:55 accounts/admin.py:92 accounts/models.py:205
 msgid "roles"
 msgstr "الأدوار"
 
 #
-#: accounts/admin.py:53
+#: accounts/admin.py:56
 msgid ""
 "A user can have several roles, all internal, all broker, or all developer."
 msgstr ""
 "يمكن أن يكون للمستخدم عدة أدوار، كلها داخلية أو كلها للوسطاء أو كلها "
 "للمطوّرين."
 
-#: accounts/admin.py:75
+#: accounts/admin.py:78
 msgid "Personal info"
 msgstr "المعلومات الشخصية"
 
-#: accounts/admin.py:77
+#: accounts/admin.py:80
 msgid "Roles and permissions"
 msgstr "الأدوار والصلاحيات"
 
-#: accounts/admin.py:80
+#: accounts/admin.py:83
 msgid "Important dates"
 msgstr "تواريخ مهمة"
-
-#
-#
-#: accounts/admin.py:119
-msgid "Permissions"
-msgstr "الصلاحيات"
-
-#: accounts/admin.py:145
-msgid ""
-"Internal roles may use any of these. Broker roles: create and run campaigns, "
-"wallet, leads, team. Developer roles: aggregate project metrics."
-msgstr ""
-"يمكن للأدوار الداخلية استخدام أي منها. أدوار الوسطاء: إنشاء الحملات "
-"وتشغيلها، والمحفظة، والعملاء المحتملون، والفريق. أدوار المطوّرين: المؤشرات "
-"الإجمالية للمشروعات."
-
-#: accounts/admin.py:174
-msgid "A role with this name already exists."
-msgstr "يوجد دور بهذا الاسم بالفعل."
-
-#: accounts/admin.py:189
-#, python-format
-msgid "Not allowed for this audience: %(perms)s"
-msgstr "غير مسموح بها لهذه الفئة: %(perms)s"
-
-#: accounts/admin.py:198
-#, python-format
-msgid "This role must keep: %(perms)s"
-msgstr "يجب أن يحتفظ هذا الدور بما يلي: %(perms)s"
-
-#
-#: accounts/admin.py:232
-msgid "members"
-msgstr "الأعضاء"
-
-#: accounts/apps.py:9
-msgid "Accounts"
-msgstr "الحسابات"
-
-#: accounts/models.py:16
-msgid "email address"
-msgstr "البريد الإلكتروني"
-
-#: accounts/models.py:25 catalog/models.py:34 catalog/models.py:55
-msgid "developer"
-msgstr "المطوّر"
-
-#: accounts/models.py:46
-msgid "Bronze"
-msgstr "برونزي"
-
-#: accounts/models.py:47
-msgid "Silver"
-msgstr "فضي"
-
-#: accounts/models.py:48
-msgid "Gold"
-msgstr "ذهبي"
-
-#: accounts/models.py:49
-msgid "Platinum"
-msgstr "بلاتيني"
-
-#: accounts/models.py:56
-msgid "company name"
-msgstr "اسم الشركة"
-
-#: accounts/models.py:58
-msgid "wallet balance (EGP)"
-msgstr "رصيد المحفظة (جنيه مصري)"
-
-#: accounts/models.py:61
-msgid "wallet balance (USD)"
-msgstr "رصيد المحفظة (دولار أمريكي)"
-
-#: accounts/models.py:64
-msgid "spend tier"
-msgstr "فئة الإنفاق"
-
-#: accounts/models.py:67
-msgid "feedback score"
-msgstr "درجة التقييم"
-
-#: accounts/models.py:69 ad_channels/models.py:71 ad_channels/models.py:152
-msgid "created at"
-msgstr "تاريخ الإنشاء"
-
-#: accounts/models.py:72
-msgid "broker office"
-msgstr "مكتب وساطة"
-
-#: accounts/models.py:73
-msgid "broker offices"
-msgstr "مكاتب الوساطة"
-
-#: accounts/models.py:96
-msgid "user"
-msgstr "المستخدم"
-
-#: accounts/models.py:102
-msgid "office"
-msgstr "المكتب"
-
-#: accounts/models.py:104
-msgid "joined at"
-msgstr "تاريخ الانضمام"
-
-#: accounts/models.py:107
-msgid "membership"
-msgstr "العضوية"
-
-#: accounts/models.py:108
-msgid "memberships"
-msgstr "العضويات"
-
-#: accounts/models.py:123
-msgid "group"
-msgstr "المجموعة"
-
-#: accounts/models.py:125 catalog/models.py:14
-msgid "name (English)"
-msgstr "الاسم (بالإنجليزية)"
-
-#: accounts/models.py:126 catalog/models.py:15
-msgid "name (Arabic)"
-msgstr "الاسم (بالعربية)"
-
-#: accounts/models.py:127
-msgid "audience"
-msgstr "الفئة"
-
-#: accounts/models.py:128
-msgid "essential role"
-msgstr "دور أساسي"
-
-#
-#: accounts/models.py:131
-msgid "role"
-msgstr "الدور"
-
-#: accounts/roles.py:45
-msgid "View actual ad spend and media margin"
-msgstr "عرض الإنفاق الإعلاني الفعلي وهامش الوسائط"
-
-#: accounts/roles.py:46
-msgid "Approve or reject campaign tasks"
-msgstr "اعتماد مهام الحملات أو رفضها"
-
-#: accounts/roles.py:47
-msgid "Manage master data and ad accounts"
-msgstr "إدارة البيانات الرئيسية والحسابات الإعلانية"
-
-#: accounts/roles.py:48
-msgid "Manage FX rates and price overrides"
-msgstr "إدارة أسعار الصرف وتعديلات الأسعار"
-
-#: accounts/roles.py:49
-msgid "Create and run campaigns"
-msgstr "إنشاء الحملات وتشغيلها"
-
-#: accounts/roles.py:50
-msgid "Manage wallet and top up funds"
-msgstr "إدارة المحفظة وشحن الرصيد"
-
-#: accounts/roles.py:51
-msgid "Access and work assigned leads"
-msgstr "الوصول إلى العملاء المحتملين المسندين والعمل عليهم"
-
-#: accounts/roles.py:52
-msgid "View aggregate project metrics"
-msgstr "عرض المؤشرات الإجمالية للمشروعات"
-
-#: accounts/roles.py:53
-msgid "Manage the creative library"
-msgstr "إدارة مكتبة المواد الإعلانية"
-
-#: accounts/roles.py:54
-msgid "Invite and manage office team members"
-msgstr "دعوة أعضاء فريق المكتب وإدارتهم"
-
-#: accounts/roles.py:55
-msgid "Assign campaign tasks to media buyers"
-msgstr "إسناد مهام الحملات إلى مشتري الإعلانات"
-
-#: accounts/roles.py:57
-msgid "Open the internal back office"
-msgstr "الدخول إلى المكتب الخلفي الداخلي"
-
-#: accounts/roles.py:58
-msgid "Open the broker client portal"
-msgstr "الدخول إلى بوابة عملاء الوسطاء"
-
-#
-#: accounts/roles.py:59
-msgid "Open the developer read-only view"
-msgstr "الدخول إلى عرض المطوّر للقراءة فقط"
-
-#: accounts/roles.py:66
-msgid "Platform Admin"
-msgstr "مدير المنصة"
-
-#: accounts/roles.py:67
-msgid "Media Buying Lead"
-msgstr "قائد شراء الوسائط"
-
-#: accounts/roles.py:68
-msgid "Media Buyer"
-msgstr "مشتري الوسائط"
-
-#: accounts/roles.py:69
-msgid "Content Manager"
-msgstr "مدير المحتوى"
-
-#: accounts/roles.py:70
-msgid "Finance Manager"
-msgstr "المدير المالي"
-
-#: accounts/roles.py:71
-msgid "Broker Owner"
-msgstr "مالك مكتب الوساطة"
-
-#: accounts/roles.py:72
-msgid "Broker Team Member"
-msgstr "عضو فريق الوساطة"
-
-#: accounts/roles.py:73
-msgid "Developer Read-Only View"
-msgstr "عرض المطوّر (قراءة فقط)"
-
-#: accounts/roles.py:79
-msgid "Internal staff"
-msgstr "الموظفون الداخليون"
-
-#
-#: accounts/roles.py:80
-msgid "Broker office"
-msgstr "مكتب وساطة"
-
-#
-#: accounts/roles.py:81
-msgid "Developer"
-msgstr "مطوّر"
-
-#: accounts/roles.py:258
-msgid ""
-"A user's roles must all be internal, all broker, or all developer roles."
-msgstr ""
-"يجب أن تكون أدوار المستخدم كلها داخلية، أو كلها للوسطاء، أو كلها للمطوّرين."
-
-#: accounts/roles.py:261
-msgid "Choose the developer this read-only account belongs to."
-msgstr "اختر المطوّر الذي يتبعه حساب القراءة فقط هذا."
-
-#
-#: accounts/roles.py:263
-msgid "Only developer accounts are linked to a developer."
-msgstr "تُربط بالمطوّر حسابات المطوّرين وحدها."
-
-#: accounts/templates/registration/login.html:4
-#: accounts/templates/registration/login.html:30
-msgid "Sign in"
-msgstr "تسجيل الدخول"
-
-#: accounts/templates/registration/login.html:9
-msgid "Sign in to LeadsHub"
-msgstr "تسجيل الدخول إلى LeadsHub"
-
-#: ad_channels/admin.py:132
-msgid "Facebook Login isn't set up: set META_APP_ID and META_LOGIN_CONFIG_ID."
-msgstr ""
-"تسجيل الدخول عبر فيسبوك غير مُعدّ: اضبط META_APP_ID و META_LOGIN_CONFIG_ID."
-
-#: ad_channels/admin.py:173
-msgid "Facebook login was cancelled. Nothing was changed."
-msgstr "أُلغي تسجيل الدخول عبر فيسبوك. لم يتغيّر شيء."
-
-#: ad_channels/admin.py:197
-#, python-format
-msgid ""
-"Connected %(bm)s, but its ad accounts couldn't be loaded: %(reason)s Use "
-"Reconnect with Facebook to try again."
-msgstr ""
-"تم ربط %(bm)s، لكن تعذّر تحميل حساباته الإعلانية: %(reason)s استخدم إعادة "
-"الربط عبر فيسبوك للمحاولة مجددًا."
-
-#: ad_channels/admin.py:208
-#, python-format
-msgid "Connected %(bm)s. %(count)d ad account loaded."
-msgid_plural "Connected %(bm)s. %(count)d ad accounts loaded."
-msgstr[0] "تم ربط %(bm)s. لم يُحمَّل أي حساب إعلاني (%(count)d)."
-msgstr[1] "تم ربط %(bm)s. حُمِّل حساب إعلاني واحد (%(count)d)."
-msgstr[2] "تم ربط %(bm)s. حُمِّل حسابان إعلانيان (%(count)d)."
-msgstr[3] "تم ربط %(bm)s. حُمِّلت %(count)d حسابات إعلانية."
-msgstr[4] "تم ربط %(bm)s. حُمِّل %(count)d حسابًا إعلانيًا."
-msgstr[5] "تم ربط %(bm)s. حُمِّل %(count)d حساب إعلاني."
-
-#: ad_channels/admin.py:236
-msgid "Connect with Facebook"
-msgstr "الربط عبر فيسبوك"
-
-#: ad_channels/admin.py:240
-msgid "Reconnect with Facebook"
-msgstr "إعادة الربط عبر فيسبوك"
-
-#: ad_channels/admin.py:265 ad_channels/models.py:54
-msgid "token status"
-msgstr "حالة الرمز"
-
-#: ad_channels/admin.py:269
-msgid "ad accounts (enabled / total)"
-msgstr "الحسابات الإعلانية (المفعّلة / الإجمالي)"
-
-#: ad_channels/admin.py:273
-msgid "Recheck token with Meta"
-msgstr "إعادة التحقق من الرمز مع Meta"
-
-#: ad_channels/admin.py:278
-#, python-format
-msgid "%(bm)s: token is %(status)s."
-msgstr "%(bm)s: حالة الرمز %(status)s."
-
-#: ad_channels/admin.py:283
-msgid "Deactivate (stop all launches)"
-msgstr "إلغاء التفعيل (إيقاف كل الإطلاقات)"
-
-#: ad_channels/admin.py:289
-#, python-format
-msgid ""
-"%(count)d Business Manager deactivated; its ad accounts are no longer "
-"offered for launch."
-msgid_plural ""
-"%(count)d Business Managers deactivated; their ad accounts are no longer "
-"offered for launch."
-msgstr[0] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-msgstr[1] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-msgstr[2] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-msgstr[3] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-msgstr[4] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-msgstr[5] ""
-"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
-"للإطلاق."
-
-#: ad_channels/admin.py:296
-msgid "Reactivate"
-msgstr "إعادة التفعيل"
-
-#: ad_channels/admin.py:301
-#, python-format
-msgid "%(count)d Business Manager reactivated."
-msgid_plural "%(count)d Business Managers reactivated."
-msgstr[0] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-msgstr[1] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-msgstr[2] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-msgstr[3] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-msgstr[4] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-msgstr[5] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
-
-#: ad_channels/admin.py:309 ad_channels/admin.py:361
-msgid "launch"
-msgstr "الإطلاق"
-
-#: ad_channels/admin.py:313
-msgid "Available for launch"
-msgstr "متاح للإطلاق"
-
-#: ad_channels/admin.py:313
-msgid "Enabled but blocked"
-msgstr "مفعّل لكنه محظور"
-
-#: ad_channels/admin.py:366
-msgid "Available"
-msgstr "متاح"
-
-#: ad_channels/admin.py:367
-msgid "Not enabled"
-msgstr "غير مفعّل"
-
-#: ad_channels/admin.py:369
-msgid "Enable for launch"
-msgstr "تفعيل للإطلاق"
-
-#: ad_channels/admin.py:386
-#, python-format
-msgid "%(count)d ad account enabled."
-msgid_plural "%(count)d ad accounts enabled."
-msgstr[0] "تم تفعيل %(count)d من الحسابات الإعلانية."
-msgstr[1] "تم تفعيل %(count)d من الحسابات الإعلانية."
-msgstr[2] "تم تفعيل %(count)d من الحسابات الإعلانية."
-msgstr[3] "تم تفعيل %(count)d من الحسابات الإعلانية."
-msgstr[4] "تم تفعيل %(count)d من الحسابات الإعلانية."
-msgstr[5] "تم تفعيل %(count)d من الحسابات الإعلانية."
-
-#: ad_channels/admin.py:391
-msgid "Disable for launch"
-msgstr "إيقاف عن الإطلاق"
-
-#: ad_channels/admin.py:396
-#, python-format
-msgid "%(count)d ad account disabled."
-msgid_plural "%(count)d ad accounts disabled."
-msgstr[0] "تم إيقاف %(count)d من الحسابات الإعلانية."
-msgstr[1] "تم إيقاف %(count)d من الحسابات الإعلانية."
-msgstr[2] "تم إيقاف %(count)d من الحسابات الإعلانية."
-msgstr[3] "تم إيقاف %(count)d من الحسابات الإعلانية."
-msgstr[4] "تم إيقاف %(count)d من الحسابات الإعلانية."
-msgstr[5] "تم إيقاف %(count)d من الحسابات الإعلانية."
-
-#: ad_channels/apps.py:9 leadshub/settings.py:317
-msgid "Meta ads"
-msgstr "إعلانات Meta"
-
-#: ad_channels/meta_ads/sync.py:69
-#, python-format
-msgid "You picked a different business than %(bm)s. Nothing was changed."
-msgstr "اخترت نشاطًا تجاريًا غير %(bm)s. لم يتغيّر شيء."
-
-#: ad_channels/meta_ads/sync.py:75
-#, python-format
-msgid "Meta refused the connection: %(reason)s"
-msgstr "رفضت Meta الربط: %(reason)s"
-
-#: ad_channels/meta_ads/sync.py:82
-#, python-format
-msgid ""
-"%(bm)s is already connected, and you may not change it. Nothing was changed."
-msgstr "%(bm)s مربوط بالفعل، ولا يحق لك تغييره. لم يتغيّر شيء."
-
-#: ad_channels/models.py:37
-msgid "Unchecked"
-msgstr "لم يُتحقق منه"
-
-#: ad_channels/models.py:38
-msgid "Valid"
-msgstr "صالح"
-
-#: ad_channels/models.py:39
-msgid "Invalid"
-msgstr "غير صالح"
-
-#: ad_channels/models.py:41 ad_channels/models.py:140
-msgid "name"
-msgstr "الاسم"
-
-#: ad_channels/models.py:43
-msgid "Meta business ID"
-msgstr "معرّف النشاط التجاري في Meta"
-
-#: ad_channels/models.py:46
-msgid "The numeric ID in Business Settings → Business info."
-msgstr "المعرّف الرقمي في إعدادات النشاط التجاري ← معلومات النشاط التجاري."
-
-#: ad_channels/models.py:60
-msgid "token last checked"
-msgstr "آخر تحقق من الرمز"
-
-#: ad_channels/models.py:62
-msgid "token problem"
-msgstr "مشكلة الرمز"
-
-#: ad_channels/models.py:65 catalog/models.py:16
-msgid "active"
-msgstr "نشط"
-
-#: ad_channels/models.py:67 ad_channels/models.py:145
-msgid "last synced"
-msgstr "آخر مزامنة"
-
-#: ad_channels/models.py:68
-msgid "last sync failure"
-msgstr "آخر فشل في المزامنة"
-
-#: ad_channels/models.py:69
-msgid "last sync error"
-msgstr "خطأ آخر مزامنة"
-
-#: ad_channels/models.py:72 ad_channels/models.py:153
-msgid "updated at"
-msgstr "تاريخ التحديث"
-
-#: ad_channels/models.py:76 ad_channels/models.py:130
-msgid "Business Manager"
-msgstr "مدير الأعمال"
-
-#: ad_channels/models.py:77 leadshub/settings.py:320
-msgid "Business Managers"
-msgstr "مديرو الأعمال"
-
-#: ad_channels/models.py:115
-msgid "Active"
-msgstr "نشط"
-
-#: ad_channels/models.py:116
-msgid "Disabled"
-msgstr "معطّل"
-
-#: ad_channels/models.py:117
-msgid "Unsettled"
-msgstr "غير مسدَّد"
-
-#: ad_channels/models.py:118
-msgid "Pending risk review"
-msgstr "بانتظار مراجعة المخاطر"
-
-#: ad_channels/models.py:119
-msgid "Pending settlement"
-msgstr "بانتظار التسوية"
-
-#: ad_channels/models.py:120
-msgid "In grace period"
-msgstr "في فترة السماح"
-
-#: ad_channels/models.py:121
-msgid "Pending closure"
-msgstr "بانتظار الإغلاق"
-
-#: ad_channels/models.py:122
-msgid "Closed"
-msgstr "مغلق"
-
-#: ad_channels/models.py:123
-msgid "Any active"
-msgstr "أي حالة نشطة"
-
-#: ad_channels/models.py:124
-msgid "Any closed"
-msgstr "أي حالة مغلقة"
-
-#: ad_channels/models.py:133
-msgid "Meta ad account ID"
-msgstr "معرّف الحساب الإعلاني في Meta"
-
-#: ad_channels/models.py:136
-msgid "Starts with \"act_\", e.g. act_1234567890."
-msgstr "يبدأ بـ \"act_\"، مثل act_1234567890."
-
-#: ad_channels/models.py:142
-msgid "Meta status"
-msgstr "الحالة في Meta"
-
-#: ad_channels/models.py:147
-msgid "removed from Meta"
-msgstr "أُزيل من Meta"
-
-#: ad_channels/models.py:150
-msgid "enabled for launch"
-msgstr "مفعّل للإطلاق"
-
-#: ad_channels/models.py:159
-msgid "ad account"
-msgstr "حساب إعلاني"
-
-#: ad_channels/models.py:160
-msgid "ad accounts"
-msgstr "الحسابات الإعلانية"
-
-#: ad_channels/models.py:169
-msgid "no longer returned by Meta"
-msgstr "لم تعد Meta تُرجعه"
-
-#: ad_channels/models.py:171
-msgid "disabled by Meta"
-msgstr "عطّلته Meta"
-
-#: ad_channels/models.py:174
-msgid "Business Manager is deactivated"
-msgstr "مدير الأعمال غير مفعّل"
-
-#: ad_channels/models.py:176
-msgid "Business Manager token is not valid"
-msgstr "رمز مدير الأعمال غير صالح"
-
-#: ad_channels/models.py:183
-msgid "Enter act_ followed by the numeric account ID."
-msgstr "أدخل act_ متبوعًا بالمعرّف الرقمي للحساب."
-
-#: ad_channels/models.py:190
-#, python-format
-msgid "Can't enable for launch: %(reasons)s."
-msgstr "لا يمكن التفعيل للإطلاق: %(reasons)s."
-
-#: catalog/apps.py:8 leadshub/settings.py:303
-msgid "Master data"
-msgstr "البيانات الرئيسية"
-
-#: catalog/models.py:35
-msgid "developers"
-msgstr "المطوّرون"
-
-#: catalog/models.py:41 catalog/models.py:58
-msgid "area"
-msgstr "المنطقة"
-
-#: catalog/models.py:42
-msgid "areas"
-msgstr "المناطق"
-
-#: catalog/models.py:48
-msgid "unit type"
-msgstr "نوع الوحدة"
-
-#: catalog/models.py:49 catalog/models.py:61
-msgid "unit types"
-msgstr "أنواع الوحدات"
-
-#: catalog/models.py:65
-msgid "commission rate (%)"
-msgstr "نسبة العمولة (%)"
-
-#: catalog/models.py:73
-msgid "project"
-msgstr "المشروع"
-
-#: catalog/models.py:74
-msgid "projects"
-msgstr "المشروعات"
-
-#
-#: leadshub/settings.py:247 leadshub/settings.py:285
-#: leadshub/templates/leadshub/back_office.html:4
-#: leadshub/templates/leadshub/back_office.html:10
-msgid "Back office"
-msgstr "المكتب الخلفي"
-
-#
-#: leadshub/settings.py:287
-msgid "Overview"
-msgstr "نظرة عامة"
-
-#: leadshub/settings.py:288
-msgid "Admin home"
-msgstr "رئيسية الإدارة"
-
-#: leadshub/settings.py:292
-msgid "People and access"
-msgstr "الأشخاص والصلاحيات"
-
-#: leadshub/settings.py:295
-msgid "Users"
-msgstr "المستخدمون"
-
-#
-#: leadshub/settings.py:296
-msgid "Roles"
-msgstr "الأدوار"
-
-#
-#
-#: leadshub/settings.py:298
-msgid "Broker offices"
-msgstr "مكاتب الوساطة"
-
-#
-#
-#: leadshub/settings.py:306
-msgid "Developers"
-msgstr "المطوّرون"
-
-#
-#: leadshub/settings.py:308
-msgid "Projects"
-msgstr "المشروعات"
-
-#
-#: leadshub/settings.py:310
-msgid "Areas"
-msgstr "المناطق"
-
-#
-#: leadshub/settings.py:311
-msgid "Unit types"
-msgstr "أنواع الوحدات"
-
-#: leadshub/settings.py:322
-msgid "Ad accounts"
-msgstr "الحسابات الإعلانية"
-
-#: leadshub/templates/leadshub/back_office.html:11
-msgid "Internal operations. Clients never see this area."
-msgstr "العمليات الداخلية. لا يرى العملاء هذا القسم أبدًا."
-
-#: leadshub/templates/leadshub/back_office.html:14
-msgid "Open admin"
-msgstr "فتح لوحة الإدارة"
-
-#: leadshub/templates/leadshub/back_office.html:20
-msgid "Your roles"
-msgstr "أدوارك"
-
-#: leadshub/templates/leadshub/back_office.html:25
-msgid "Superuser (all permissions)"
-msgstr "مستخدم خارق (كل الصلاحيات)"
-
-#: leadshub/templates/leadshub/back_office.html:31
-msgid "What you can do"
-msgstr "ما يمكنك فعله"
-
-#: leadshub/templates/leadshub/base.html:33
-msgid "Language"
-msgstr "اللغة"
-
-#: leadshub/templates/leadshub/base.html:40
-msgid "Change"
-msgstr "تغيير"
-
-#: leadshub/templates/leadshub/base.html:44
-msgid "Toggle dark mode"
-msgstr "تبديل الوضع الداكن"
-
-#: leadshub/templates/leadshub/base.html:53
-msgid "Sign out"
-msgstr "تسجيل الخروج"
-
-#: leadshub/templates/leadshub/dashboard.html:4
-msgid "Dashboard"
-msgstr "لوحة التحكم"
-
-#: leadshub/templates/leadshub/dashboard.html:10
-msgid "Your office at a glance."
-msgstr "نظرة سريعة على مكتبك."
-
-#: leadshub/templates/leadshub/dashboard.html:13
-msgid "Office summary"
-msgstr "ملخص المكتب"
-
-#: leadshub/templates/leadshub/dashboard.html:15
-msgid "Wallet (EGP)"
-msgstr "المحفظة (جنيه مصري)"
-
-#: leadshub/templates/leadshub/dashboard.html:19
-msgid "Wallet (USD)"
-msgstr "المحفظة (دولار أمريكي)"
-
-#: leadshub/templates/leadshub/dashboard.html:23
-msgid "Spend tier"
-msgstr "فئة الإنفاق"
-
-#: leadshub/templates/leadshub/dashboard.html:27
-msgid "Feedback score"
-msgstr "درجة التقييم"
-
-#: leadshub/templates/leadshub/dashboard.html:33
-msgid "Team"
-msgstr "الفريق"
-
-#: leadshub/templates/leadshub/dashboard.html:41
-msgid "No team members yet."
-msgstr "لا يوجد أعضاء في الفريق بعد."
-
-#
-#: leadshub/templates/leadshub/developer_home.html:4
-#: leadshub/templates/leadshub/developer_home.html:9
-msgid "Developer view"
-msgstr "عرض المطوّر"
-
-#: leadshub/templates/leadshub/developer_home.html:10
-msgid "Aggregate project metrics, without broker or customer details."
-msgstr "مؤشرات المشروعات الإجمالية، دون بيانات الوسطاء أو العملاء."
-
-#: leadshub/templates/leadshub/developer_home.html:13
-msgid "Project metrics will appear here once campaigns are live."
-msgstr "ستظهر مؤشرات المشروعات هنا عند تشغيل الحملات."
-
-#: templates/403.html:4 templates/403.html:9
-msgid "Access denied"
-msgstr "تم رفض الوصول"
-
-#: templates/403.html:10
-msgid "Your role doesn't allow access to this page."
-msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
-
-#: templates/403.html:11
-msgid "Go to my home page"
-msgstr "الذهاب إلى صفحتي الرئيسية"
 
 #: accounts/admin.py:96
 msgid "Send a new invitation link"
@@ -858,6 +75,40 @@ msgstr[2] "أُرسلت دعوتان. تم تخطي من عيّنوا كلمة �
 msgstr[3] "أُرسلت %(count)d دعوات. تم تخطي من عيّنوا كلمة مرور بالفعل."
 msgstr[4] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
 msgstr[5] "أُرسلت %(count)d دعوة. تم تخطي من عيّنوا كلمة مرور بالفعل."
+
+#
+#
+#: accounts/admin.py:137
+msgid "Permissions"
+msgstr "الصلاحيات"
+
+#: accounts/admin.py:163
+msgid ""
+"Internal roles may use any of these. Broker roles: create and run campaigns, "
+"wallet, leads, team. Developer roles: aggregate project metrics."
+msgstr ""
+"يمكن للأدوار الداخلية استخدام أي منها. أدوار الوسطاء: إنشاء الحملات "
+"وتشغيلها، والمحفظة، والعملاء المحتملون، والفريق. أدوار المطوّرين: المؤشرات "
+"الإجمالية للمشروعات."
+
+#: accounts/admin.py:192
+msgid "A role with this name already exists."
+msgstr "يوجد دور بهذا الاسم بالفعل."
+
+#: accounts/admin.py:207
+#, python-format
+msgid "Not allowed for this audience: %(perms)s"
+msgstr "غير مسموح بها لهذه الفئة: %(perms)s"
+
+#: accounts/admin.py:216
+#, python-format
+msgid "This role must keep: %(perms)s"
+msgstr "يجب أن يحتفظ هذا الدور بما يلي: %(perms)s"
+
+#
+#: accounts/admin.py:250
+msgid "members"
+msgstr "الأعضاء"
 
 #: accounts/admin.py:345
 msgid "email confirmed"
@@ -929,6 +180,10 @@ msgstr[5] "تم تخطي %(count)d مكتب لا ينتظر المراجعة."
 #: accounts/admin.py:403
 msgid "Owner"
 msgstr "المالك"
+
+#: accounts/apps.py:9
+msgid "Accounts"
+msgstr "الحسابات"
 
 #: accounts/forms.py:37
 msgid ""
@@ -1002,63 +257,294 @@ msgstr "تأكيد كلمة المرور"
 msgid "The two passwords don't match."
 msgstr "كلمتا المرور غير متطابقتين."
 
-#: accounts/models.py:56
+#: accounts/models.py:16
+msgid "email address"
+msgstr "البريد الإلكتروني"
+
+#: accounts/models.py:25 campaigns/models.py:283 catalog/models.py:34
+#: catalog/models.py:55 creatives/models.py:112
+msgid "developer"
+msgstr "المطوّر"
+
+#: accounts/models.py:48
+msgid "Bronze"
+msgstr "برونزي"
+
+#: accounts/models.py:49
+msgid "Silver"
+msgstr "فضي"
+
+#: accounts/models.py:50
+msgid "Gold"
+msgstr "ذهبي"
+
+#: accounts/models.py:51
+msgid "Platinum"
+msgstr "بلاتيني"
+
+#: accounts/models.py:58
 msgid "Pending review"
 msgstr "قيد المراجعة"
 
-#: accounts/models.py:58
+#: accounts/models.py:59 ad_channels/models.py:120 ad_channels/models.py:217
+msgid "Active"
+msgstr "نشط"
+
+#: accounts/models.py:60
 msgid "Rejected"
 msgstr "مرفوض"
 
-#: accounts/models.py:79 campaigns/models.py:187 campaigns/models.py:255
-#: creatives/admin.py:65 creatives/models.py:146 reviews/models.py:58
+#: accounts/models.py:67
+msgid "company name"
+msgstr "اسم الشركة"
+
+#: accounts/models.py:69
+msgid "wallet balance (EGP)"
+msgstr "رصيد المحفظة (جنيه مصري)"
+
+#: accounts/models.py:72
+msgid "wallet balance (USD)"
+msgstr "رصيد المحفظة (دولار أمريكي)"
+
+#: accounts/models.py:75
+msgid "spend tier"
+msgstr "فئة الإنفاق"
+
+#: accounts/models.py:78
+msgid "feedback score"
+msgstr "درجة التقييم"
+
+#: accounts/models.py:81 ad_channels/models.py:250 campaigns/models.py:187
+#: campaigns/models.py:255 creatives/admin.py:65 creatives/models.py:146
+#: reviews/models.py:58
 msgid "status"
 msgstr "الحالة"
 
-#: accounts/models.py:134
+#: accounts/models.py:87 ad_channels/models.py:76 ad_channels/models.py:157
+#: campaigns/models.py:201 campaigns/models.py:380 creatives/models.py:172
+msgid "created at"
+msgstr "تاريخ الإنشاء"
+
+#: accounts/models.py:90 campaigns/models.py:178 campaigns/models.py:244
+msgid "broker office"
+msgstr "مكتب وساطة"
+
+#: accounts/models.py:91
+msgid "broker offices"
+msgstr "مكاتب الوساطة"
+
+#: accounts/models.py:114
+msgid "user"
+msgstr "المستخدم"
+
+#: accounts/models.py:120 accounts/models.py:153
+msgid "office"
+msgstr "المكتب"
+
+#: accounts/models.py:122
+msgid "joined at"
+msgstr "تاريخ الانضمام"
+
+#: accounts/models.py:125
+msgid "membership"
+msgstr "العضوية"
+
+#: accounts/models.py:126
+msgid "memberships"
+msgstr "العضويات"
+
+#: accounts/models.py:136
 msgid "Enter a phone number of 8 to 15 digits, optionally starting with +."
 msgstr "أدخل رقم هاتف من 8 إلى 15 رقمًا، ويمكن أن يبدأ بعلامة +."
 
-#: accounts/models.py:157
+#: accounts/models.py:159
 msgid "applicant"
 msgstr "مقدّم الطلب"
 
 #
-#: accounts/models.py:160
+#: accounts/models.py:162
 msgid "mobile number"
 msgstr "رقم الموبايل"
 
-#: accounts/models.py:163 creatives/models.py:98
+#: accounts/models.py:165 creatives/models.py:98
 msgid "language"
 msgstr "اللغة"
 
-#: accounts/models.py:164
+#: accounts/models.py:166
 msgid "email confirmed at"
 msgstr "تاريخ تأكيد البريد الإلكتروني"
 
-#: accounts/models.py:165
+#: accounts/models.py:167
 msgid "signed up at"
 msgstr "تاريخ التسجيل"
 
-#: accounts/models.py:166
+#: accounts/models.py:168
 msgid "reviewed at"
 msgstr "تاريخ المراجعة"
 
-#: accounts/models.py:173
+#: accounts/models.py:175
 msgid "reviewed by"
 msgstr "راجعه"
 
-#: accounts/models.py:177
+#: accounts/models.py:179
 msgid "sign-up"
 msgstr "طلب تسجيل"
 
-#: accounts/models.py:178
+#: accounts/models.py:180
 msgid "sign-ups"
 msgstr "طلبات التسجيل"
+
+#: accounts/models.py:196
+msgid "group"
+msgstr "المجموعة"
+
+#: accounts/models.py:198 catalog/models.py:14
+msgid "name (English)"
+msgstr "الاسم (بالإنجليزية)"
+
+#: accounts/models.py:199 catalog/models.py:15
+msgid "name (Arabic)"
+msgstr "الاسم (بالعربية)"
+
+#: accounts/models.py:200 campaigns/models.py:344
+msgid "audience"
+msgstr "الفئة"
+
+#: accounts/models.py:201
+msgid "essential role"
+msgstr "دور أساسي"
+
+#
+#: accounts/models.py:204
+msgid "role"
+msgstr "الدور"
+
+#: accounts/roles.py:45
+msgid "View actual ad spend and media margin"
+msgstr "عرض الإنفاق الإعلاني الفعلي وهامش الوسائط"
+
+#: accounts/roles.py:46
+msgid "Approve or reject campaign tasks"
+msgstr "اعتماد مهام الحملات أو رفضها"
+
+#: accounts/roles.py:47
+msgid "Manage master data and ad accounts"
+msgstr "إدارة البيانات الرئيسية والحسابات الإعلانية"
+
+#: accounts/roles.py:48
+msgid "Manage FX rates and price overrides"
+msgstr "إدارة أسعار الصرف وتعديلات الأسعار"
+
+#: accounts/roles.py:49
+msgid "Create and run campaigns"
+msgstr "إنشاء الحملات وتشغيلها"
+
+#: accounts/roles.py:50
+msgid "Manage wallet and top up funds"
+msgstr "إدارة المحفظة وشحن الرصيد"
+
+#: accounts/roles.py:51
+msgid "Access and work assigned leads"
+msgstr "الوصول إلى العملاء المحتملين المسندين والعمل عليهم"
+
+#: accounts/roles.py:52
+msgid "View aggregate project metrics"
+msgstr "عرض المؤشرات الإجمالية للمشروعات"
+
+#: accounts/roles.py:53
+msgid "Manage the creative library"
+msgstr "إدارة مكتبة المواد الإعلانية"
+
+#: accounts/roles.py:54
+msgid "Invite and manage office team members"
+msgstr "دعوة أعضاء فريق المكتب وإدارتهم"
+
+#: accounts/roles.py:55
+msgid "Assign campaign tasks to media buyers"
+msgstr "إسناد مهام الحملات إلى مشتري الإعلانات"
 
 #: accounts/roles.py:56
 msgid "Connect the office's own pages and ad accounts"
 msgstr "ربط صفحات المكتب وحساباته الإعلانية"
+
+#: accounts/roles.py:58
+msgid "Launch and manage campaigns on Meta"
+msgstr "إطلاق الحملات على ميتا وإدارتها"
+
+#: accounts/roles.py:60
+msgid "Open the internal back office"
+msgstr "الدخول إلى المكتب الخلفي الداخلي"
+
+#: accounts/roles.py:61
+msgid "Open the broker client portal"
+msgstr "الدخول إلى بوابة عملاء الوسطاء"
+
+#
+#: accounts/roles.py:62
+msgid "Open the developer read-only view"
+msgstr "الدخول إلى عرض المطوّر للقراءة فقط"
+
+#: accounts/roles.py:69
+msgid "Platform Admin"
+msgstr "مدير المنصة"
+
+#: accounts/roles.py:70
+msgid "Media Buying Lead"
+msgstr "قائد شراء الوسائط"
+
+#: accounts/roles.py:71
+msgid "Media Buyer"
+msgstr "مشتري الوسائط"
+
+#: accounts/roles.py:72
+msgid "Content Manager"
+msgstr "مدير المحتوى"
+
+#: accounts/roles.py:73
+msgid "Finance Manager"
+msgstr "المدير المالي"
+
+#: accounts/roles.py:74
+msgid "Broker Owner"
+msgstr "مالك مكتب الوساطة"
+
+#: accounts/roles.py:75
+msgid "Broker Team Member"
+msgstr "عضو فريق الوساطة"
+
+#: accounts/roles.py:76
+msgid "Developer Read-Only View"
+msgstr "عرض المطوّر (قراءة فقط)"
+
+#: accounts/roles.py:82
+msgid "Internal staff"
+msgstr "الموظفون الداخليون"
+
+#
+#: accounts/roles.py:83 reviews/templates/reviews/task.html:67
+msgid "Broker office"
+msgstr "مكتب وساطة"
+
+#
+#: accounts/roles.py:84 campaigns/templates/campaigns/list.html:55
+#: reviews/templates/reviews/task.html:47
+msgid "Developer"
+msgstr "مطوّر"
+
+#: accounts/roles.py:301
+msgid ""
+"A user's roles must all be internal, all broker, or all developer roles."
+msgstr ""
+"يجب أن تكون أدوار المستخدم كلها داخلية، أو كلها للوسطاء، أو كلها للمطوّرين."
+
+#: accounts/roles.py:304
+msgid "Choose the developer this read-only account belongs to."
+msgstr "اختر المطوّر الذي يتبعه حساب القراءة فقط هذا."
+
+#
+#: accounts/roles.py:306
+msgid "Only developer accounts are linked to a developer."
+msgstr "تُربط بالمطوّر حسابات المطوّرين وحدها."
 
 #: accounts/services.py:118 accounts/services.py:358
 msgid "Sign-in name"
@@ -1313,6 +799,11 @@ msgstr "أخبار سارة: وافقنا على %(office)s، وحسابك عل�
 msgid "Your account is open"
 msgstr "تم فتح حسابك"
 
+#: accounts/templates/accounts/email/signup_approved_body.html:9
+#: accounts/templates/registration/login.html:9
+msgid "Sign in to LeadsHub"
+msgstr "تسجيل الدخول إلى LeadsHub"
+
 #: accounts/templates/accounts/email/signup_approved_body.txt:5
 msgid "Sign in here:"
 msgstr "سجّل الدخول من هنا:"
@@ -1391,6 +882,12 @@ msgstr ""
 #: accounts/templates/registration/confirm_email.html:16
 msgid "See your registration"
 msgstr "عرض حالة طلبك"
+
+#: accounts/templates/registration/login.html:4
+#: accounts/templates/registration/login.html:30
+#: accounts/templates/registration/register.html:42
+msgid "Sign in"
+msgstr "تسجيل الدخول"
 
 #: accounts/templates/registration/login.html:34
 msgid "New to LeadsHub?"
@@ -1471,6 +968,999 @@ msgstr "أرسلنا رابطًا جديدًا. تظل الروابط الساب
 msgid "Send the link again"
 msgstr "إرسال الرابط مرة أخرى"
 
+#: ad_channels/admin.py:132
+msgid "Facebook Login isn't set up: set META_APP_ID and META_LOGIN_CONFIG_ID."
+msgstr ""
+"تسجيل الدخول عبر فيسبوك غير مُعدّ: اضبط META_APP_ID و META_LOGIN_CONFIG_ID."
+
+#: ad_channels/admin.py:173
+msgid "Facebook login was cancelled. Nothing was changed."
+msgstr "أُلغي تسجيل الدخول عبر فيسبوك. لم يتغيّر شيء."
+
+#: ad_channels/admin.py:197
+#, python-format
+msgid ""
+"Connected %(bm)s, but its ad accounts couldn't be loaded: %(reason)s Use "
+"Reconnect with Facebook to try again."
+msgstr ""
+"تم ربط %(bm)s، لكن تعذّر تحميل حساباته الإعلانية: %(reason)s استخدم إعادة "
+"الربط عبر فيسبوك للمحاولة مجددًا."
+
+#: ad_channels/admin.py:208
+#, python-format
+msgid "Connected %(bm)s. %(count)d ad account loaded."
+msgid_plural "Connected %(bm)s. %(count)d ad accounts loaded."
+msgstr[0] "تم ربط %(bm)s. لم يُحمَّل أي حساب إعلاني (%(count)d)."
+msgstr[1] "تم ربط %(bm)s. حُمِّل حساب إعلاني واحد (%(count)d)."
+msgstr[2] "تم ربط %(bm)s. حُمِّل حسابان إعلانيان (%(count)d)."
+msgstr[3] "تم ربط %(bm)s. حُمِّلت %(count)d حسابات إعلانية."
+msgstr[4] "تم ربط %(bm)s. حُمِّل %(count)d حسابًا إعلانيًا."
+msgstr[5] "تم ربط %(bm)s. حُمِّل %(count)d حساب إعلاني."
+
+#: ad_channels/admin.py:236
+msgid "Connect with Facebook"
+msgstr "الربط عبر فيسبوك"
+
+#: ad_channels/admin.py:240
+msgid "Reconnect with Facebook"
+msgstr "إعادة الربط عبر فيسبوك"
+
+#: ad_channels/admin.py:265 ad_channels/models.py:59
+msgid "token status"
+msgstr "حالة الرمز"
+
+#: ad_channels/admin.py:269
+msgid "ad accounts (enabled / total)"
+msgstr "الحسابات الإعلانية (المفعّلة / الإجمالي)"
+
+#: ad_channels/admin.py:273
+msgid "Recheck token with Meta"
+msgstr "إعادة التحقق من الرمز مع Meta"
+
+#: ad_channels/admin.py:278
+#, python-format
+msgid "%(bm)s: token is %(status)s."
+msgstr "%(bm)s: حالة الرمز %(status)s."
+
+#: ad_channels/admin.py:283
+msgid "Deactivate (stop all launches)"
+msgstr "إلغاء التفعيل (إيقاف كل الإطلاقات)"
+
+#: ad_channels/admin.py:289
+#, python-format
+msgid ""
+"%(count)d Business Manager deactivated; its ad accounts are no longer "
+"offered for launch."
+msgid_plural ""
+"%(count)d Business Managers deactivated; their ad accounts are no longer "
+"offered for launch."
+msgstr[0] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+msgstr[1] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+msgstr[2] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+msgstr[3] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+msgstr[4] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+msgstr[5] ""
+"تم إلغاء تفعيل %(count)d من مديري الأعمال؛ لم تعد حساباتهم الإعلانية متاحة "
+"للإطلاق."
+
+#: ad_channels/admin.py:296 leadshub/templates/leadshub/team.html:66
+msgid "Reactivate"
+msgstr "إعادة التفعيل"
+
+#: ad_channels/admin.py:301
+#, python-format
+msgid "%(count)d Business Manager reactivated."
+msgid_plural "%(count)d Business Managers reactivated."
+msgstr[0] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+msgstr[1] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+msgstr[2] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+msgstr[3] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+msgstr[4] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+msgstr[5] "تمت إعادة تفعيل %(count)d من مديري الأعمال."
+
+#: ad_channels/admin.py:309 ad_channels/admin.py:361
+msgid "launch"
+msgstr "الإطلاق"
+
+#: ad_channels/admin.py:313
+msgid "Available for launch"
+msgstr "متاح للإطلاق"
+
+#: ad_channels/admin.py:313
+msgid "Enabled but blocked"
+msgstr "مفعّل لكنه محظور"
+
+#: ad_channels/admin.py:366
+msgid "Available"
+msgstr "متاح"
+
+#: ad_channels/admin.py:367
+msgid "Not enabled"
+msgstr "غير مفعّل"
+
+#: ad_channels/admin.py:369
+msgid "Enable for launch"
+msgstr "تفعيل للإطلاق"
+
+#: ad_channels/admin.py:386
+#, python-format
+msgid "%(count)d ad account enabled."
+msgid_plural "%(count)d ad accounts enabled."
+msgstr[0] "تم تفعيل %(count)d من الحسابات الإعلانية."
+msgstr[1] "تم تفعيل %(count)d من الحسابات الإعلانية."
+msgstr[2] "تم تفعيل %(count)d من الحسابات الإعلانية."
+msgstr[3] "تم تفعيل %(count)d من الحسابات الإعلانية."
+msgstr[4] "تم تفعيل %(count)d من الحسابات الإعلانية."
+msgstr[5] "تم تفعيل %(count)d من الحسابات الإعلانية."
+
+#: ad_channels/admin.py:391
+msgid "Disable for launch"
+msgstr "إيقاف عن الإطلاق"
+
+#: ad_channels/admin.py:396
+#, python-format
+msgid "%(count)d ad account disabled."
+msgid_plural "%(count)d ad accounts disabled."
+msgstr[0] "تم إيقاف %(count)d من الحسابات الإعلانية."
+msgstr[1] "تم إيقاف %(count)d من الحسابات الإعلانية."
+msgstr[2] "تم إيقاف %(count)d من الحسابات الإعلانية."
+msgstr[3] "تم إيقاف %(count)d من الحسابات الإعلانية."
+msgstr[4] "تم إيقاف %(count)d من الحسابات الإعلانية."
+msgstr[5] "تم إيقاف %(count)d من الحسابات الإعلانية."
+
+#: ad_channels/apps.py:9 leadshub/navigation.py:89
+msgid "Meta ads"
+msgstr "إعلانات Meta"
+
+#: ad_channels/meta_ads/sync.py:69
+#, python-format
+msgid "You picked a different business than %(bm)s. Nothing was changed."
+msgstr "اخترت نشاطًا تجاريًا غير %(bm)s. لم يتغيّر شيء."
+
+#: ad_channels/meta_ads/sync.py:75
+#, python-format
+msgid "Meta refused the connection: %(reason)s"
+msgstr "رفضت Meta الربط: %(reason)s"
+
+#: ad_channels/meta_ads/sync.py:82
+#, python-format
+msgid ""
+"%(bm)s is already connected, and you may not change it. Nothing was changed."
+msgstr "%(bm)s مربوط بالفعل، ولا يحق لك تغييره. لم يتغيّر شيء."
+
+#: ad_channels/models.py:42
+msgid "Unchecked"
+msgstr "لم يُتحقق منه"
+
+#: ad_channels/models.py:43
+msgid "Valid"
+msgstr "صالح"
+
+#: ad_channels/models.py:44
+msgid "Invalid"
+msgstr "غير صالح"
+
+#: ad_channels/models.py:46 ad_channels/models.py:145
+msgid "name"
+msgstr "الاسم"
+
+#: ad_channels/models.py:48
+msgid "Meta business ID"
+msgstr "معرّف النشاط التجاري في Meta"
+
+#: ad_channels/models.py:51
+msgid "The numeric ID in Business Settings → Business info."
+msgstr "المعرّف الرقمي في إعدادات النشاط التجاري ← معلومات النشاط التجاري."
+
+#: ad_channels/models.py:65
+msgid "token last checked"
+msgstr "آخر تحقق من الرمز"
+
+#: ad_channels/models.py:67
+msgid "token problem"
+msgstr "مشكلة الرمز"
+
+#: ad_channels/models.py:70 catalog/models.py:16
+msgid "active"
+msgstr "نشط"
+
+#: ad_channels/models.py:72 ad_channels/models.py:150
+msgid "last synced"
+msgstr "آخر مزامنة"
+
+#: ad_channels/models.py:73
+msgid "last sync failure"
+msgstr "آخر فشل في المزامنة"
+
+#: ad_channels/models.py:74
+msgid "last sync error"
+msgstr "خطأ آخر مزامنة"
+
+#: ad_channels/models.py:77 ad_channels/models.py:158 ad_channels/models.py:268
+#: campaigns/models.py:202 campaigns/models.py:381 creatives/models.py:173
+msgid "updated at"
+msgstr "تاريخ التحديث"
+
+#: ad_channels/models.py:81 ad_channels/models.py:135
+msgid "Business Manager"
+msgstr "مدير الأعمال"
+
+#: ad_channels/models.py:82 leadshub/navigation.py:90
+msgid "Business Managers"
+msgstr "مديرو الأعمال"
+
+#: ad_channels/models.py:121
+msgid "Disabled"
+msgstr "معطّل"
+
+#: ad_channels/models.py:122
+msgid "Unsettled"
+msgstr "غير مسدَّد"
+
+#: ad_channels/models.py:123
+msgid "Pending risk review"
+msgstr "بانتظار مراجعة المخاطر"
+
+#: ad_channels/models.py:124
+msgid "Pending settlement"
+msgstr "بانتظار التسوية"
+
+#: ad_channels/models.py:125
+msgid "In grace period"
+msgstr "في فترة السماح"
+
+#: ad_channels/models.py:126
+msgid "Pending closure"
+msgstr "بانتظار الإغلاق"
+
+#: ad_channels/models.py:127
+msgid "Closed"
+msgstr "مغلق"
+
+#: ad_channels/models.py:128
+msgid "Any active"
+msgstr "أي حالة نشطة"
+
+#: ad_channels/models.py:129
+msgid "Any closed"
+msgstr "أي حالة مغلقة"
+
+#: ad_channels/models.py:138
+msgid "Meta ad account ID"
+msgstr "معرّف الحساب الإعلاني في Meta"
+
+#: ad_channels/models.py:141
+msgid "Starts with \"act_\", e.g. act_1234567890."
+msgstr "يبدأ بـ \"act_\"، مثل act_1234567890."
+
+#: ad_channels/models.py:147
+msgid "Meta status"
+msgstr "الحالة في Meta"
+
+#: ad_channels/models.py:152
+msgid "removed from Meta"
+msgstr "أُزيل من Meta"
+
+#: ad_channels/models.py:155
+msgid "enabled for launch"
+msgstr "مفعّل للإطلاق"
+
+#: ad_channels/models.py:164 ad_channels/models.py:234
+msgid "ad account"
+msgstr "حساب إعلاني"
+
+#: ad_channels/models.py:165
+msgid "ad accounts"
+msgstr "الحسابات الإعلانية"
+
+#: ad_channels/models.py:174
+msgid "no longer returned by Meta"
+msgstr "لم تعد Meta تُرجعه"
+
+#: ad_channels/models.py:176
+msgid "disabled by Meta"
+msgstr "عطّلته Meta"
+
+#: ad_channels/models.py:179
+msgid "Business Manager is deactivated"
+msgstr "مدير الأعمال غير مفعّل"
+
+#: ad_channels/models.py:181
+msgid "Business Manager token is not valid"
+msgstr "رمز مدير الأعمال غير صالح"
+
+#: ad_channels/models.py:188
+msgid "Enter act_ followed by the numeric account ID."
+msgstr "أدخل act_ متبوعًا بالمعرّف الرقمي للحساب."
+
+#: ad_channels/models.py:195
+#, python-format
+msgid "Can't enable for launch: %(reasons)s."
+msgstr "لا يمكن التفعيل للإطلاق: %(reasons)s."
+
+#: ad_channels/models.py:215
+msgid "Building"
+msgstr "قيد البناء"
+
+#: ad_channels/models.py:216
+msgid "Build failed"
+msgstr "تعذّر البناء"
+
+#: ad_channels/models.py:218
+msgid "Paused"
+msgstr "متوقفة مؤقتًا"
+
+#: ad_channels/models.py:219
+msgid "Stopped"
+msgstr "متوقفة"
+
+#: ad_channels/models.py:228 campaigns/models.py:384 reviews/models.py:54
+msgid "campaign"
+msgstr "حملة"
+
+#: ad_channels/models.py:236
+msgid "Facebook page ID"
+msgstr "معرّف صفحة فيسبوك"
+
+#: ad_channels/models.py:237 ad_channels/templates/ad_channels/campaign.html:50
+#: ad_channels/templates/ad_channels/campaign.html:118 campaigns/models.py:133
+msgid "Facebook page"
+msgstr "صفحة فيسبوك"
+
+#: ad_channels/models.py:238
+msgid "Instagram account ID"
+msgstr "معرّف حساب إنستغرام"
+
+#: ad_channels/models.py:239
+msgid "lead form ID"
+msgstr "معرّف نموذج العملاء المحتملين"
+
+#: ad_channels/models.py:240
+msgid "lead form"
+msgstr "نموذج العملاء المحتملين"
+
+#: ad_channels/models.py:242 ad_channels/templates/ad_channels/campaign.html:48
+msgid "Meta campaign ID"
+msgstr "معرّف الحملة على ميتا"
+
+#: ad_channels/models.py:243 reviews/templates/reviews/task.html:189
+#: reviews/templates/reviews/task.html:205
+msgid "Meta ad set ID"
+msgstr "معرّف المجموعة الإعلانية في ميتا"
+
+#: ad_channels/models.py:245
+msgid "ads"
+msgstr "الإعلانات"
+
+#: ad_channels/models.py:247
+msgid "interests not found on Meta"
+msgstr "اهتمامات لم تُعثر عليها في ميتا"
+
+#: ad_channels/models.py:253
+msgid "last error"
+msgstr "آخر خطأ"
+
+#: ad_channels/models.py:256 campaigns/models.py:353
+msgid "budget type"
+msgstr "نوع الميزانية"
+
+#: ad_channels/models.py:257
+msgid "budget (USD)"
+msgstr "الميزانية (بالدولار)"
+
+#: ad_channels/models.py:258 campaigns/models.py:365
+msgid "end date"
+msgstr "تاريخ الانتهاء"
+
+#: ad_channels/models.py:265
+msgid "launched by"
+msgstr "أطلقها"
+
+#: ad_channels/models.py:267
+msgid "launched at"
+msgstr "وقت الإطلاق"
+
+#: ad_channels/models.py:269
+msgid "last checked on Meta"
+msgstr "آخر تحقق على ميتا"
+
+#: ad_channels/models.py:271
+msgid "status on Meta"
+msgstr "الحالة على ميتا"
+
+#: ad_channels/models.py:275 campaigns/models.py:363
+msgid "start date"
+msgstr "تاريخ البدء"
+
+#: ad_channels/models.py:276
+msgid "interests"
+msgstr "الاهتمامات"
+
+#: ad_channels/models.py:277 campaigns/models.py:333 creatives/models.py:179
+msgid "creatives"
+msgstr "المواد الإعلانية"
+
+#: ad_channels/models.py:280
+msgid "ad account currency"
+msgstr "عملة الحساب الإعلاني"
+
+#: ad_channels/models.py:281
+msgid "rate (per USD)"
+msgstr "السعر (لكل دولار)"
+
+#: ad_channels/models.py:285
+msgid "Meta launch"
+msgstr "إطلاق على ميتا"
+
+#: ad_channels/models.py:286
+msgid "Meta launches"
+msgstr "عمليات الإطلاق على ميتا"
+
+#: ad_channels/services.py:108
+msgid "Enter the budget in USD, for example 30."
+msgstr "أدخل الميزانية بالدولار، مثل 30."
+
+#: ad_channels/services.py:127 campaigns/services.py:264
+msgid "The budget must be at least 1 USD."
+msgstr "يجب ألا تقل الميزانية عن 1 دولار أمريكي."
+
+#: ad_channels/services.py:129 ad_channels/services.py:677
+#, python-format
+msgid "The budget can't go above the broker's %(amount)s USD."
+msgstr "لا يمكن أن تتجاوز الميزانية %(amount)s دولار التي حددها الوسيط."
+
+#: ad_channels/services.py:131
+#, python-format
+msgid "The start can't be before the broker's start, %(date)s."
+msgstr "لا يمكن أن تكون البداية قبل بداية الوسيط، %(date)s."
+
+#: ad_channels/services.py:136
+#, python-format
+msgid "Keep a last day: the broker's campaign ends on %(date)s."
+msgstr "احتفظ بآخر يوم: تنتهي حملة الوسيط في %(date)s."
+
+#: ad_channels/services.py:139
+msgid "A total budget needs a last day."
+msgstr "تحتاج الميزانية الإجمالية إلى آخر يوم."
+
+#: ad_channels/services.py:142
+#, python-format
+msgid "The last day can't be after the broker's last day, %(date)s."
+msgstr "لا يمكن أن يكون آخر يوم بعد آخر يوم للوسيط، %(date)s."
+
+#: ad_channels/services.py:145
+msgid "The last day has passed. Choose a later one."
+msgstr "مرّ آخر يوم. اختر يومًا لاحقًا."
+
+#: ad_channels/services.py:147
+msgid "The start must be on or before the last day."
+msgstr "يجب أن تكون البداية في آخر يوم أو قبله."
+
+#: ad_channels/services.py:150
+msgid "Choose dates within the next 5 years."
+msgstr "اختر تواريخ خلال السنوات الخمس القادمة."
+
+#: ad_channels/services.py:152
+#, python-format
+msgid "Use at most %(count)d interests."
+msgstr "استخدم %(count)d اهتمامًا على الأكثر."
+
+#: ad_channels/services.py:154 campaigns/views.py:628
+msgid "Choose at least one creative."
+msgstr "اختر مادة إعلانية واحدة على الأقل."
+
+#: ad_channels/services.py:158
+msgid "Choose only creatives on this campaign, each once."
+msgstr "اختر المواد الإعلانية الموجودة في هذه الحملة فقط، كل منها مرة واحدة."
+
+#: ad_channels/services.py:192
+msgid "EGP ad accounts need the USD to EGP rate. Set META_EGP_PER_USD first."
+msgstr ""
+"تحتاج الحسابات الإعلانية بالجنيه إلى سعر الدولار مقابل الجنيه. اضبط "
+"META_EGP_PER_USD أولًا."
+
+#: ad_channels/services.py:195
+#, python-format
+msgid ""
+"This ad account bills in %(currency)s. Only USD and EGP ad accounts launch."
+msgstr ""
+"يحاسب هذا الحساب الإعلاني بعملة %(currency)s. تُطلق الحملات على الحسابات "
+"بالدولار والجنيه فقط."
+
+#: ad_channels/services.py:211 ad_channels/services.py:298
+#: ad_channels/services.py:303
+msgid "This campaign isn't ready to launch on Meta."
+msgstr "هذه الحملة غير جاهزة للإطلاق على ميتا."
+
+#: ad_channels/services.py:223
+msgid "That ad account can't take a launch right now. Choose another one."
+msgstr "لا يمكن الإطلاق على هذا الحساب الإعلاني الآن. اختر حسابًا آخر."
+
+#: ad_channels/services.py:233
+msgid "Campaigns for the platform landing page don't launch here yet."
+msgstr "حملات صفحة الهبوط الخاصة بالمنصة لا تُطلق من هنا بعد."
+
+#: ad_channels/services.py:237
+msgid "The broker's own page isn't verified yet. Verify it before launching."
+msgstr "صفحة الوسيط الخاصة لم يتم التحقق منها بعد. تحقق منها قبل الإطلاق."
+
+#: ad_channels/services.py:259
+msgid "No ad account is ready for launch. A Platform Admin enables them."
+msgstr "لا يوجد حساب إعلاني جاهز للإطلاق. يفعّلها مدير المنصة."
+
+#: ad_channels/services.py:273
+msgid ""
+"This Business Manager can't use any Facebook page. Share the page with it in "
+"Meta first."
+msgstr ""
+"لا يستطيع مدير الأعمال هذا استخدام أي صفحة فيسبوك. شارك الصفحة معه في ميتا "
+"أولًا."
+
+#: ad_channels/services.py:279
+msgid ""
+"This page has no active lead form. Create one in Meta, then choose the page "
+"again."
+msgstr ""
+"لا يوجد في هذه الصفحة نموذج عملاء محتملين نشط. أنشئ نموذجًا في ميتا، ثم اختر "
+"الصفحة مرة أخرى."
+
+#: ad_channels/services.py:301 ad_channels/services.py:333
+msgid "This campaign is already being built on Meta. Wait a moment."
+msgstr "هذه الحملة قيد البناء على ميتا بالفعل. انتظر قليلًا."
+
+#: ad_channels/services.py:306
+#, python-format
+msgid ""
+"This build already started on %(account)s. Build again there, or discard it "
+"first."
+msgstr "بدأ هذا البناء على %(account)s. أعد البناء هناك، أو تجاهله أولًا."
+
+#: ad_channels/services.py:319
+msgid ""
+"The ad set is already on Meta with the saved settings. Discard the build to "
+"change them."
+msgstr ""
+"المجموعة الإعلانية موجودة بالفعل على ميتا بالإعدادات المحفوظة. احذف البناء "
+"لتغييرها."
+
+#: ad_channels/services.py:344
+msgid "Only Meta campaigns launch here."
+msgstr "تُطلق هنا حملات ميتا فقط."
+
+#: ad_channels/services.py:349
+#, python-format
+msgid "%(title)s is no longer published or its offer ended."
+msgstr "لم تعد %(title)s منشورة أو انتهى عرضها."
+
+#: ad_channels/services.py:352
+#, python-format
+msgid "%(title)s is a %(type)s; only images and reels launch on Meta for now."
+msgstr "%(title)s من نوع %(type)s؛ تُطلق الصور والريلز فقط على ميتا حاليًا."
+
+#: ad_channels/services.py:393
+#, python-format
+msgid ""
+"The file of %(title)s can't be read. Ask a Content Manager to upload it "
+"again."
+msgstr "تعذّرت قراءة ملف %(title)s. اطلب من مدير المحتوى رفعه مرة أخرى."
+
+#: ad_channels/services.py:418
+#, python-format
+msgid ""
+"Meta is still processing the video of %(title)s. Build again in a minute."
+msgstr "ما زالت ميتا تعالج فيديو %(title)s. أعد البناء بعد دقيقة."
+
+#: ad_channels/services.py:499
+msgid ""
+"This Business Manager can't use that Facebook page. Choose the page again."
+msgstr ""
+"لا يستطيع مدير الأعمال هذا استخدام صفحة فيسبوك تلك. اختر الصفحة مرة أخرى."
+
+#: ad_channels/services.py:502
+msgid "This campaign runs on the broker's own page. Choose that page."
+msgstr "تعمل هذه الحملة على صفحة الوسيط الخاصة. اختر تلك الصفحة."
+
+#: ad_channels/services.py:503
+msgid ""
+"Dark page campaigns run on a page the platform owns. Choose one of those."
+msgstr "تعمل حملات الصفحة الداكنة على صفحة تملكها المنصة. اختر إحداها."
+
+#: ad_channels/services.py:506
+msgid "That lead form isn't active on the page. Choose the form again."
+msgstr "نموذج العملاء المحتملين هذا غير نشط على الصفحة. اختر النموذج مرة أخرى."
+
+#: ad_channels/services.py:522
+msgid ""
+"Something went wrong while building. Build again; if it keeps failing, tell "
+"a developer."
+msgstr "حدث خطأ أثناء البناء. أعد البناء؛ وإن استمر الفشل فأبلغ مطورًا."
+
+#: ad_channels/services.py:544
+#, python-format
+msgid ""
+"Built on Meta and paused again, because LeadsHub couldn't record it: "
+"%(reason)s"
+msgstr ""
+"بُنيت على ميتا ثم أُوقفت مؤقتًا مرة أخرى، لأن LeadsHub لم يتمكن من تسجيلها: "
+"%(reason)s"
+
+#: ad_channels/services.py:588
+msgid "Only a build that failed can be discarded."
+msgstr "لا يمكن تجاهل إلا بناء تعذّر."
+
+#: ad_channels/services.py:618
+msgid "This campaign isn't running on Meta."
+msgstr "هذه الحملة لا تعمل على ميتا."
+
+#: ad_channels/services.py:642
+msgid "Someone changed this campaign meanwhile. Reload the page and try again."
+msgstr "غيّر شخص آخر هذه الحملة في الأثناء. أعد تحميل الصفحة وحاول مرة أخرى."
+
+#: ad_channels/services.py:675
+msgid "Enter a budget above zero."
+msgstr "أدخل ميزانية أكبر من صفر."
+
+#: ad_channels/services.py:680
+msgid "Choose an end date after today."
+msgstr "اختر تاريخ انتهاء بعد اليوم."
+
+#: ad_channels/services.py:682
+#, python-format
+msgid "The end date can't be after the broker's end date, %(date)s."
+msgstr "لا يمكن أن يكون تاريخ الانتهاء بعد تاريخ انتهاء الوسيط، %(date)s."
+
+#: ad_channels/services.py:685
+#, python-format
+msgid "The end date can't be before the start, %(date)s."
+msgstr "لا يمكن أن يكون تاريخ الانتهاء قبل البداية، %(date)s."
+
+#: ad_channels/services.py:688 campaigns/services.py:268
+msgid "A total budget needs an end date."
+msgstr "تحتاج الميزانية الإجمالية إلى تاريخ انتهاء."
+
+#: ad_channels/services.py:690
+#, python-format
+msgid "Keep an end date: the broker's campaign ends on %(date)s."
+msgstr "احتفظ بتاريخ انتهاء: تنتهي حملة الوسيط في %(date)s."
+
+#: ad_channels/templates/ad_channels/campaign.html:4
+msgid "Meta campaign"
+msgstr "حملة ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:11
+#: ad_channels/templates/ad_channels/list.html:4
+#: ad_channels/templates/ad_channels/list.html:11 leadshub/navigation.py:48
+msgid "Meta campaigns"
+msgstr "حملات ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:20
+msgid "What the broker asked for"
+msgstr "ما طلبه الوسيط"
+
+#: ad_channels/templates/ad_channels/campaign.html:22
+#: campaigns/templates/campaigns/list.html:90 campaigns/views.py:130
+#: reviews/templates/reviews/task.html:56
+msgid "Budget"
+msgstr "الميزانية"
+
+#: ad_channels/templates/ad_channels/campaign.html:23
+#: ad_channels/templates/ad_channels/campaign.html:53
+#: ad_channels/templates/ad_channels/campaign.html:142
+#: ad_channels/templates/ad_channels/list.html:40
+#: ad_channels/templates/ad_channels/list.html:54
+msgid "total"
+msgstr "إجمالي"
+
+#: ad_channels/templates/ad_channels/campaign.html:23
+#: ad_channels/templates/ad_channels/campaign.html:53
+#: ad_channels/templates/ad_channels/campaign.html:142
+#: ad_channels/templates/ad_channels/list.html:40
+#: ad_channels/templates/ad_channels/list.html:54
+#: campaigns/templates/campaigns/list.html:110
+#: campaigns/templates/campaigns/list.html:137
+#: reviews/templates/reviews/task.html:56
+msgid "a day"
+msgstr "يوميًا"
+
+#: ad_channels/templates/ad_channels/campaign.html:26
+#: campaigns/templates/campaigns/detail.html:50
+msgid "Schedule"
+msgstr "الجدول الزمني"
+
+#: ad_channels/templates/ad_channels/campaign.html:30 campaigns/models.py:124
+#: campaigns/templates/campaigns/step_audience.html:16 campaigns/views.py:128
+#: reviews/templates/reviews/task.html:76
+msgid "Audience"
+msgstr "الفئة المستهدفة"
+
+#: ad_channels/templates/ad_channels/campaign.html:35
+#: ad_channels/templates/ad_channels/campaign.html:161
+#: campaigns/templates/campaigns/detail.html:31 campaigns/views.py:127
+#: leadshub/navigation.py:75 reviews/templates/reviews/task.html:95
+msgid "Creatives"
+msgstr "المواد الإعلانية"
+
+#: ad_channels/templates/ad_channels/campaign.html:43 ad_channels/views.py:79
+msgid "On Meta"
+msgstr "على ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:47
+#: ad_channels/templates/ad_channels/campaign.html:111
+#: reviews/templates/reviews/task.html:194
+msgid "Ad account"
+msgstr "الحساب الإعلاني"
+
+#: ad_channels/templates/ad_channels/campaign.html:49
+msgid "Ad set ID (lead routing)"
+msgstr "معرّف المجموعة الإعلانية (توجيه العملاء)"
+
+#: ad_channels/templates/ad_channels/campaign.html:51
+#: ad_channels/templates/ad_channels/campaign.html:125
+msgid "Lead form"
+msgstr "نموذج العملاء المحتملين"
+
+#: ad_channels/templates/ad_channels/campaign.html:52
+msgid "Ads"
+msgstr "الإعلانات"
+
+#: ad_channels/templates/ad_channels/campaign.html:53
+msgid "Budget on Meta"
+msgstr "الميزانية على ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:54
+msgid "Runs"
+msgstr "مدة التشغيل"
+
+#: ad_channels/templates/ad_channels/campaign.html:62
+msgid "Meta didn't recognise these interests, so they weren't targeted:"
+msgstr "لم تتعرف ميتا على هذه الاهتمامات، فلم تُستهدف:"
+
+#: ad_channels/templates/ad_channels/campaign.html:68
+#: ad_channels/templates/ad_channels/campaign.html:140
+msgid "Budget (USD)"
+msgstr "الميزانية (بالدولار)"
+
+#: ad_channels/templates/ad_channels/campaign.html:72
+#: ad_channels/templates/ad_channels/campaign.html:150
+msgid "Last day"
+msgstr "آخر يوم"
+
+#: ad_channels/templates/ad_channels/campaign.html:75
+msgid "Save budget"
+msgstr "حفظ الميزانية"
+
+#: ad_channels/templates/ad_channels/campaign.html:79
+msgid "Pause"
+msgstr "إيقاف مؤقت"
+
+#: ad_channels/templates/ad_channels/campaign.html:81
+msgid "Resume"
+msgstr "استئناف"
+
+#: ad_channels/templates/ad_channels/campaign.html:83
+#: ad_channels/templates/ad_channels/campaign.html:93
+msgid "Refresh from Meta"
+msgstr "تحديث من ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:85
+msgid "Stop campaign"
+msgstr "إيقاف الحملة"
+
+#: ad_channels/templates/ad_channels/campaign.html:87
+msgid "This archives it on Meta and ends the campaign. It can't be restarted."
+msgstr "سيؤرشفها هذا على ميتا وينهي الحملة. لا يمكن إعادة تشغيلها."
+
+#: ad_channels/templates/ad_channels/campaign.html:88
+msgid "Yes, stop it"
+msgstr "نعم، أوقفها"
+
+#: ad_channels/templates/ad_channels/campaign.html:99
+#: ad_channels/templates/ad_channels/campaign.html:172
+msgid "Build on Meta"
+msgstr "ابنِ على ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:100
+msgid ""
+"Choose where it runs. LeadsHub creates the campaign, ad set and ads paused, "
+"then switches them on."
+msgstr ""
+"اختر مكان تشغيلها. ينشئ LeadsHub الحملة والمجموعة الإعلانية والإعلانات "
+"متوقفة، ثم يشغّلها."
+
+#: ad_channels/templates/ad_channels/campaign.html:103
+msgid "The last build stopped:"
+msgstr "توقف آخر بناء:"
+
+#: ad_channels/templates/ad_channels/campaign.html:113
+#: ad_channels/templates/ad_channels/campaign.html:120
+#: ad_channels/templates/ad_channels/campaign.html:127
+msgid "Choose…"
+msgstr "اختر…"
+
+#: ad_channels/templates/ad_channels/campaign.html:135
+msgid "How it runs on Meta"
+msgstr "كيف تعمل على ميتا"
+
+#: ad_channels/templates/ad_channels/campaign.html:136
+msgid ""
+"Adjust within what the broker approved. Anything more goes back to the "
+"broker as a rejection."
+msgstr ""
+"عدّل في حدود ما وافق عليه الوسيط. أي شيء أكثر من ذلك يعود إلى الوسيط كرفض."
+
+#: ad_channels/templates/ad_channels/campaign.html:142
+#: ad_channels/templates/ad_channels/campaign.html:147
+#: ad_channels/templates/ad_channels/campaign.html:152
+msgid "Broker:"
+msgstr "الوسيط:"
+
+#: ad_channels/templates/ad_channels/campaign.html:145
+msgid "Start"
+msgstr "البداية"
+
+#: ad_channels/templates/ad_channels/campaign.html:156
+msgid "Interests (one per line)"
+msgstr "الاهتمامات (واحد في كل سطر)"
+
+#: ad_channels/templates/ad_channels/campaign.html:158
+msgid "Interests only: Meta's housing rules forbid age and gender targeting."
+msgstr "الاهتمامات فقط: تمنع قواعد ميتا للإسكان الاستهداف حسب العمر والنوع."
+
+#: ad_channels/templates/ad_channels/campaign.html:170
+msgid "Building on Meta… This takes up to a minute."
+msgstr "جارٍ البناء على ميتا… يستغرق ذلك حتى دقيقة."
+
+#: ad_channels/templates/ad_channels/campaign.html:172
+msgid "Build again"
+msgstr "أعد البناء"
+
+#: ad_channels/templates/ad_channels/campaign.html:173
+msgid "Discard build"
+msgstr "تجاهل البناء"
+
+#: ad_channels/templates/ad_channels/list.html:12
+msgid "Build approved campaigns on Meta, then pause, change or stop them here."
+msgstr ""
+"ابنِ الحملات المعتمدة على ميتا، ثم أوقفها مؤقتًا أو غيّرها أو أوقفها من هنا."
+
+#: ad_channels/templates/ad_channels/list.html:16
+#: reviews/templates/reviews/queue.html:42
+msgid "Show"
+msgstr "عرض"
+
+#: ad_channels/templates/ad_channels/list.html:22
+#: campaigns/templates/campaigns/list.html:34
+#: campaigns/templates/campaigns/list.html:89
+msgid "Status"
+msgstr "الحالة"
+
+#: ad_channels/templates/ad_channels/list.html:55 reviews/models.py:45
+#: reviews/templates/reviews/queue.html:98
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#: ad_channels/templates/ad_channels/list.html:59
+msgid "Ready"
+msgstr "جاهزة"
+
+#: ad_channels/templates/ad_channels/list.html:68
+#: campaigns/templates/campaigns/list.html:151
+#: leadshub/templates/leadshub/library.html:94
+msgid "Pages"
+msgstr "الصفحات"
+
+#: ad_channels/templates/ad_channels/list.html:70
+#: campaigns/templates/campaigns/list.html:152
+#: leadshub/templates/leadshub/library.html:95
+msgid "Previous"
+msgstr "السابق"
+
+#: ad_channels/templates/ad_channels/list.html:72
+#: campaigns/templates/campaigns/list.html:153
+#: leadshub/templates/leadshub/library.html:96
+#, python-format
+msgid "Page %(number)s of %(count)s"
+msgstr "صفحة %(number)s من %(count)s"
+
+#: ad_channels/templates/ad_channels/list.html:74
+#: campaigns/templates/campaigns/_step_footer.html:9
+#: campaigns/templates/campaigns/list.html:154
+#: campaigns/templates/campaigns/step_creative.html:75
+#: leadshub/templates/leadshub/library.html:97
+msgid "Next"
+msgstr "التالي"
+
+#: ad_channels/templates/ad_channels/list.html:79
+msgid "No campaigns on Meta match this filter."
+msgstr "لا توجد حملات على ميتا تطابق هذه التصفية."
+
+#: ad_channels/templates/ad_channels/list.html:79
+msgid "Nothing is ready. Campaigns appear here once review approves them."
+msgstr "لا يوجد شيء جاهز. تظهر الحملات هنا بعد أن توافق عليها المراجعة."
+
+#: ad_channels/views.py:79
+msgid "Ready to launch"
+msgstr "جاهزة للإطلاق"
+
+#: ad_channels/views.py:80
+msgid "All"
+msgstr "الكل"
+
+#: ad_channels/views.py:215
+#, python-format
+msgid "≈ EGP %(amount)s at %(rate)s"
+msgstr "≈ %(amount)s جنيه بسعر %(rate)s"
+
+#: ad_channels/views.py:222
+#, python-format
+msgid "Broker: %(amount)s"
+msgstr "الوسيط: %(amount)s"
+
+#: ad_channels/views.py:224
+#, python-format
+msgid "Broker's dates: %(start)s → %(end)s"
+msgstr "تواريخ الوسيط: من %(start)s إلى %(end)s"
+
+#: ad_channels/views.py:228
+#, python-format
+msgid "Broker's interests: %(names)s"
+msgstr "اهتمامات الوسيط: %(names)s"
+
+#: ad_channels/views.py:230
+#, python-format
+msgid "Uses %(count)d of the broker's %(total)d creatives."
+msgstr "تستخدم %(count)d من %(total)d مواد إعلانية للوسيط."
+
+#: ad_channels/views.py:267
+msgid "Check the budget, dates and creatives."
+msgstr "راجع الميزانية والتواريخ والمواد الإعلانية."
+
+#: ad_channels/views.py:280
+msgid "Built on Meta and switched on. The campaign is Live."
+msgstr "بُنيت على ميتا وشُغّلت. الحملة قيد التشغيل."
+
+#: ad_channels/views.py:284
+msgid "You can no longer launch campaigns on Meta."
+msgstr "لم يعد بإمكانك إطلاق الحملات على ميتا."
+
+#: ad_channels/views.py:292
+msgid "The build was deleted from Meta. Start again when ready."
+msgstr "حُذف البناء من ميتا. ابدأ من جديد عندما تكون جاهزًا."
+
+#: ad_channels/views.py:312
+msgid "Paused on Meta. The broker still sees Live."
+msgstr "أُوقفت مؤقتًا على ميتا. ما زال الوسيط يراها قيد التشغيل."
+
+#: ad_channels/views.py:317
+msgid "Running on Meta again."
+msgstr "تعمل على ميتا مرة أخرى."
+
+#: ad_channels/views.py:326 ad_channels/views.py:329
+msgid "Enter the budget in USD and the end date as a date."
+msgstr "أدخل الميزانية بالدولار وتاريخ الانتهاء كتاريخ."
+
+#: ad_channels/views.py:331
+msgid "Budget saved on Meta."
+msgstr "حُفظت الميزانية على ميتا."
+
+#: ad_channels/views.py:336
+msgid "Stopped on Meta. The campaign has ended."
+msgstr "أُوقفت على ميتا. انتهت الحملة."
+
+#: ad_channels/views.py:341
+msgid "Up to date with Meta."
+msgstr "محدّثة مع ميتا."
+
 #: campaigns/admin.py:33
 msgid "Mark as verified"
 msgstr "تأكيد التحقق"
@@ -1487,8 +1977,8 @@ msgstr[4] "تم التحقق من %(count)d حسابًا."
 msgstr[5] "تم التحقق من %(count)d حساب."
 
 #: campaigns/apps.py:8 campaigns/templates/campaigns/list.html:4
-#: campaigns/templates/campaigns/list.html:14 leadshub/navigation.py:47
-#: leadshub/navigation.py:74
+#: campaigns/templates/campaigns/list.html:14 leadshub/navigation.py:50
+#: leadshub/navigation.py:77
 msgid "Campaigns"
 msgstr "الحملات"
 
@@ -1606,11 +2096,6 @@ msgstr "الهدف"
 msgid "Creative"
 msgstr "المادة الإعلانية"
 
-#: campaigns/models.py:124 campaigns/templates/campaigns/step_audience.html:16
-#: campaigns/views.py:128 reviews/templates/reviews/task.html:76
-msgid "Audience"
-msgstr "الفئة المستهدفة"
-
 #: campaigns/models.py:125
 msgid "Budget and run"
 msgstr "الميزانية والتشغيل"
@@ -1618,10 +2103,6 @@ msgstr "الميزانية والتشغيل"
 #: campaigns/models.py:132
 msgid "Instagram account"
 msgstr "حساب إنستغرام"
-
-#: campaigns/models.py:133
-msgid "Facebook page"
-msgstr "صفحة فيسبوك"
 
 #: campaigns/models.py:134
 msgid "Google Ads account"
@@ -1641,8 +2122,8 @@ msgstr "غير مرتبط"
 
 #: campaigns/models.py:157
 msgid ""
-"Enter the handle as it appears on Instagram or Facebook, for example @nour."
-"realty."
+"Enter the handle as it appears on Instagram or Facebook, for example "
+"@nour.realty."
 msgstr "أدخل اسم الحساب كما يظهر على إنستغرام أو فيسبوك، مثل @nour.realty."
 
 #: campaigns/models.py:161
@@ -1693,6 +2174,19 @@ msgstr "أنشأها"
 msgid "campaign type"
 msgstr "نوع الحملة"
 
+#: campaigns/models.py:275 catalog/models.py:73 creatives/models.py:120
+msgid "project"
+msgstr "المشروع"
+
+#: campaigns/models.py:291 catalog/models.py:41 catalog/models.py:58
+#: catalog/models.py:99 creatives/models.py:128
+msgid "area"
+msgstr "المنطقة"
+
+#: campaigns/models.py:299 catalog/models.py:48 creatives/models.py:137
+msgid "unit type"
+msgstr "نوع الوحدة"
+
 #
 #: campaigns/models.py:304
 msgid "channel"
@@ -1714,29 +2208,13 @@ msgstr "استقبال عملاء من مشروعات أخرى في المنطق
 msgid "also take leads from other projects by the same developer"
 msgstr "استقبال عملاء من مشروعات أخرى للمطور نفسه أيضًا"
 
-#: campaigns/models.py:333 creatives/models.py:179
-msgid "creatives"
-msgstr "المواد الإعلانية"
-
 #: campaigns/models.py:347
 msgid "optimization goal"
 msgstr "هدف التحسين"
 
-#: campaigns/models.py:353
-msgid "budget type"
-msgstr "نوع الميزانية"
-
 #: campaigns/models.py:356
 msgid "amount (USD)"
 msgstr "المبلغ (دولار أمريكي)"
-
-#: campaigns/models.py:363
-msgid "start date"
-msgstr "تاريخ البدء"
-
-#: campaigns/models.py:365
-msgid "end date"
-msgstr "تاريخ الانتهاء"
 
 #: campaigns/models.py:368
 msgid ""
@@ -1760,10 +2238,6 @@ msgstr "رقم الحملة على المنصة"
 #: campaigns/models.py:378
 msgid "platform data"
 msgstr "بيانات المنصة"
-
-#: campaigns/models.py:384 reviews/models.py:54
-msgid "campaign"
-msgstr "حملة"
 
 #: campaigns/models.py:385
 msgid "campaigns"
@@ -1820,17 +2294,9 @@ msgstr "لا يمكن استخدام هذه المادة الإعلانية في
 msgid "Choose one of the audiences listed."
 msgstr "اختر إحدى الفئات المعروضة."
 
-#: campaigns/services.py:264
-msgid "The budget must be at least 1 USD."
-msgstr "يجب ألا تقل الميزانية عن 1 دولار أمريكي."
-
 #: campaigns/services.py:266
 msgid "The start date can't be in the past."
 msgstr "لا يمكن أن يكون تاريخ البدء في الماضي."
-
-#: campaigns/services.py:268
-msgid "A total budget needs an end date."
-msgstr "تحتاج الميزانية الإجمالية إلى تاريخ انتهاء."
 
 #: campaigns/services.py:270
 msgid "The end date must be on or after the start date."
@@ -1868,12 +2334,12 @@ msgstr "هذا الحساب موجود في قائمتك بالفعل."
 msgid "A campaign in review or live uses this account. Wait until it ends."
 msgstr "حملة قيد المراجعة أو قيد التشغيل تستخدم هذا الحساب. انتظر حتى تنتهي."
 
-#: campaigns/services.py:457 campaigns/templates/campaigns/list.html:86
+#: campaigns/services.py:465 campaigns/templates/campaigns/list.html:86
 #: reviews/templates/reviews/task.html:43
 msgid "Campaign"
 msgstr "الحملة"
 
-#: campaigns/services.py:458 reviews/templates/reviews/task.html:69
+#: campaigns/services.py:466 reviews/templates/reviews/task.html:69
 msgid "Office"
 msgstr "المكتب"
 
@@ -1905,13 +2371,6 @@ msgstr "إلغاء"
 #: campaigns/templates/campaigns/step_budget.html:51
 msgid "Saving…"
 msgstr "جارٍ الحفظ…"
-
-#: campaigns/templates/campaigns/_step_footer.html:9
-#: campaigns/templates/campaigns/list.html:154
-#: campaigns/templates/campaigns/step_creative.html:75
-#: leadshub/templates/leadshub/library.html:97
-msgid "Next"
-msgstr "التالي"
 
 #: campaigns/templates/campaigns/_step_header.html:3
 #, python-format
@@ -1951,7 +2410,7 @@ msgid "Your choices appear here as you go."
 msgstr "تظهر اختياراتك هنا أثناء التقدم."
 
 #: campaigns/templates/campaigns/accounts.html:4
-#: campaigns/templates/campaigns/accounts.html:9 leadshub/navigation.py:50
+#: campaigns/templates/campaigns/accounts.html:9 leadshub/navigation.py:53
 msgid "Pages and accounts"
 msgstr "الصفحات والحسابات"
 
@@ -2028,18 +2487,9 @@ msgid ""
 "it goes live."
 msgstr "في قائمة المراجعة. يراجعها فريق الإعلانات عادةً خلال 4 ساعات، ثم تبدأ."
 
-#: campaigns/templates/campaigns/detail.html:31 campaigns/views.py:127
-#: leadshub/navigation.py:72 reviews/templates/reviews/task.html:95
-msgid "Creatives"
-msgstr "المواد الإعلانية"
-
 #: campaigns/templates/campaigns/detail.html:45
 msgid "Not chosen yet"
 msgstr "لم يُختر بعد"
-
-#: campaigns/templates/campaigns/detail.html:50
-msgid "Schedule"
-msgstr "الجدول الزمني"
 
 #: campaigns/templates/campaigns/detail.html:53
 #: reviews/templates/reviews/task.html:57
@@ -2169,11 +2619,6 @@ msgstr "ابحث في الحملات"
 msgid "Search by project, developer, area or code"
 msgstr "ابحث بالمشروع أو المطور أو المنطقة أو الرمز"
 
-#: campaigns/templates/campaigns/list.html:34
-#: campaigns/templates/campaigns/list.html:89
-msgid "Status"
-msgstr "الحالة"
-
 #: campaigns/templates/campaigns/list.html:36
 msgid "All statuses"
 msgstr "كل الحالات"
@@ -2240,11 +2685,6 @@ msgstr "قائمة الحملات"
 msgid "Goal"
 msgstr "الهدف"
 
-#: campaigns/templates/campaigns/list.html:90 campaigns/views.py:130
-#: reviews/templates/reviews/task.html:56
-msgid "Budget"
-msgstr "الميزانية"
-
 #: campaigns/templates/campaigns/list.html:91
 #: campaigns/templates/campaigns/list.html:140
 msgid "Leads"
@@ -2272,30 +2712,8 @@ msgstr "إجراء"
 #: campaigns/templates/campaigns/list.html:110
 #: campaigns/templates/campaigns/list.html:137
 #: reviews/templates/reviews/task.html:56
-msgid "a day"
-msgstr "يوميًا"
-
-#: campaigns/templates/campaigns/list.html:110
-#: campaigns/templates/campaigns/list.html:137
-#: reviews/templates/reviews/task.html:56
 msgid "in total"
 msgstr "إجمالًا"
-
-#: campaigns/templates/campaigns/list.html:151
-#: leadshub/templates/leadshub/library.html:94
-msgid "Pages"
-msgstr "الصفحات"
-
-#: campaigns/templates/campaigns/list.html:152
-#: leadshub/templates/leadshub/library.html:95
-msgid "Previous"
-msgstr "السابق"
-
-#: campaigns/templates/campaigns/list.html:153
-#: leadshub/templates/leadshub/library.html:96
-#, python-format
-msgid "Page %(number)s of %(count)s"
-msgstr "صفحة %(number)s من %(count)s"
 
 #: campaigns/templates/campaigns/list.html:158
 msgid ""
@@ -2623,10 +3041,6 @@ msgstr "أرسل لي أيضًا عملاء من مشروعات أخرى للم�
 msgid "Choose one creative."
 msgstr "اختر مادة إعلانية واحدة."
 
-#: campaigns/views.py:628
-msgid "Choose at least one creative."
-msgstr "اختر مادة إعلانية واحدة على الأقل."
-
 #: campaigns/views.py:652
 msgid "The most leads for the money: the cheapest cost per lead."
 msgstr "أكبر عدد من العملاء مقابل المال: أقل تكلفة لكل عميل محتمل."
@@ -2662,6 +3076,30 @@ msgstr "أُزيل %(account)s."
 #: catalog/admin.py:38
 msgid "Meta targeting (internal)"
 msgstr "استهداف ميتا (داخلي)"
+
+#: catalog/apps.py:8 leadshub/navigation.py:66
+msgid "Master data"
+msgstr "البيانات الرئيسية"
+
+#: catalog/models.py:35
+msgid "developers"
+msgstr "المطوّرون"
+
+#: catalog/models.py:42
+msgid "areas"
+msgstr "المناطق"
+
+#: catalog/models.py:49 catalog/models.py:61
+msgid "unit types"
+msgstr "أنواع الوحدات"
+
+#: catalog/models.py:65
+msgid "commission rate (%)"
+msgstr "نسبة العمولة (%)"
+
+#: catalog/models.py:74
+msgid "projects"
+msgstr "المشروعات"
 
 #: catalog/models.py:100
 msgid "Leave empty if it suits any area."
@@ -2801,7 +3239,7 @@ msgstr[3] "أُرشفت %(count)d مواد."
 msgstr[4] "أُرشفت %(count)d مادة."
 msgstr[5] "أُرشفت %(count)d مادة."
 
-#: creatives/apps.py:8 leadshub/navigation.py:48 leadshub/navigation.py:71
+#: creatives/apps.py:8 leadshub/navigation.py:51 leadshub/navigation.py:74
 #: leadshub/templates/leadshub/library.html:4
 #: leadshub/templates/leadshub/library.html:9
 msgid "Creative library"
@@ -2924,44 +3362,111 @@ msgstr "اختر نسبة الأبعاد."
 msgid "A reel is 9:16."
 msgstr "الريل بنسبة 9:16."
 
-#: leadshub/navigation.py:45 reviews/apps.py:8
+#
+#: leadshub/navigation.py:46 leadshub/settings.py:455
+#: leadshub/templates/leadshub/back_office.html:4
+#: leadshub/templates/leadshub/back_office.html:10
+msgid "Back office"
+msgstr "المكتب الخلفي"
+
+#: leadshub/navigation.py:47 reviews/apps.py:8
 #: reviews/templates/reviews/queue.html:4
 #: reviews/templates/reviews/queue.html:12
 #: reviews/templates/reviews/task.html:4 reviews/templates/reviews/task.html:14
 msgid "Review queue"
 msgstr "قائمة المراجعة"
 
-#: leadshub/navigation.py:59
+#: leadshub/navigation.py:49 leadshub/templates/leadshub/dashboard.html:4
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+#: leadshub/navigation.py:52 leadshub/templates/leadshub/dashboard.html:34
+#: leadshub/templates/leadshub/team.html:4
+#: leadshub/templates/leadshub/team.html:9 leadshub/tests.py:238
+msgid "Team"
+msgstr "الفريق"
+
+#
+#: leadshub/navigation.py:54 leadshub/templates/leadshub/developer_home.html:4
+#: leadshub/templates/leadshub/developer_home.html:9
+msgid "Developer view"
+msgstr "عرض المطوّر"
+
+#: leadshub/navigation.py:56
+msgid "People and access"
+msgstr "الأشخاص والصلاحيات"
+
+#: leadshub/navigation.py:57
+msgid "Users"
+msgstr "المستخدمون"
+
+#
+#: leadshub/navigation.py:58
+msgid "Roles"
+msgstr "الأدوار"
+
+#
+#
+#: leadshub/navigation.py:60
+msgid "Broker offices"
+msgstr "مكاتب الوساطة"
+
+#: leadshub/navigation.py:62
 msgid "Sign-ups to review"
 msgstr "طلبات تسجيل للمراجعة"
 
+#
+#
+#: leadshub/navigation.py:67
+msgid "Developers"
+msgstr "المطوّرون"
+
+#
 #: leadshub/navigation.py:68
+msgid "Projects"
+msgstr "المشروعات"
+
+#
+#: leadshub/navigation.py:69
+msgid "Areas"
+msgstr "المناطق"
+
+#
+#: leadshub/navigation.py:70
+msgid "Unit types"
+msgstr "أنواع الوحدات"
+
+#: leadshub/navigation.py:71
 msgid "Audience presets"
 msgstr "الجماهير الجاهزة"
 
-#: leadshub/navigation.py:75
+#: leadshub/navigation.py:78
 msgid "Brokers' pages and accounts"
 msgstr "صفحات الوسطاء وحساباتهم"
 
-#: leadshub/navigation.py:79
+#: leadshub/navigation.py:82
 msgid "Background jobs"
 msgstr "المهام الخلفية"
 
-#: leadshub/navigation.py:80
+#: leadshub/navigation.py:83
 msgid "Schedules"
 msgstr "الجداول الزمنية"
 
-#: leadshub/navigation.py:81
+#: leadshub/navigation.py:84
 msgid "Failed tasks"
 msgstr "المهام الفاشلة"
 
-#: leadshub/navigation.py:82
+#: leadshub/navigation.py:85
 msgid "Finished tasks"
 msgstr "المهام المكتملة"
 
-#: leadshub/navigation.py:83
+#: leadshub/navigation.py:86
 msgid "Waiting tasks"
 msgstr "المهام المنتظرة"
+
+#: leadshub/navigation.py:92
+msgid "Ad accounts"
+msgstr "الحسابات الإعلانية"
 
 #: leadshub/templates/email/base.html:64 leadshub/templates/email/base.txt:3
 msgid "The LeadsHub team"
@@ -2975,21 +3480,96 @@ msgstr "أُرسلت هذه الرسالة تلقائيًا، يُرجى عدم 
 msgid "If the button doesn't work, copy this link into your browser:"
 msgstr "إذا لم يعمل الزر، انسخ هذا الرابط وافتحه في متصفحك:"
 
+#: leadshub/templates/leadshub/back_office.html:11
+msgid "Internal operations. Clients never see this area."
+msgstr "العمليات الداخلية. لا يرى العملاء هذا القسم أبدًا."
+
+#: leadshub/templates/leadshub/back_office.html:14
+msgid "Open admin"
+msgstr "فتح لوحة الإدارة"
+
+#: leadshub/templates/leadshub/back_office.html:20
+msgid "Your roles"
+msgstr "أدوارك"
+
+#: leadshub/templates/leadshub/back_office.html:25
+msgid "Superuser (all permissions)"
+msgstr "مستخدم خارق (كل الصلاحيات)"
+
+#: leadshub/templates/leadshub/back_office.html:31
+msgid "What you can do"
+msgstr "ما يمكنك فعله"
+
 #: leadshub/templates/leadshub/base.html:38
 msgid "Close menu"
 msgstr "إغلاق القائمة"
 
-#: leadshub/templates/leadshub/base.html:45
+#: leadshub/templates/leadshub/base.html:46
 msgid "Main"
 msgstr "القائمة الرئيسية"
 
-#: leadshub/templates/leadshub/base.html:78
+#: leadshub/templates/leadshub/base.html:67
+#: leadshub/templates/leadshub/base.html:116
+msgid "Sign out"
+msgstr "تسجيل الخروج"
+
+#: leadshub/templates/leadshub/base.html:80
 msgid "Open menu"
 msgstr "فتح القائمة"
+
+#: leadshub/templates/leadshub/base.html:91
+msgid "Language"
+msgstr "اللغة"
+
+#: leadshub/templates/leadshub/base.html:101
+msgid "Change"
+msgstr "تغيير"
+
+#: leadshub/templates/leadshub/base.html:105
+msgid "Toggle dark mode"
+msgstr "تبديل الوضع الداكن"
+
+#: leadshub/templates/leadshub/dashboard.html:10
+msgid "Your office at a glance."
+msgstr "نظرة سريعة على مكتبك."
+
+#: leadshub/templates/leadshub/dashboard.html:13
+msgid "Office summary"
+msgstr "ملخص المكتب"
+
+#: leadshub/templates/leadshub/dashboard.html:15
+msgid "Wallet (EGP)"
+msgstr "المحفظة (جنيه مصري)"
+
+#: leadshub/templates/leadshub/dashboard.html:19
+#: reviews/templates/reviews/task.html:71
+msgid "Wallet (USD)"
+msgstr "المحفظة (دولار أمريكي)"
+
+#: leadshub/templates/leadshub/dashboard.html:23
+#: reviews/templates/reviews/task.html:70
+msgid "Spend tier"
+msgstr "فئة الإنفاق"
+
+#: leadshub/templates/leadshub/dashboard.html:27
+msgid "Feedback score"
+msgstr "درجة التقييم"
 
 #: leadshub/templates/leadshub/dashboard.html:36
 msgid "Manage team"
 msgstr "إدارة الفريق"
+
+#: leadshub/templates/leadshub/dashboard.html:46
+msgid "No team members yet."
+msgstr "لا يوجد أعضاء في الفريق بعد."
+
+#: leadshub/templates/leadshub/developer_home.html:10
+msgid "Aggregate project metrics, without broker or customer details."
+msgstr "مؤشرات المشروعات الإجمالية، دون بيانات الوسطاء أو العملاء."
+
+#: leadshub/templates/leadshub/developer_home.html:13
+msgid "Project metrics will appear here once campaigns are live."
+msgstr "ستظهر مؤشرات المشروعات هنا عند تشغيل الحملات."
 
 #: leadshub/templates/leadshub/library.html:10
 msgid ""
@@ -3131,10 +3711,6 @@ msgstr "لم يعد بإمكان %(name)s إنشاء الحملات أو تشغ�
 msgid "Campaign sent again"
 msgstr "حملة أُرسلت مرة أخرى"
 
-#: reviews/models.py:45 reviews/templates/reviews/queue.html:98
-msgid "Approved"
-msgstr "تمت الموافقة"
-
 #: reviews/models.py:46
 msgid "Changes requested"
 msgstr "طُلبت تعديلات"
@@ -3236,32 +3812,38 @@ msgstr "اكتب للوسيط ما يجب تعديله."
 msgid "Keep the reasons under %(count)d characters."
 msgstr "اجعل الأسباب أقل من %(count)d حرف."
 
-#: reviews/services.py:190
+#: reviews/services.py:190 reviews/services.py:229
 msgid "Only an approved task waiting for launch can be marked deployed."
 msgstr "لا يمكن تسجيل الإطلاق إلا لمهمة موافق عليها بانتظار الإطلاق."
 
-#: reviews/services.py:196
+#: reviews/services.py:193
+msgid ""
+"This campaign is being launched from the Meta campaigns page. Finish it "
+"there."
+msgstr "يجري إطلاق هذه الحملة من صفحة حملات ميتا. أكملها هناك."
+
+#: reviews/services.py:199
 msgid "Enter the ID the network gave, digits only."
 msgstr "أدخل المعرّف الذي أعطته الشبكة، أرقامًا فقط."
 
-#: reviews/services.py:198
+#: reviews/services.py:201
 msgid "Enter the ad account, for example act_1234567890 or 123-456-7890."
 msgstr "أدخل الحساب الإعلاني، مثل act_1234567890 أو 123-456-7890."
 
-#: reviews/services.py:256
+#: reviews/services.py:285
 msgid "past due"
 msgstr "تجاوزت الموعد"
 
-#: reviews/services.py:258
+#: reviews/services.py:287
 #, python-format
 msgid "%(minutes)d min left"
 msgstr "متبقٍ %(minutes)d دقيقة"
 
-#: reviews/services.py:259
+#: reviews/services.py:288
 msgid "nobody"
 msgstr "لا أحد"
 
-#: reviews/services.py:262
+#: reviews/services.py:291
 #, python-format
 msgid "%(campaign)s for %(office)s · %(when)s · assigned to %(who)s"
 msgstr "%(campaign)s لمكتب %(office)s · %(when)s · مسندة إلى %(who)s"
@@ -3370,10 +3952,6 @@ msgstr "%(percent)s%% خلال 4 ساعات · %(count)s قرارًا في 30 ي
 msgid "No decisions in the last 30 days"
 msgstr "لا قرارات في آخر 30 يومًا"
 
-#: reviews/templates/reviews/queue.html:42
-msgid "Show"
-msgstr "عرض"
-
 #: reviews/templates/reviews/queue.html:64
 #: reviews/templates/reviews/task.html:139
 #: reviews/templates/reviews/task.html:149
@@ -3392,7 +3970,7 @@ msgstr "الموعد"
 
 #: reviews/templates/reviews/queue.html:80
 msgid "No open tasks match this filter."
-msgstr "لا توجد مهام مفتوحة تطابق هذا التصفية."
+msgstr "لا توجد مهام مفتوحة تطابق هذه التصفية."
 
 #: reviews/templates/reviews/queue.html:80
 msgid "The queue is empty. New campaigns appear here as brokers press Run."
@@ -3527,7 +4105,7 @@ msgstr "أكثر من 4 ساعات"
 msgid "Take this task"
 msgstr "تولَّ هذه المهمة"
 
-#: reviews/templates/reviews/task.html:164 reviews/views.py:180
+#: reviews/templates/reviews/task.html:164 reviews/views.py:181
 msgid "This task is assigned to someone else. Ask the lead to reassign it."
 msgstr "هذه المهمة مسندة إلى شخص آخر. اطلب من قائد الفريق إعادة إسنادها."
 
@@ -3564,17 +4142,8 @@ msgstr ""
 
 #: reviews/templates/reviews/task.html:189
 #: reviews/templates/reviews/task.html:205
-msgid "Meta ad set ID"
-msgstr "معرّف المجموعة الإعلانية في ميتا"
-
-#: reviews/templates/reviews/task.html:189
-#: reviews/templates/reviews/task.html:205
 msgid "Google Ads campaign ID"
 msgstr "معرّف حملة إعلانات جوجل"
-
-#: reviews/templates/reviews/task.html:194
-msgid "Ad account"
-msgstr "الحساب الإعلاني"
 
 #: reviews/templates/reviews/task.html:198
 msgid "Mark deployed"
@@ -3596,25 +4165,50 @@ msgstr "مهامي"
 msgid "Unassigned"
 msgstr "غير مسندة"
 
-#: reviews/views.py:191
+#: reviews/views.py:192
 msgid "Assignment saved."
 msgstr "تم حفظ الإسناد."
 
-#: reviews/views.py:196
+#: reviews/views.py:197
 msgid "The task is yours. Decide it before the time runs out."
 msgstr "المهمة لك الآن. اتخذ القرار قبل انتهاء الوقت."
 
-#: reviews/views.py:201
+#: reviews/views.py:202
 msgid "Approved. The brief is ready; launch the campaign and mark it deployed."
 msgstr "تمت الموافقة. الموجز جاهز؛ أطلق الحملة ثم سجّل الإطلاق."
 
-#: reviews/views.py:207
+#: reviews/views.py:208
 msgid "Sent back to the broker with your reasons."
 msgstr "أُعيدت إلى الوسيط مع أسبابك."
 
-#: reviews/views.py:216
+#: reviews/views.py:217
 msgid "Recorded. The campaign is Live."
 msgstr "تم التسجيل. الحملة قيد التشغيل."
+
+#: templates/403.html:4 templates/403.html:9
+msgid "Access denied"
+msgstr "تم رفض الوصول"
+
+#: templates/403.html:10
+msgid "Your role doesn't allow access to this page."
+msgstr "دورك لا يسمح بالوصول إلى هذه الصفحة."
+
+#: templates/403.html:11
+msgid "Go to my home page"
+msgstr "الذهاب إلى صفحتي الرئيسية"
+
+#~ msgid "The end date has passed. Ask the broker for a new end date."
+#~ msgstr "انقضى تاريخ الانتهاء. اطلب من الوسيط تاريخ انتهاء جديدًا."
+
+#~ msgid "The campaign has no creatives."
+#~ msgstr "لا توجد مواد إعلانية في الحملة."
+
+#
+#~ msgid "Overview"
+#~ msgstr "نظرة عامة"
+
+#~ msgid "Admin home"
+#~ msgstr "رئيسية الإدارة"
 
 #~ msgid "Owned"
 #~ msgstr "مملوك"

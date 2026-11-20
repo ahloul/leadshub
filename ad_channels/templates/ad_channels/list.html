@@ -1,0 +1,81 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Meta campaigns" %} · LeadsHub{% endblock %}
+
+{% block content %}
+{% comment %}US-META-02: ready campaigns and the ones built on Meta (ad_channels.views).{% endcomment %}
+<div dj-root dj-view="ad_channels.views.MetaCampaignListView" class="space-y-6 sm:space-y-8">
+    <section>
+        <h1 class="text-2xl font-bold sm:text-3xl">{% translate "Meta campaigns" %}</h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">{% translate "Build approved campaigns on Meta, then pause, change or stop them here." %}</p>
+    </section>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="group" aria-label="{% translate 'Show' %}" class="segmented flex-wrap">
+            {% for value, label in tabs %}
+            <a class="segmented-option px-3" href="?tab={{ value }}&status=&page=1" dj-patch="?tab={{ value }}&status=&page=1" aria-current="{% if value == tab %}page{% else %}false{% endif %}" aria-pressed="{% if value == tab %}true{% else %}false{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+        {% if tab == "launched" %}
+        <div role="group" aria-label="{% translate 'Status' %}" class="segmented flex-wrap">
+            {% for value, label in statuses %}
+            <a class="segmented-option px-3" href="?tab=launched&status={{ value }}&page=1" dj-patch="?tab=launched&status={{ value }}&page=1" aria-pressed="{% if value == status %}true{% else %}false{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if rows %}
+    <ul class="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+        {% if tab == "launched" %}
+        {% for launch in rows %}
+        <li data-key="launch-{{ launch.pk }}">
+            <a href="{% url 'meta_campaign' launch.campaign.pk %}" dj-navigate="{% url 'meta_campaign' launch.campaign.pk %}" class="flex flex-col gap-2 p-4 hover:bg-slate-50 md:flex-row md:items-center md:gap-6 dark:hover:bg-slate-800/60">
+                <span class="min-w-0 md:flex-1">
+                    <span class="block truncate font-medium" dir="auto">{{ launch.campaign.target_label }}</span>
+                    <span class="block truncate text-sm text-slate-500 dark:text-slate-400"><span dir="ltr">{{ launch.campaign.code }}</span> · <span dir="auto">{{ launch.campaign.office.company_name }}</span></span>
+                </span>
+                <span class="text-sm md:w-40 md:shrink-0"><span dir="ltr">${{ launch.budget_usd }}</span> · {% if launch.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}</span>
+                <span class="text-sm text-slate-500 md:w-40 md:shrink-0 dark:text-slate-400" dir="ltr">{{ launch.ad_account.meta_account_id }}</span>
+                <span class="w-fit rounded-full px-2.5 py-1 text-xs font-semibold {% if launch.status == 'active' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% elif launch.status == 'paused' %}bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200{% endif %}">{{ launch.get_status_display }}</span>
+            </a>
+        </li>
+        {% endfor %}
+        {% else %}
+        {% for task in rows %}
+        <li data-key="ready-{{ task.campaign.pk }}">
+            <a href="{% url 'meta_campaign' task.campaign.pk %}" dj-navigate="{% url 'meta_campaign' task.campaign.pk %}" class="flex flex-col gap-2 p-4 hover:bg-slate-50 md:flex-row md:items-center md:gap-6 dark:hover:bg-slate-800/60">
+                <span class="min-w-0 md:flex-1">
+                    <span class="block truncate font-medium" dir="auto">{{ task.campaign.target_label }}</span>
+                    <span class="block truncate text-sm text-slate-500 dark:text-slate-400"><span dir="ltr">{{ task.campaign.code }}</span> · <span dir="auto">{{ task.campaign.office.company_name }}</span></span>
+                </span>
+                <span class="text-sm md:w-40 md:shrink-0"><span dir="ltr">{{ task.campaign.budget_text }}</span> · {% if task.campaign.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}</span>
+                <span class="text-sm text-slate-500 md:w-40 md:shrink-0 dark:text-slate-400">{% translate "Approved" %} <span dir="ltr">{{ task.decided_text }}</span></span>
+                {% if task.campaign.meta_launch %}
+                <span class="w-fit rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-950 dark:text-red-300">{{ task.campaign.meta_launch.get_status_display }}</span>
+                {% else %}
+                <span class="w-fit rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">{% translate "Ready" %}</span>
+                {% endif %}
+            </a>
+        </li>
+        {% endfor %}
+        {% endif %}
+    </ul>
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="{% translate 'Pages' %}" class="flex items-center justify-between gap-3 text-sm">
+        {% if page_obj.has_previous %}
+        <a class="btn-secondary" href="?tab={{ tab }}&status={{ status }}&page={{ page_obj.previous_page_number }}" dj-patch="?tab={{ tab }}&status={{ status }}&page={{ page_obj.previous_page_number }}">{% translate "Previous" %}</a>
+        {% else %}<span></span>{% endif %}
+        <span class="text-slate-500 dark:text-slate-400">{% blocktranslate with number=page_obj.number count=page_obj.paginator.num_pages %}Page {{ number }} of {{ count }}{% endblocktranslate %}</span>
+        {% if page_obj.has_next %}
+        <a class="btn-secondary" href="?tab={{ tab }}&status={{ status }}&page={{ page_obj.next_page_number }}" dj-patch="?tab={{ tab }}&status={{ status }}&page={{ page_obj.next_page_number }}">{% translate "Next" %}</a>
+        {% else %}<span></span>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <p class="card text-center text-slate-500 dark:text-slate-400">{% if tab == "launched" %}{% translate "No campaigns on Meta match this filter." %}{% else %}{% translate "Nothing is ready. Campaigns appear here once review approves them." %}{% endif %}</p>
+    {% endif %}
+</div>
+{% endblock %}

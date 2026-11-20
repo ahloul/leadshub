@@ -302,6 +302,8 @@ PAGE_AUDIENCES = {
     "/en/back-office/": INTERNAL,
     # The review queue: who may decide campaign tasks (SRS §2.2).
     "/en/back-office/queue/": {Role.PLATFORM_ADMIN, Role.MEDIA_BUYING_LEAD, Role.MEDIA_BUYER},
+    # Launching ready campaigns on Meta (US-META-02): launch_meta_campaigns.
+    "/en/back-office/meta/campaigns/": {Role.MEDIA_BUYING_LEAD, Role.MEDIA_BUYER},
     "/en/portal/": {Role.BROKER_OWNER, Role.BROKER_TEAM_MEMBER},
     "/en/portal/team/": {Role.BROKER_OWNER},
     "/en/portal/library/": {Role.BROKER_OWNER, Role.BROKER_TEAM_MEMBER},
@@ -339,6 +341,7 @@ class PageAccessTests(TestCase):
         from djust.auth.core import check_view_auth
 
         from campaigns.views import CampaignListView, ConnectedAccountsView, TypeStepView
+        from ad_channels.views import MetaCampaignListView
         from reviews.views import ReviewQueueView
 
         from .views import BackOfficeView, DashboardView, DeveloperHomeView, LibraryView, TeamView
@@ -346,6 +349,7 @@ class PageAccessTests(TestCase):
         views = {
             "/en/back-office/": BackOfficeView,
             "/en/back-office/queue/": ReviewQueueView,
+            "/en/back-office/meta/campaigns/": MetaCampaignListView,
             "/en/portal/": DashboardView,
             "/en/portal/team/": TeamView,
             "/en/portal/library/": LibraryView,

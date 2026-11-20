@@ -99,6 +99,20 @@ live views and base templates. The domain apps:
     (`leadshub/jobs.py`).
   - Pages: `/back-office/queue/` and `/back-office/queue/<id>/`. Countdowns
     run in the browser (`static/js/countdown.js`).
+- **`ad_channels/`**: Meta Business Managers and ad accounts (US-META-01)
+  and launching ready campaigns on Meta (US-META-02).
+  - `MetaAdAccount.objects.available_for_launch()` decides which accounts
+    may take a launch.
+  - `MetaLaunch`, one per campaign built on Meta, saves each Meta ID as soon
+    as Meta returns it; `services.build` resumes from there and
+    `discard_build` deletes a failed build on Meta. It also holds the media
+    buyer's settings (`services.LaunchSettings`, inside the broker's
+    approval) and the locked USD→EGP `fx_rate` (`META_EGP_PER_USD`).
+  - Pages: `/back-office/meta/campaigns/` and `/back-office/meta/campaigns/<campaign_id>/`
+    (`launch_meta_campaigns`). Ready means approved and not deployed
+    (`reviews.selectors.ready_for_meta`).
+  - Graph calls are on `meta_ads/client.py`; tests patch
+    `meta_ads.sync.client_for` with `test_utils.FakeMetaLauncher`.
 - **`creatives/`**: the creative library (SRS §3.2).
   - `Creative.objects.usable()` is what brokers may see: published, with the
     offer still on.

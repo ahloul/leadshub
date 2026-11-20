@@ -1,0 +1,179 @@
+{% extends "leadshub/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ campaign.code }} · {% translate "Meta campaign" %} · LeadsHub{% endblock %}
+
+{% block content %}
+{% comment %}US-META-02: build a ready campaign on Meta, or manage its launch (ad_channels.views.MetaCampaignView).{% endcomment %}
+<div dj-root dj-view="ad_channels.views.MetaCampaignView" class="space-y-6 sm:space-y-8">
+    <section class="space-y-1">
+        <a href="{% url 'meta_campaigns' %}" dj-navigate="{% url 'meta_campaigns' %}" class="text-sm text-indigo-600 hover:underline dark:text-indigo-400">{% translate "Meta campaigns" %}</a>
+        <h1 class="text-2xl font-bold sm:text-3xl" dir="auto">{{ campaign.target_label }}</h1>
+        <p class="text-slate-500 dark:text-slate-400"><span dir="ltr">{{ campaign.code }}</span> · <span dir="auto">{{ campaign.office.company_name }}</span></p>
+    </section>
+
+    {% if notice %}<p role="status" class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200">{{ notice }}</p>{% endif %}
+    {% if error %}<p role="alert" class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200" dir="auto">{{ error }}</p>{% endif %}
+
+    <section aria-labelledby="campaign-heading" class="card grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <h2 id="campaign-heading" class="sr-only">{% translate "What the broker asked for" %}</h2>
+        <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{% translate "Budget" %}</p>
+            <p class="font-medium"><span dir="ltr">{{ campaign.budget_text }}</span> · {% if campaign.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}</p>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{% translate "Schedule" %}</p>
+            <p class="font-medium" dir="ltr">{{ campaign.starts_on|date:"Y-m-d" }} → {% if campaign.ends_on %}{{ campaign.ends_on|date:"Y-m-d" }}{% else %}…{% endif %}</p>
+        </div>
+        <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{% translate "Audience" %}</p>
+            <p class="font-medium" dir="auto">{% if audience %}{{ audience.display_name }}{% else %}—{% endif %}</p>
+            {% if audience %}<p class="text-xs text-slate-500 dark:text-slate-400" dir="auto">{% for name in audience.interests %}{{ name }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+        </div>
+        <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{% translate "Creatives" %}</p>
+            <ul class="font-medium">{% for creative in creatives %}<li dir="auto">{{ creative.title }} <span class="text-xs text-slate-500 dark:text-slate-400">· {{ creative.get_asset_type_display }}</span></li>{% endfor %}</ul>
+        </div>
+    </section>
+
+    {% if launched %}
+    <section aria-labelledby="launch-heading" class="card space-y-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 id="launch-heading" class="text-lg font-semibold">{% translate "On Meta" %}</h2>
+            <span class="w-fit rounded-full px-2.5 py-1 text-xs font-semibold {% if launch.status == 'active' %}bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300{% elif launch.status == 'paused' %}bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200{% endif %}">{{ launch.get_status_display }}{% if launch.meta_status %} · <span dir="ltr">{{ launch.meta_status }}</span>{% endif %}</span>
+        </div>
+        <dl class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Ad account" %}</dt><dd dir="ltr">{{ launch.ad_account.meta_account_id }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Meta campaign ID" %}</dt><dd dir="ltr" class="break-all">{{ launch.meta_campaign_id }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Ad set ID (lead routing)" %}</dt><dd dir="ltr" class="break-all">{{ launch.meta_adset_id }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Facebook page" %}</dt><dd dir="auto">{{ launch.page_name }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Lead form" %}</dt><dd dir="auto">{{ launch.lead_form_name }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Ads" %}</dt><dd>{{ ads|length }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Budget on Meta" %}</dt><dd><span dir="ltr">${{ launch.budget_usd }}</span> · {% if launch.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}{% if egp_text %} <span class="text-slate-500 dark:text-slate-400" dir="auto">{{ egp_text }}</span>{% endif %}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Runs" %}</dt><dd dir="ltr">{{ launch.starts_on|date:"Y-m-d" }} → {% if launch.ends_on %}{{ launch.ends_on|date:"Y-m-d" }}{% else %}…{% endif %}</dd></div>
+        </dl>
+        {% if broker_notes %}
+        <ul class="space-y-1 rounded-lg bg-slate-50 p-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            {% for note in broker_notes %}<li dir="auto">{{ note }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% if launch.skipped_interests %}
+        <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">{% translate "Meta didn't recognise these interests, so they weren't targeted:" %} <span dir="auto">{% for name in launch.skipped_interests %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></p>
+        {% endif %}
+
+        {% if launch.status != "archived" %}
+        <form dj-submit="save_budget" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Budget (USD)" %}</span>
+                <input class="input mt-1 w-full sm:w-36" name="budget_usd" inputmode="decimal" dir="ltr" value="{{ launch.budget_usd }}">
+            </label>
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Last day" %}</span>
+                <input class="input mt-1 w-full sm:w-44" type="date" name="ends_on" dir="ltr" value="{{ launch.ends_on|date:'Y-m-d' }}">
+            </label>
+            <button type="submit" class="btn-secondary">{% translate "Save budget" %}</button>
+        </form>
+        <div class="flex flex-wrap gap-2">
+            {% if launch.status == "active" %}
+            <button type="button" class="btn-secondary" dj-click="pause">{% translate "Pause" %}</button>
+            {% else %}
+            <button type="button" class="btn-secondary" dj-click="resume">{% translate "Resume" %}</button>
+            {% endif %}
+            <button type="button" class="btn-secondary" dj-click="refresh">{% translate "Refresh from Meta" %}</button>
+            <details class="relative">
+                <summary class="btn-secondary cursor-pointer list-none text-red-700 dark:text-red-300">{% translate "Stop campaign" %}</summary>
+                <div class="mt-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm dark:border-red-900 dark:bg-red-950">
+                    <p class="text-red-800 dark:text-red-200">{% translate "This archives it on Meta and ends the campaign. It can't be restarted." %}</p>
+                    <button type="button" class="btn-primary mt-2 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600" dj-click="stop">{% translate "Yes, stop it" %}</button>
+                </div>
+            </details>
+        </div>
+        {% else %}
+        <button type="button" class="btn-secondary" dj-click="refresh">{% translate "Refresh from Meta" %}</button>
+        {% endif %}
+    </section>
+    {% else %}
+    <section aria-labelledby="build-heading" class="card space-y-4">
+        <div>
+            <h2 id="build-heading" class="text-lg font-semibold">{% translate "Build on Meta" %}</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Choose where it runs. LeadsHub creates the campaign, ad set and ads paused, then switches them on." %}</p>
+        </div>
+        {% if failed %}
+        <p class="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200" dir="auto">{% translate "The last build stopped:" %} {{ launch.last_error }}</p>
+        {% endif %}
+        {% for problem in problems %}
+        <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200" dir="auto">{{ problem }}</p>
+        {% endfor %}
+
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Ad account" %}</span>
+                <select class="input mt-1 w-full" dj-change="choose_account" {% if building %}disabled{% endif %}>
+                    <option value="">{% translate "Choose…" %}</option>
+                    {% for value, label in accounts %}<option value="{{ value }}" {% if value == ad_account_id %}selected{% endif %} dir="ltr">{{ label }}</option>{% endfor %}
+                </select>
+            </label>
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Facebook page" %}</span>
+                <select class="input mt-1 w-full" dj-change="choose_page" {% if building or not pages %}disabled{% endif %}>
+                    <option value="">{% translate "Choose…" %}</option>
+                    {% for value, label in pages %}<option value="{{ value }}" {% if value == page_id %}selected{% endif %} dir="auto">{{ label }}</option>{% endfor %}
+                </select>
+            </label>
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Lead form" %}</span>
+                <select class="input mt-1 w-full" dj-change="choose_form" {% if building or not forms %}disabled{% endif %}>
+                    <option value="">{% translate "Choose…" %}</option>
+                    {% for value, label in forms %}<option value="{{ value }}" {% if value == lead_form_id %}selected{% endif %} dir="auto">{{ label }}</option>{% endfor %}
+                </select>
+            </label>
+        </div>
+
+        <form dj-submit="build_on_meta" class="space-y-4">
+            <div>
+                <h3 class="font-semibold">{% translate "How it runs on Meta" %}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Adjust within what the broker approved. Anything more goes back to the broker as a rejection." %}</p>
+            </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Budget (USD)" %}</span>
+                    <input class="input mt-1 w-full" name="budget_usd" inputmode="decimal" dir="ltr" value="{{ budget_usd }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{{ campaign.budget_text }}</span> · {% if campaign.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}</span>
+                </label>
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Start" %}</span>
+                    <input class="input mt-1 w-full" type="date" name="starts_on" dir="ltr" value="{{ starts_on }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{{ campaign.starts_on|date:"Y-m-d" }}</span></span>
+                </label>
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Last day" %}</span>
+                    <input class="input mt-1 w-full" type="date" name="ends_on" dir="ltr" value="{{ ends_on }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{% if campaign.ends_on %}{{ campaign.ends_on|date:"Y-m-d" }}{% else %}…{% endif %}</span></span>
+                </label>
+            </div>
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Interests (one per line)" %}</span>
+                <textarea class="input mt-1 w-full" name="interests" rows="4" dir="auto" {% if building %}disabled{% endif %}>{{ interests }}</textarea>
+                <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Interests only: Meta's housing rules forbid age and gender targeting." %}</span>
+            </label>
+            <fieldset class="text-sm">
+                <legend class="text-slate-600 dark:text-slate-300">{% translate "Creatives" %}</legend>
+                <div class="mt-1 space-y-1">
+                    {% for pk, title, kind, checked in creative_choices %}
+                    <label class="flex items-center gap-2"><input type="checkbox" name="creative_{{ pk }}" value="on" {% if checked %}checked{% endif %} {% if building %}disabled{% endif %}> <span dir="auto">{{ title }}</span> <span class="text-xs text-slate-500 dark:text-slate-400">· {{ kind }}</span></label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            <div class="flex flex-wrap items-center gap-2">
+                {% if building %}
+                <p role="status" class="text-sm font-medium text-indigo-700 dark:text-indigo-300">{% translate "Building on Meta… This takes up to a minute." %}</p>
+                {% else %}
+                <button type="submit" class="btn-primary" {% if not can_build %}disabled{% endif %}>{% if failed %}{% translate "Build again" %}{% else %}{% translate "Build on Meta" %}{% endif %}</button>
+                {% if failed %}<button type="button" class="btn-secondary" dj-click="discard">{% translate "Discard build" %}</button>{% endif %}
+                {% endif %}
+            </div>
+        </form>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

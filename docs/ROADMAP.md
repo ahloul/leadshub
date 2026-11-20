@@ -51,6 +51,11 @@ all.
   that wait on Q2 (M3, 2026-11-14).
 - The review queue with its 4-hour SLA, escalation to the lead, briefs and
   "Mark deployed", and the scheduled job runner (M4, 2026-11-14).
+- Meta Business Managers and ad accounts, connected with Facebook Login
+  (US-META-01), and launching ready campaigns on Meta from
+  `/back-office/meta/campaigns/` (US-META-02, 2026-11-18): Media Buyers and
+  their lead build an approved campaign through the Marketing API, then
+  pause, change the budget, stop or refresh it.
 
 **Not built:** the rest of SRS §3 to §5 (leads, wallet, review queue,
 routing, scores, ad accounts, Project X) and the developer
@@ -469,9 +474,17 @@ SRS §4.1, FR-6.1, FR-6.2, FR-6.7, FR-7.6. Size L. Needs M3.
 - Edits to a Live campaign and broker private uploads (FR-5.8, FR-5.9) in
   the queue: neither exists yet. The task `Kind` has room for both.
 - In-app notices (Q20): email only for now.
-- The list of Business Managers and ad accounts: "Mark deployed" takes the
-  ad account as text and stores it in `Campaign.platform_data` (M9 adds the
-  list). The ad set mapping M7 routes by is `Campaign.external_id`.
+- ~~The list of Business Managers and ad accounts~~: built in `ad_channels/`
+  (US-META-01). Launching through the API is built too (US-META-02): the
+  Meta campaigns page records the ad set in `Campaign.external_id` and the
+  task as deployed, as "Mark deployed" does by hand. "Mark deployed" stays
+  for campaigns launched outside it.
+- In US-META-02's first version: images and reels only (carousels and
+  landing pages later), Egypt-wide targeting (the presets' geo text isn't
+  sent), USD and EGP ad accounts (EGP at the `META_EGP_PER_USD` setting,
+  locked per launch, until M6's rate table), one ad set per campaign (no
+  pooling until M7), and a staff pause on Meta still shows Live to the
+  broker.
 - The budget in the brief is the broker's figure as entered, until Q2.
 
 ### M5. CRM pipeline and organic lead upload

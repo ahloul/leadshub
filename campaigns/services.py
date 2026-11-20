@@ -435,6 +435,14 @@ def mark_live(campaign_id, *, adset_id, ad_account_id):
     return campaign
 
 
+@transaction.atomic
+def end_campaign(campaign_id):
+    """The media buying team stopped it on Meta (US-META-02): Live or Paused → Ended."""
+    campaign = Campaign.objects.select_for_update().get(pk=campaign_id)
+    campaign.end()
+    return campaign
+
+
 def _tell_office_changes_needed(campaign):
     """Email the office's people who can run campaigns, in the office's language."""
     recipients = list(
