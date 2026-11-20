@@ -49,7 +49,14 @@
             <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Facebook page" %}</dt><dd dir="auto">{{ launch.page_name }}</dd></div>
             <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Lead form" %}</dt><dd dir="auto">{{ launch.lead_form_name }}</dd></div>
             <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Ads" %}</dt><dd>{{ ads|length }}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Budget on Meta" %}</dt><dd><span dir="ltr">${{ launch.budget_usd }}</span> · {% if launch.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}{% if egp_text %} <span class="text-slate-500 dark:text-slate-400" dir="auto">{{ egp_text }}</span>{% endif %}</dd></div>
+            <div><dt class="text-xs text-slate-500 dark:text-slate-400">{% translate "Runs" %}</dt><dd dir="ltr">{{ launch.starts_on|date:"Y-m-d" }} → {% if launch.ends_on %}{{ launch.ends_on|date:"Y-m-d" }}{% else %}…{% endif %}</dd></div>
         </dl>
+        {% if broker_notes %}
+        <ul class="space-y-1 rounded-lg bg-slate-50 p-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+            {% for note in broker_notes %}<li dir="auto">{{ note }}</li>{% endfor %}
+        </ul>
+        {% endif %}
         {% if launch.skipped_interests %}
         <p class="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">{% translate "Meta didn't recognise these interests, so they weren't targeted:" %} <span dir="auto">{% for name in launch.skipped_interests %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</span></p>
         {% endif %}
@@ -122,14 +129,50 @@
             </label>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-            {% if building %}
-            <p role="status" class="text-sm font-medium text-indigo-700 dark:text-indigo-300">{% translate "Building on Meta… This takes up to a minute." %}</p>
-            {% else %}
-            <button type="button" class="btn-primary" dj-click="build_on_meta" {% if not can_build %}disabled{% endif %}>{% if failed %}{% translate "Build again" %}{% else %}{% translate "Build on Meta" %}{% endif %}</button>
-            {% if failed %}<button type="button" class="btn-secondary" dj-click="discard">{% translate "Discard build" %}</button>{% endif %}
-            {% endif %}
-        </div>
+        <form dj-submit="build_on_meta" class="space-y-4">
+            <div>
+                <h3 class="font-semibold">{% translate "How it runs on Meta" %}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{% translate "Adjust within what the broker approved. Anything more goes back to the broker as a rejection." %}</p>
+            </div>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Budget (USD)" %}</span>
+                    <input class="input mt-1 w-full" name="budget_usd" inputmode="decimal" dir="ltr" value="{{ budget_usd }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{{ campaign.budget_text }}</span> · {% if campaign.budget_kind == "lifetime" %}{% translate "total" %}{% else %}{% translate "a day" %}{% endif %}</span>
+                </label>
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Start" %}</span>
+                    <input class="input mt-1 w-full" type="date" name="starts_on" dir="ltr" value="{{ starts_on }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{{ campaign.starts_on|date:"Y-m-d" }}</span></span>
+                </label>
+                <label class="block text-sm">
+                    <span class="text-slate-600 dark:text-slate-300">{% translate "Last day" %}</span>
+                    <input class="input mt-1 w-full" type="date" name="ends_on" dir="ltr" value="{{ ends_on }}" {% if building %}disabled{% endif %}>
+                    <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Broker:" %} <span dir="ltr">{% if campaign.ends_on %}{{ campaign.ends_on|date:"Y-m-d" }}{% else %}…{% endif %}</span></span>
+                </label>
+            </div>
+            <label class="block text-sm">
+                <span class="text-slate-600 dark:text-slate-300">{% translate "Interests (one per line)" %}</span>
+                <textarea class="input mt-1 w-full" name="interests" rows="4" dir="auto" {% if building %}disabled{% endif %}>{{ interests }}</textarea>
+                <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{% translate "Interests only: Meta's housing rules forbid age and gender targeting." %}</span>
+            </label>
+            <fieldset class="text-sm">
+                <legend class="text-slate-600 dark:text-slate-300">{% translate "Creatives" %}</legend>
+                <div class="mt-1 space-y-1">
+                    {% for pk, title, kind, checked in creative_choices %}
+                    <label class="flex items-center gap-2"><input type="checkbox" name="creative_{{ pk }}" value="on" {% if checked %}checked{% endif %} {% if building %}disabled{% endif %}> <span dir="auto">{{ title }}</span> <span class="text-xs text-slate-500 dark:text-slate-400">· {{ kind }}</span></label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+            <div class="flex flex-wrap items-center gap-2">
+                {% if building %}
+                <p role="status" class="text-sm font-medium text-indigo-700 dark:text-indigo-300">{% translate "Building on Meta… This takes up to a minute." %}</p>
+                {% else %}
+                <button type="submit" class="btn-primary" {% if not can_build %}disabled{% endif %}>{% if failed %}{% translate "Build again" %}{% else %}{% translate "Build on Meta" %}{% endif %}</button>
+                {% if failed %}<button type="button" class="btn-secondary" dj-click="discard">{% translate "Discard build" %}</button>{% endif %}
+                {% endif %}
+            </div>
+        </form>
     </section>
     {% endif %}
 </div>

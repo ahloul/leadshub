@@ -3,6 +3,7 @@
 Meta is never called: ``meta_ads.sync.client_for`` is replaced by a fake.
 """
 
+import dataclasses
 import datetime
 import hashlib
 import hmac
@@ -416,9 +417,9 @@ class BuildTests(BuildSetup):
             self.build()
         self.assertFalse(MetaLaunch.objects.exists())
 
-    def test_non_usd_account_is_refused(self):
-        self.meta.currency = "EGP"
-        with self.assertRaisesMessage(services.LaunchError, "EGP"):
+    def test_account_in_another_currency_is_refused(self):
+        self.meta.currency = "EUR"
+        with self.assertRaisesMessage(services.LaunchError, "EUR"):
             self.build()
         self.assertEqual(self.meta.called("create_campaign"), [])
 
@@ -455,12 +456,12 @@ class BuildTests(BuildSetup):
     def test_end_date_passed_is_refused(self):
         today = timezone.localdate()
         self.set_campaign(starts_on=today - datetime.timedelta(days=5), ends_on=today)
-        with self.assertRaisesMessage(services.LaunchError, "end date"):
+        with self.assertRaisesMessage(services.LaunchError, "last day"):
             self.build()
 
     def test_lifetime_budget_without_end_is_refused(self):
         self.set_campaign(budget_kind="lifetime", ends_on=None)
-        with self.assertRaisesMessage(services.LaunchError, "end date"):
+        with self.assertRaisesMessage(services.LaunchError, "last day"):
             self.build()
 
     def test_failure_mid_build_resumes_without_duplicates(self):
@@ -542,8 +543,8 @@ class BuildTests(BuildSetup):
             self.assertNotIn(banned, targeting)
 
     def test_budget_cents_round_half_up(self):
-        self.assertEqual(services.budget_cents(Decimal("30.005")), 3001)
-        self.assertEqual(services.budget_cents(Decimal("30")), 3000)
+        self.assertEqual(services.meta_minor_units(Decimal("30.005"), Decimal("1")), 3001)
+        self.assertEqual(services.meta_minor_units(Decimal("30"), Decimal("1")), 3000)
         self.build()
         self.assertEqual(self.meta.called("create_adset")[0]["budget_cents"], 3000)
 
@@ -649,6 +650,27 @@ class ManageLaunchTests(BuildSetup):
         self.assertEqual(len(self.meta.called("set_status")), 1)
         self.assertEqual(self.act("resume").status, MetaLaunch.Status.ACTIVE)
         self.assertEqual(self.meta.called("set_status")[-1]["status"], "ACTIVE")
+
+    def egp_launch(self, rate):
+        MetaLaunch.objects.filter(pk=self.launched.pk).update(currency="EGP", fx_rate=Decimal(rate))
+
+    def test_budget_change_on_an_egp_launch_uses_the_locked_rate(self):
+        self.egp_launch("50")
+        with override_settings(META_EGP_PER_USD=Decimal("60")):
+            self.act("change_budget", budget_usd=Decimal("20"), ends_on=None)
+        self.assertEqual(self.meta.called("update_adset")[0]["budget_cents"], 100000)
+
+    def test_refresh_converts_egp_back_to_usd(self):
+        self.egp_launch("50.55")
+        self.meta.state = LaunchState(campaign_status="ACTIVE", adset_status="ACTIVE", budget_cents=151651, end=None)
+        self.assertEqual(self.act("refresh").budget_usd, Decimal("30.00"))
+
+    def test_last_day_before_the_launch_start_is_refused(self):
+        start = self.campaign.starts_on + datetime.timedelta(days=5)
+        MetaLaunch.objects.filter(pk=self.launched.pk).update(starts_on=start)
+        with self.assertRaisesMessage(services.LaunchError, "start"):
+            self.act("change_budget", budget_usd=Decimal("20"), ends_on=start - datetime.timedelta(days=1))
+        self.assertEqual(self.meta.called("update_adset"), [])
 
     def test_budget_above_broker_figure_is_refused(self):
         with self.assertRaisesMessage(services.LaunchError, "30"):
@@ -870,8 +892,76 @@ class DetailPageTests(BuildSetup):
         client.render_async()
         self.assertIn("no payment method", client.get_state()["error"])
         html = client.render()
-        self.assertIn('dj-click="build_on_meta"', html)
+        self.assertIn('dj-submit="build_on_meta"', html)
         self.assertIn('dj-click="discard"', html)
+
+    def submit(self, client, **fields):
+        form = {"budget_usd": "30", "starts_on": self.campaign.starts_on.isoformat(), "ends_on": "",
+                "interests": "Real estate\nCompounds", f"creative_{self.creative.pk}": "on"}
+        form.update(fields)
+        client.send_event("build_on_meta", **{k: v for k, v in form.items() if v is not None})
+        client.render_async()
+
+    def test_form_is_prefilled_with_the_brokers_values(self):
+        html = self.page().render()
+        self.assertIn('dj-submit="build_on_meta"', html)
+        self.assertIn('name="budget_usd"', html)
+        self.assertIn("30.00", html)
+        self.assertIn(self.campaign.starts_on.isoformat(), html)
+        self.assertIn("Real estate", html)
+        self.assertIn(f'name="creative_{self.creative.pk}"', html)
+
+    def test_build_event_passes_the_edited_settings(self):
+        client = self.page()
+        self.choose(client)
+        self.submit(client, budget_usd="20", interests="Real estate")
+        client.assert_state(error="")
+        self.assertEqual(self.meta.called("create_adset")[0]["budget_cents"], 2000)
+        self.assertEqual(self.stored().interests, ["Real estate"])
+
+    def test_junk_budget_shows_an_error_and_builds_nothing(self):
+        client = self.page()
+        self.choose(client)
+        for junk in ("abc", "NaN", "-5", "", "1e9", "1e30", "9" * 40):
+            self.submit(client, budget_usd=junk)
+            self.assertTrue(client.get_state()["error"], junk)
+            client.assert_state(building=False)
+        self.assertEqual(self.meta.called("create_adset"), [])
+
+    def test_bad_date_shows_an_error(self):
+        client = self.page()
+        self.choose(client)
+        self.submit(client, starts_on="2026-02-30")
+        self.assertTrue(client.get_state()["error"])
+        self.assertEqual(self.meta.called("create_adset"), [])
+
+    def test_unknown_creative_shows_an_error(self):
+        client = self.page()
+        self.choose(client)
+        self.submit(client, **{f"creative_{self.creative.pk}": None, "creative_999999": "on"})
+        self.assertIn("creative", client.get_state()["error"])
+        self.assertEqual(self.meta.called("create_adset"), [])
+
+    @override_settings(META_EGP_PER_USD=Decimal("50"))
+    def test_egp_launch_card_shows_the_egp_amount_and_rate(self):
+        self.meta.currency = "EGP"
+        self.build()
+        html = self.page().render()
+        self.assertIn("EGP 1,500", html)
+        self.assertIn("50.00", html)
+
+    @override_settings(META_EGP_PER_USD=Decimal("50"))
+    def test_egp_note_follows_the_page_direction(self):
+        self.meta.currency = "EGP"
+        self.build()
+        html = self.page().render()
+        self.assertIn('dir="auto">≈ EGP 1,500', html)
+        self.assertNotIn('dir="ltr">≈', html)
+
+    def test_changed_values_show_the_brokers_value(self):
+        self.build(settings=dataclasses.replace(services.default_settings(self.campaign), budget_usd=Decimal("20")))
+        html = self.page().render()
+        self.assertIn("Broker: $30", html)
 
     def test_manage_handlers_change_meta(self):
         launch = self.build()
@@ -1002,7 +1092,7 @@ class ArabicPageTests(BuildSetup):
         self.assertIn("ابنِ على ميتا", html)
         self.assertIn("حملات ميتا", self.client.get("/ar/back-office/meta/campaigns/").content.decode())
 
-        self.meta.currency = "EGP"
+        self.meta.currency = "EUR"
         client = live(MetaCampaignView, self.buyer, page_url(self.campaign.pk, "ar"), pk=self.campaign.pk)
         client.send_event("choose_account", value=str(self.account.pk))
         client.send_event("choose_page", value="p1")
@@ -1010,8 +1100,14 @@ class ArabicPageTests(BuildSetup):
         client.send_event("build_on_meta")
         client.render_async()
         error = client.get_state()["error"]
-        self.assertIn("EGP", error)
-        self.assertIn("بالدولار", error)
+        self.assertIn("EUR", error)
+        self.assertIn("بالدولار والجنيه", error)
+
+    def test_settings_form_in_arabic(self):
+        self.client.force_login(self.buyer)
+        html = self.client.get(page_url(self.campaign.pk, "ar")).content.decode()
+        for label in ("الميزانية (بالدولار)", "البداية", "آخر يوم", "الاهتمامات (واحد في كل سطر)", "كيف تعمل على ميتا"):
+            self.assertIn(label, html)
 
 
 class FinalReviewFixTests(BuildSetup):
@@ -1148,3 +1244,187 @@ class AdvantageAudienceTests(SimpleTestCase):
         meta = MetaClient(TOKEN)
         meta._api.call = _Graph(replies={("GET", "v1"): {"picture": "https://thumb.test/v.jpg"}})
         self.assertEqual(meta.video_thumbnail("v1"), "https://thumb.test/v.jpg")
+
+
+class MoneyTests(SimpleTestCase):
+    """USD budgets in the ad account's minor units at the launch's rate (launch settings spec)."""
+
+    def test_usd_is_cents(self):
+        self.assertEqual(services.meta_minor_units(Decimal("30"), Decimal("1")), 3000)
+
+    def test_egp_is_piastres_at_the_rate_rounded_half_up(self):
+        self.assertEqual(services.meta_minor_units(Decimal("30"), Decimal("50.55")), 151650)
+        self.assertEqual(services.meta_minor_units(Decimal("0.01"), Decimal("50.5")), 51)
+
+    @override_settings(META_EGP_PER_USD=Decimal("50"))
+    def test_rates(self):
+        self.assertEqual(services._account_rate("USD"), Decimal("1"))
+        self.assertEqual(services._account_rate("EGP"), Decimal("50"))
+
+    @override_settings(META_EGP_PER_USD=None)
+    def test_egp_without_a_rate_is_refused(self):
+        with self.assertRaisesMessage(services.LaunchError, "META_EGP_PER_USD"):
+            services._account_rate("EGP")
+
+    def test_other_currencies_are_refused(self):
+        with self.assertRaisesMessage(services.LaunchError, "EUR"):
+            services._account_rate("EUR")
+
+
+class LaunchSettingsTests(BuildSetup):
+    """The media buyer's settings inside the broker's approval (launch settings spec)."""
+
+    def settings(self, **changes):
+        return dataclasses.replace(services.default_settings(self.campaign), **changes)
+
+    def second_creative(self):
+        other = make_creative("O West reel", project=self.project, offer="5% DP · 10-yr plan")
+        self.campaign.creatives.add(other)
+        return other
+
+    def campaign_row(self):
+        row = Campaign.objects.get(pk=self.campaign.pk)
+        return (row.budget_kind, row.budget_usd, row.starts_on, row.ends_on, sorted(row.creatives.values_list("pk", flat=True)))
+
+    def test_defaults_are_the_brokers_values(self):
+        s = services.default_settings(self.campaign)
+        self.assertEqual(s.budget_usd, Decimal("30"))
+        self.assertEqual((s.starts_on, s.ends_on), (self.campaign.starts_on, None))
+        self.assertEqual(s.interests, ("Real estate", "Compounds"))
+        self.assertEqual(s.creative_ids, (self.creative.pk,))
+
+    def test_build_uses_the_edited_budget_dates_interests_and_creatives(self):
+        other = self.second_creative()
+        self.set_campaign(ends_on=self.campaign.starts_on + datetime.timedelta(days=30))
+        start = self.campaign.starts_on + datetime.timedelta(days=2)
+        end = self.campaign.starts_on + datetime.timedelta(days=10)
+        launch = self.build(settings=self.settings(
+            budget_usd=Decimal("20"), starts_on=start, ends_on=end, interests=("Real estate",),
+            creative_ids=(other.pk,),
+        ))
+        adset = self.meta.called("create_adset")[0]
+        self.assertEqual(adset["budget_cents"], 2000)
+        self.assertEqual(timezone.localtime(adset["start"]).date(), start)
+        self.assertEqual(timezone.localtime(adset["end"]).date(), end + datetime.timedelta(days=1))
+        self.assertEqual([c["name"] for c in self.meta.called("search_interest")], ["Real estate"])
+        self.assertEqual([e["creative_pk"] for e in launch.ads], [other.pk])
+        stored = self.stored()
+        self.assertEqual((stored.budget_usd, stored.starts_on, stored.ends_on), (Decimal("20"), start, end))
+        self.assertEqual((stored.interests, stored.creative_ids), (["Real estate"], [other.pk]))
+
+    def test_brokers_campaign_is_unchanged(self):
+        other = self.second_creative()
+        before = self.campaign_row()
+        self.build(settings=self.settings(budget_usd=Decimal("10"), creative_ids=(other.pk,),
+                                          interests=("Luxury",)))
+        self.assertEqual(self.campaign_row(), before)
+
+    def assert_refused(self, message, **changes):
+        with self.assertRaisesMessage(services.LaunchError, message):
+            self.build(settings=self.settings(**changes))
+        self.assertEqual([n for n, _ in self.meta.calls if n.startswith("create_")], [])
+        self.assertFalse(MetaLaunch.objects.exists())
+
+    def test_budget_above_the_brokers_is_refused(self):
+        self.assert_refused("above the broker", budget_usd=Decimal("30.01"))
+
+    def test_budget_below_one_is_refused(self):
+        self.assert_refused("at least 1", budget_usd=Decimal("0.99"))
+
+    def test_start_before_the_brokers_start_is_refused(self):
+        self.assert_refused("start", starts_on=self.campaign.starts_on - datetime.timedelta(days=1))
+
+    def test_last_day_after_the_brokers_last_day_is_refused(self):
+        self.set_campaign(ends_on=self.campaign.starts_on + datetime.timedelta(days=5))
+        self.assert_refused("last day", ends_on=self.campaign.ends_on + datetime.timedelta(days=1))
+
+    def test_removing_the_brokers_last_day_is_refused(self):
+        self.set_campaign(ends_on=self.campaign.starts_on + datetime.timedelta(days=5))
+        self.assert_refused("last day", ends_on=None)
+
+    def test_total_budget_needs_a_last_day(self):
+        self.set_campaign(budget_kind="lifetime", ends_on=None)
+        self.assert_refused("total budget", ends_on=None)
+
+    def test_start_after_last_day_is_refused(self):
+        self.assert_refused("start", starts_on=self.campaign.starts_on + datetime.timedelta(days=3),
+                            ends_on=self.campaign.starts_on + datetime.timedelta(days=2))
+
+    def test_creative_not_on_the_campaign_is_refused(self):
+        stranger = make_creative("Elsewhere", project=self.project, offer="x")
+        self.assert_refused("creative", creative_ids=(stranger.pk,))
+
+    def test_no_creatives_is_refused(self):
+        self.assert_refused("creative", creative_ids=())
+
+    def test_too_many_interests_are_refused(self):
+        self.assert_refused("25", interests=tuple(f"Interest {i}" for i in range(26)))
+
+    def test_huge_or_not_a_number_budget_is_refused_not_crashed(self):
+        for budget in (Decimal("1e30"), Decimal("NaN"), Decimal("Infinity")):
+            self.assert_refused("budget", budget_usd=budget)
+
+    def test_dates_beyond_five_years_are_refused(self):
+        far = timezone.localdate() + datetime.timedelta(days=5 * 366 + 1)
+        self.assert_refused("5 years", ends_on=far)
+        self.assert_refused("5 years", starts_on=far)
+        self.assert_refused("5 years", ends_on=datetime.date(9999, 12, 31))
+
+    def test_blank_and_duplicate_interests_are_dropped(self):
+        self.build(settings=self.settings(interests=("Real estate", " ", "real estate", "Compounds")))
+        self.assertEqual(self.stored().interests, ["Real estate", "Compounds"])
+
+    @override_settings(META_EGP_PER_USD=Decimal("50"))
+    def test_egp_account_gets_piastres_and_locks_the_rate(self):
+        self.meta.currency = "EGP"
+        launch = self.build(settings=self.settings(budget_usd=Decimal("30")))
+        self.assertEqual(self.meta.called("create_adset")[0]["budget_cents"], 150000)
+        self.assertEqual((launch.currency, launch.fx_rate), ("EGP", Decimal("50")))
+
+    @override_settings(META_EGP_PER_USD=None)
+    def test_egp_without_rate_is_refused_before_any_create(self):
+        self.meta.currency = "EGP"
+        self.assert_refused("META_EGP_PER_USD")
+
+    def test_eur_account_is_refused(self):
+        self.meta.currency = "EUR"
+        self.assert_refused("EUR")
+
+    def fail_after_the_ad_set(self, **changes):
+        self.meta.fail_on["create_ad"] = MetaError("Meta is down")
+        with self.assertRaises(services.LaunchError):
+            self.build(settings=self.settings(**changes))
+        self.assertTrue(self.stored().meta_adset_id)
+
+    def test_changed_settings_after_the_ad_set_exists_are_refused(self):
+        self.fail_after_the_ad_set(budget_usd=Decimal("20"))
+        with self.assertRaisesMessage(services.LaunchError, "Discard the build"):
+            self.build(settings=self.settings(budget_usd=Decimal("25")))
+        self.assertEqual(self.stored().budget_usd, Decimal("20"))
+
+    def test_build_again_with_the_same_settings_resumes(self):
+        self.fail_after_the_ad_set(budget_usd=Decimal("20"))
+        launch = self.build(settings=self.settings(budget_usd=Decimal("20")))
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)
+        self.assertEqual(len(self.meta.called("create_adset")), 1)
+
+    def test_build_again_without_settings_uses_the_saved_ones(self):
+        self.fail_after_the_ad_set(budget_usd=Decimal("20"))
+        launch = self.build()
+        self.assertEqual((launch.status, launch.budget_usd), (MetaLaunch.Status.ACTIVE, Decimal("20")))
+
+    @override_settings(META_EGP_PER_USD=Decimal("50"))
+    def test_rate_stays_locked_when_building_again(self):
+        self.meta.currency = "EGP"
+        self.fail_after_the_ad_set()
+        with override_settings(META_EGP_PER_USD=Decimal("60")):
+            launch = self.build()
+        self.assertEqual(launch.fx_rate, Decimal("50"))
+
+    def test_launch_from_before_this_change_still_resumes(self):
+        self.launch(status=MetaLaunch.Status.BUILD_FAILED)  # starts_on None, creative_ids and interests empty
+        launch = self.build()
+        self.assertEqual(launch.status, MetaLaunch.Status.ACTIVE)
+        self.assertEqual([e["creative_pk"] for e in launch.ads], [self.creative.pk])
+        adset = self.meta.called("create_adset")[0]
+        self.assertEqual(adset["budget_cents"], 3000)

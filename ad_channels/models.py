@@ -24,6 +24,7 @@ with ``on_delete=models.PROTECT``, so nothing a campaign uses can be deleted
 """
 
 import datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -268,6 +269,16 @@ class MetaLaunch(models.Model):
     meta_status_checked_at = models.DateTimeField(_("last checked on Meta"), null=True, blank=True)
     # Meta's own effective_status at the last refresh (ACTIVE, PAUSED, DELETED…).
     meta_status = models.CharField(_("status on Meta"), max_length=32, blank=True)
+    # The media buyer's settings for Meta, inside the broker's approval (launch
+    # settings spec). The broker's Campaign is never rewritten: budget_usd and
+    # ends_on above also hold the media buyer's values.
+    starts_on = models.DateField(_("start date"), null=True, blank=True)
+    interests = models.JSONField(_("interests"), default=list, blank=True)
+    creative_ids = models.JSONField(_("creatives"), default=list, blank=True)
+    # The ad account's currency and the EGP-per-USD rate locked at the first
+    # build, so a later change to the rate setting never moves a running budget.
+    currency = models.CharField(_("ad account currency"), max_length=3, default="USD")
+    fx_rate = models.DecimalField(_("rate (per USD)"), max_digits=12, decimal_places=4, default=Decimal("1"))
 
     class Meta:
         ordering = ["-launched_at"]

@@ -16,6 +16,7 @@ import time
 from dataclasses import dataclass, field
 from decimal import ROUND_HALF_UP, Decimal
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError, transaction
 from django.utils import timezone
@@ -58,6 +59,106 @@ class BuildOptions:
     problems: list[str] = field(default_factory=list)
 
 
+MAX_INTERESTS = 25
+# MetaLaunch.budget_usd holds 10 digits with 2 decimals: refuse anything larger
+# before Decimal arithmetic can overflow (review I-1).
+MAX_BUDGET_USD = Decimal("99999999.99")
+# Dates further out than this are typos; Meta can't take them (review I-2).
+HORIZON_DAYS = 5 * 365
+
+
+@dataclass(frozen=True)
+class LaunchSettings:
+    """How the campaign runs on Meta: the media buyer's values inside the broker's approval.
+
+    Saved on ``MetaLaunch``; the broker's ``Campaign`` and ``Brief`` are never
+    rewritten (SRS §2.2, FR-6.1; launch settings spec). Anything beyond these
+    limits goes back to the broker through reject → Needs Changes.
+    """
+
+    budget_usd: Decimal
+    starts_on: datetime.date
+    ends_on: datetime.date | None
+    interests: tuple[str, ...]
+    creative_ids: tuple[int, ...]
+
+
+def _brokers_interests(campaign):
+    return tuple(campaign.audience.interests) if campaign.audience_id else ()
+
+
+def default_settings(campaign, launch=None) -> LaunchSettings:
+    """The launch's saved settings, or the broker's values for a new (or older) launch."""
+    if launch is not None and launch.starts_on is not None:
+        return LaunchSettings(
+            budget_usd=launch.budget_usd, starts_on=launch.starts_on, ends_on=launch.ends_on,
+            interests=tuple(launch.interests), creative_ids=tuple(launch.creative_ids),
+        )
+    return LaunchSettings(
+        budget_usd=campaign.budget_usd, starts_on=campaign.starts_on, ends_on=campaign.ends_on,
+        interests=_brokers_interests(campaign),
+        creative_ids=tuple(campaign.creatives.order_by("pk").values_list("pk", flat=True)),
+    )
+
+
+def _normalized(settings: LaunchSettings) -> LaunchSettings:
+    """Budget to the cent; interests stripped, blanks and repeats (any case) dropped."""
+    budget = Decimal(settings.budget_usd)
+    if not budget.is_finite() or abs(budget) > MAX_BUDGET_USD:
+        raise LaunchError(_("Enter the budget in USD, for example 30."))
+    seen, interests = set(), []
+    for name in settings.interests:
+        name = str(name).strip()
+        if name and name.casefold() not in seen:
+            seen.add(name.casefold())
+            interests.append(name)
+    return LaunchSettings(
+        budget_usd=budget.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
+        starts_on=settings.starts_on, ends_on=settings.ends_on,
+        interests=tuple(interests), creative_ids=tuple(int(pk) for pk in settings.creative_ids),
+    )
+
+
+def settings_errors(campaign, settings: LaunchSettings, today) -> list[str]:
+    """What breaks the broker's approval: budget, dates, interests, creatives (launch settings spec)."""
+    errors = []
+    budget = settings.budget_usd
+    if not budget.is_finite() or budget < 1:
+        errors.append(_("The budget must be at least 1 USD."))
+    elif budget > campaign.budget_usd:
+        errors.append(_("The budget can't go above the broker's %(amount)s USD.") % {"amount": campaign.budget_usd})
+    if settings.starts_on < campaign.starts_on:
+        errors.append(_("The start can't be before the broker's start, %(date)s.")
+                      % {"date": campaign.starts_on.isoformat()})
+    end = settings.ends_on
+    if end is None:
+        if campaign.ends_on is not None:
+            errors.append(_("Keep a last day: the broker's campaign ends on %(date)s.")
+                          % {"date": campaign.ends_on.isoformat()})
+        elif campaign.budget_kind == "lifetime":
+            errors.append(_("A total budget needs a last day."))
+    else:
+        if campaign.ends_on is not None and end > campaign.ends_on:
+            errors.append(_("The last day can't be after the broker's last day, %(date)s.")
+                          % {"date": campaign.ends_on.isoformat()})
+        if end <= today:
+            errors.append(_("The last day has passed. Choose a later one."))
+        if settings.starts_on > end:
+            errors.append(_("The start must be on or before the last day."))
+    horizon = today + datetime.timedelta(days=HORIZON_DAYS)
+    if settings.starts_on > horizon or (end is not None and end > horizon):
+        errors.append(_("Choose dates within the next 5 years."))
+    if len(settings.interests) > MAX_INTERESTS:
+        errors.append(_("Use at most %(count)d interests.") % {"count": MAX_INTERESTS})
+    if not settings.creative_ids:
+        errors.append(_("Choose at least one creative."))
+    else:
+        on_campaign = set(campaign.creatives.values_list("pk", flat=True))
+        if len(set(settings.creative_ids)) != len(settings.creative_ids) or not set(settings.creative_ids) <= on_campaign:
+            errors.append(_("Choose only creatives on this campaign, each once."))
+    return errors
+
+
 def _sleep(seconds):
     """Tests replace this so a reel test doesn't wait."""
     time.sleep(seconds)
@@ -68,9 +169,36 @@ def _require(actor):
         raise PermissionDenied
 
 
-def budget_cents(amount: Decimal) -> int:
-    """USD to Meta's minor units, rounding half up (Review Focus 4)."""
-    return int(Decimal(amount).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) * 100)
+def meta_minor_units(budget_usd: Decimal, fx_rate: Decimal) -> int:
+    """A USD budget in the ad account's minor units: cents, or piastres for EGP.
+
+    Broker budgets are USD; an EGP account gets USD × the launch's locked rate
+    (launch settings spec). Rounds half up once, on the final amount.
+    """
+    amount = Decimal(budget_usd) * Decimal(fx_rate) * 100
+    return int(amount.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
+def _account_rate(currency: str) -> Decimal:
+    """How many units of the account's currency one USD buys, or refuse the account.
+
+    EGP uses ``settings.META_EGP_PER_USD``, a stand-in until M6's Finance-kept
+    daily rate (ROADMAP Q1–Q4).
+    """
+    if currency == "USD":
+        return Decimal("1")
+    if currency == "EGP":
+        if not settings.META_EGP_PER_USD:
+            raise LaunchError(_("EGP ad accounts need the USD to EGP rate. Set META_EGP_PER_USD first."))
+        return Decimal(settings.META_EGP_PER_USD)
+    raise LaunchError(
+        _("This ad account bills in %(currency)s. Only USD and EGP ad accounts launch.") % {"currency": currency}
+    )
+
+
+def _usd(minor_units, fx_rate) -> Decimal:
+    """Meta's minor units back to USD at the launch's rate, to the cent."""
+    return (Decimal(minor_units) / 100 / Decimal(fx_rate)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def _client(account: MetaAdAccount):
@@ -159,7 +287,7 @@ def build_options(*, actor, campaign_id, ad_account_id=None, page_id=""):
 # Building
 
 
-def _claim(task, account, page, form, actor, now):
+def _claim(task, account, page, form, actor, now, settings, currency, fx_rate):
     """Lock the campaign's launch row and mark it building, or refuse."""
     campaign = task.campaign
     with transaction.atomic():
@@ -183,9 +311,19 @@ def _claim(task, account, page, form, actor, now):
         launch.ad_account = account
         launch.page_id, launch.page_name, launch.instagram_actor_id = page.id, page.name, page.instagram_actor_id
         launch.lead_form_id, launch.lead_form_name = form.id, form.name
+        if launch.meta_adset_id:
+            # The ad set already carries the saved budget, dates and interests:
+            # changing them now would be silently ignored (Review Focus 1).
+            if settings != default_settings(campaign, launch):
+                raise LaunchError(
+                    _("The ad set is already on Meta with the saved settings. Discard the build to change them.")
+                )
+        else:
+            launch.currency, launch.fx_rate = currency, fx_rate
         launch.budget_kind = campaign.budget_kind
-        launch.budget_usd = campaign.budget_usd
-        launch.ends_on = campaign.ends_on
+        launch.budget_usd = settings.budget_usd
+        launch.starts_on, launch.ends_on = settings.starts_on, settings.ends_on
+        launch.interests, launch.creative_ids = list(settings.interests), list(settings.creative_ids)
         launch.status = MetaLaunch.Status.BUILDING
         launch.last_error = ""
         try:
@@ -204,13 +342,7 @@ def _save(launch, *fields):
 def _campaign_errors(campaign, creatives, today):
     if campaign.channel != "meta":
         return [_("Only Meta campaigns launch here.")]
-    errors = []
-    if campaign.ends_on is not None and campaign.ends_on <= today:
-        errors.append(_("The end date has passed. Ask the broker for a new end date."))
-    if campaign.budget_kind == "lifetime" and campaign.ends_on is None:
-        errors.append(_("A total budget needs an end date."))
-    if not creatives:
-        errors.append(_("The campaign has no creatives."))
+    errors = []  # Dates and the creative choice are checked in settings_errors.
     usable = set(campaign.creatives.usable(today).values_list("pk", flat=True))
     for creative in creatives:
         if creative.pk not in usable:
@@ -223,25 +355,25 @@ def _campaign_errors(campaign, creatives, today):
     return errors
 
 
-def _start(campaign, now):
-    """The later of the campaign's first morning (Cairo time) and now."""
-    morning = timezone.make_aware(datetime.datetime.combine(campaign.starts_on, datetime.time.min))
+def _start(launch, now):
+    """The later of the launch's first morning (Cairo time) and now."""
+    morning = timezone.make_aware(datetime.datetime.combine(launch.starts_on, datetime.time.min))
     return max(morning, now)
 
 
-def _end(campaign):
-    """Midnight after the last day, Cairo time, or None to run until stopped."""
-    if campaign.ends_on is None:
+def _end(launch):
+    """Midnight after the launch's last day, Cairo time, or None to run until stopped."""
+    if launch.ends_on is None:
         return None
     return timezone.make_aware(
-        datetime.datetime.combine(campaign.ends_on + datetime.timedelta(days=1), datetime.time.min)
+        datetime.datetime.combine(launch.ends_on + datetime.timedelta(days=1), datetime.time.min)
     )
 
 
-def _targeting(meta, campaign, launch):
-    """Egypt, plus the preset's interests Meta knows by exact name. Never age or gender (FR-5.14)."""
+def _targeting(meta, launch):
+    """Egypt, plus the launch's interests Meta knows by exact name. Never age or gender (FR-5.14)."""
     targeting = {"geo_locations": {"countries": [COUNTRY]}}
-    names = campaign.audience.interests if campaign.audience_id else []
+    names = launch.interests
     found, skipped = [], []
     for name in names:
         interest_id = meta.search_interest(name)
@@ -336,7 +468,7 @@ def _note_token(account, error):
         )
 
 
-def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None):
+def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, settings=None, now=None):
     """Build the ready campaign on Meta, paused, then switch it on; it goes Live (FR-6.10, FR-7.6).
 
     Resumes a failed or crashed build. Raises ``LaunchError`` with a message
@@ -347,18 +479,20 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
     today = timezone.localdate(now)
     task = _ready_task(campaign_id)
     campaign = task.campaign
-    creatives = list(campaign.creatives.order_by("pk"))
+    if settings is None:
+        settings = default_settings(campaign, MetaLaunch.objects.filter(campaign=campaign).first())
+    settings = _normalized(settings)
+    if errors := settings_errors(campaign, settings, today):
+        raise LaunchError(" ".join(str(e) for e in errors))
+    by_pk = {c.pk: c for c in campaign.creatives.all()}
+    creatives = [by_pk[pk] for pk in settings.creative_ids]
     if errors := _campaign_errors(campaign, creatives, today) or _destination_errors(campaign):
         raise LaunchError(" ".join(str(e) for e in errors))
     account = _available_account(ad_account_id)
     meta = _client(account)
     try:
         currency = meta.ad_account_currency(account.meta_account_id)
-        if currency != "USD":
-            raise LaunchError(
-                _("%(account)s bills in %(currency)s. Campaign budgets are in USD: choose a USD account.")
-                % {"account": account.meta_account_id, "currency": currency}
-            )
+        fx_rate = _account_rate(currency)
         page = next((p for p in meta.list_pages(account.business_manager.meta_business_id) if p.id == page_id),
                     None)
         if page is None:
@@ -374,7 +508,7 @@ def build(*, actor, campaign_id, ad_account_id, page_id, lead_form_id, now=None)
         _note_token(account, error)
         raise LaunchError(str(error)) from None
 
-    launch = _claim(task, account, page, form, actor, now)
+    launch = _claim(task, account, page, form, actor, now, settings, currency, fx_rate)
     try:
         _run_build(meta, launch, campaign, creatives, now)
     except Exception as error:
@@ -425,8 +559,8 @@ def _run_build(meta, launch, campaign, creatives, now):
     if not launch.meta_adset_id:
         launch.meta_adset_id = meta.find_by_name(account_id, "adsets", name) or meta.create_adset(
             account_id, name=name, campaign_id=launch.meta_campaign_id, page_id=launch.page_id,
-            budget_kind=launch.budget_kind, budget_cents=budget_cents(launch.budget_usd),
-            start=_start(campaign, now), end=_end(campaign), targeting=_targeting(meta, campaign, launch),
+            budget_kind=launch.budget_kind, budget_cents=meta_minor_units(launch.budget_usd, launch.fx_rate),
+            start=_start(launch, now), end=_end(launch), targeting=_targeting(meta, launch),
         )
         _save(launch, "meta_adset_id", "skipped_interests")
     entries = [_build_ad(meta, launch, campaign, creative) for creative in creatives]
@@ -547,6 +681,9 @@ def change_budget(*, actor, campaign_id, budget_usd, ends_on, today=None):
     if ends_on is not None and campaign.ends_on is not None and ends_on > campaign.ends_on:
         raise LaunchError(_("The end date can't be after the broker's end date, %(date)s.")
                           % {"date": campaign.ends_on.isoformat()})
+    if ends_on is not None and launch.starts_on is not None and ends_on < launch.starts_on:
+        raise LaunchError(_("The end date can't be before the start, %(date)s.")
+                          % {"date": launch.starts_on.isoformat()})
     if ends_on is None and launch.budget_kind == "lifetime":
         raise LaunchError(_("A total budget needs an end date."))
     if ends_on is None and campaign.ends_on is not None:
@@ -557,7 +694,7 @@ def change_budget(*, actor, campaign_id, budget_usd, ends_on, today=None):
         end = timezone.make_aware(datetime.datetime.combine(ends_on + datetime.timedelta(days=1),
                                                             datetime.time.min))
     _on_meta(launch, lambda meta: meta.update_adset(launch.meta_adset_id, budget_kind=launch.budget_kind,
-                                                    budget_cents=budget_cents(budget_usd), end=end))
+                                                    budget_cents=meta_minor_units(budget_usd, launch.fx_rate), end=end))
     launch.budget_usd = budget_usd.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     launch.ends_on = ends_on
     launch.last_error = ""
@@ -599,7 +736,7 @@ def refresh(*, actor, campaign_id, now=None):
             launch.status = MetaLaunch.Status(state.campaign_status.lower())
             fields.append("status")
         if state.budget_cents:
-            launch.budget_usd = Decimal(state.budget_cents) / 100
+            launch.budget_usd = _usd(state.budget_cents, launch.fx_rate)
         if state.end is not None:
             launch.ends_on = (timezone.localtime(state.end) - datetime.timedelta(microseconds=1)).date()
         launch.meta_status_checked_at = now or timezone.now()

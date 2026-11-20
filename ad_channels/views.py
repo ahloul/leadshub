@@ -117,9 +117,45 @@ class MetaCampaignView(
             self.ad_account_id, self.page_id, self.lead_form_id = (
                 launch.ad_account_id, launch.page_id, launch.lead_form_id
             )
+        self._fill_settings(services.default_settings(self._campaign, launch))
         self._options = None
         if not self._launched:
             self._load_options()
+
+    # The settings form (launch settings spec): strings, as the browser sends them.
+
+    def _fill_settings(self, settings):
+        self.budget_usd = str(settings.budget_usd)
+        self.starts_on = settings.starts_on.isoformat()
+        self.ends_on = settings.ends_on.isoformat() if settings.ends_on else ""
+        self.interests = "\n".join(settings.interests)
+        self.creative_ids = [int(pk) for pk in settings.creative_ids]
+
+    def _take_form(self, fields):
+        """Keep what the media buyer typed, so a refused build shows it again."""
+        self.budget_usd = str(fields.get("budget_usd", "")).strip()[:20]
+        self.starts_on = str(fields.get("starts_on", "")).strip()[:10]
+        self.ends_on = str(fields.get("ends_on", "")).strip()[:10]
+        self.interests = str(fields.get("interests", ""))[:5000]
+        # One checkbox per creative, named creative_<pk>: djust's dj-submit keeps
+        # only the last value of a repeated name (client.js Object.fromEntries).
+        self.creative_ids = [int(key[9:]) for key, value in fields.items()
+                             if key.startswith("creative_") and key[9:].isdigit() and value]
+
+    def _parsed_settings(self):
+        """The form as LaunchSettings, or None when a value isn't a number or a date."""
+        try:
+            budget = Decimal(self.budget_usd)
+            starts_on = datetime.date.fromisoformat(self.starts_on)
+            ends_on = datetime.date.fromisoformat(self.ends_on) if self.ends_on else None
+        except (InvalidOperation, ValueError):
+            return None
+        if not budget.is_finite():
+            return None
+        return services.LaunchSettings(
+            budget_usd=budget, starts_on=starts_on, ends_on=ends_on,
+            interests=tuple(self.interests.splitlines()), creative_ids=tuple(self.creative_ids),
+        )
 
     def _load(self):
         found = selectors.page_campaign(self.campaign_id)
@@ -161,9 +197,40 @@ class MetaCampaignView(
                 "problems": [str(p) for p in options.problems] if options else [],
                 "can_build": bool(self.ad_account_id and self.page_id and self.lead_form_id) and not self.building,
                 "ads": launch.ads if launch else [],
+                "creative_choices": [
+                    (c.pk, c.title, c.get_asset_type_display(), c.pk in self.creative_ids)
+                    for c in campaign.creatives.order_by("pk")
+                ],
+                **self._launch_notes(campaign, launch),
             }
         )
         return context
+
+    def _launch_notes(self, campaign, launch):
+        """The EGP amount, and the broker's value wherever the launch differs from it."""
+        if launch is None or not self._launched:
+            return {"egp_text": "", "broker_notes": []}
+        egp_text = ""
+        if launch.currency == "EGP":
+            egp_text = _("≈ EGP %(amount)s at %(rate)s") % {
+                "amount": f"{launch.budget_usd * launch.fx_rate:,.0f}", "rate": f"{launch.fx_rate:.2f}",
+            }
+        broker = services.default_settings(campaign)
+        mine = services.default_settings(campaign, launch)
+        notes = []
+        if mine.budget_usd != broker.budget_usd:
+            notes.append(_("Broker: %(amount)s") % {"amount": campaign.budget_text})
+        if (mine.starts_on, mine.ends_on) != (broker.starts_on, broker.ends_on):
+            notes.append(_("Broker's dates: %(start)s → %(end)s") % {
+                "start": broker.starts_on.isoformat(), "end": broker.ends_on.isoformat() if broker.ends_on else "…",
+            })
+        if mine.interests != broker.interests:
+            notes.append(_("Broker's interests: %(names)s") % {"names": ", ".join(broker.interests) or "—"})
+        if mine.creative_ids != broker.creative_ids:
+            notes.append(_("Uses %(count)d of the broker's %(total)d creatives.") % {
+                "count": len(mine.creative_ids), "total": len(broker.creative_ids),
+            })
+        return {"egp_text": egp_text, "broker_notes": notes}
 
     # Choosing where to build
 
@@ -192,7 +259,14 @@ class MetaCampaignView(
     def build_on_meta(self, **kwargs):
         if self.building:
             return
-        self.building, self.error, self.notice = True, "", ""
+        if "budget_usd" in kwargs:
+            self._take_form(kwargs)
+        self.error, self.notice = "", ""
+        self._settings = self._parsed_settings()
+        if self._settings is None:
+            self.error = _("Check the budget, dates and creatives.")
+            return
+        self.building = True
         self.start_async(self._build, name="build")
 
     def _build(self):
@@ -201,7 +275,7 @@ class MetaCampaignView(
             try:
                 services.build(
                     actor=self.request.user, campaign_id=self.campaign_id, ad_account_id=self.ad_account_id,
-                    page_id=self.page_id, lead_form_id=self.lead_form_id,
+                    page_id=self.page_id, lead_form_id=self.lead_form_id, settings=self._settings,
                 )
                 self.notice = _("Built on Meta and switched on. The campaign is Live.")
             except services.LaunchError as error:
