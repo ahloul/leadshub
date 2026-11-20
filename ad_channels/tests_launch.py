@@ -4,6 +4,8 @@ Meta is never called: ``meta_ads.sync.client_for`` is replaced by a fake.
 """
 
 import datetime
+import hashlib
+import hmac
 import json
 from decimal import Decimal
 from unittest import mock
@@ -226,6 +228,18 @@ class MetaClientWriteTests(SimpleTestCase):
         forms = meta.list_lead_forms("p1")
         self.assertEqual([(f.id, f.name) for f in forms], [("f1", "Buyers")])
         self.assertEqual(self.graph.calls[1]["params"]["access_token"], "PAGE-TOKEN")
+
+    @override_settings(META_APP_SECRET="app-secret")
+    def test_lead_forms_are_signed_with_the_page_token_proof(self):
+        # The session signs every call for the Business Manager's token; a call
+        # made with the page token needs its own proof or Meta answers error 100.
+        meta = self.meta_for(replies={
+            ("GET", "p1"): {"access_token": "PAGE-TOKEN"},
+            ("GET", "p1/leadgen_forms"): {"data": []},
+        })
+        meta.list_lead_forms("p1")
+        expected = hmac.new(b"app-secret", b"PAGE-TOKEN", hashlib.sha256).hexdigest()
+        self.assertEqual(self.graph.calls[1]["params"]["appsecret_proof"], expected)
 
     def test_lead_form_errors_never_show_the_page_token(self):
         body = {"error": {"message": "Bad token PAGE-TOKEN", "code": 190, "type": "OAuthException"}}

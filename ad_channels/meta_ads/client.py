@@ -7,6 +7,8 @@ Meta's reason with the token scrubbed out, so it is safe to store and show
 """
 
 import base64
+import hashlib
+import hmac
 from dataclasses import dataclass
 from datetime import datetime
 from itertools import islice
@@ -187,8 +189,14 @@ class MetaClient:
     def list_lead_forms(self, page_id: str) -> list[LeadFormInfo]:
         """The page's active instant forms. Reading them needs the page's own token, never kept."""
         page_token = self._call("GET", page_id, params={"fields": "access_token"}).get("access_token", "")
-        forms = self._list(page_id, "leadgen_forms", params={"fields": "id,name,status", "access_token": page_token},
-                           secrets=(page_token,))
+        # The session's appsecret_proof is for the Business Manager's token, so a
+        # call with another token must carry that token's own proof (Meta error 100).
+        proof = hmac.new(settings.META_APP_SECRET.encode(), page_token.encode(), hashlib.sha256).hexdigest()
+        forms = self._list(
+            page_id, "leadgen_forms",
+            params={"fields": "id,name,status", "access_token": page_token, "appsecret_proof": proof},
+            secrets=(page_token,),
+        )
         return [LeadFormInfo(id=f["id"], name=f.get("name", "")) for f in forms if f.get("status") == "ACTIVE"]
 
     def ad_account_currency(self, account_id: str) -> str:
