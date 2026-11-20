@@ -481,7 +481,8 @@ SRS §4.1, FR-6.1, FR-6.2, FR-6.7, FR-7.6. Size L. Needs M3.
   for campaigns launched outside it.
 - In US-META-02's first version: images and reels only (carousels and
   landing pages later), Egypt-wide targeting (the presets' geo text isn't
-  sent), USD ad accounts only (until FX, M6), one ad set per campaign (no
+  sent), USD and EGP ad accounts (EGP at the `META_EGP_PER_USD` setting,
+  locked per launch, until M6's rate table), one ad set per campaign (no
   pooling until M7), and a staff pause on Meta still shows Live to the
   broker.
 - The budget in the brief is the broker's figure as entered, until Q2.

@@ -245,7 +245,9 @@ Every handler that changes something carries
 1. **Page and lead form:** picked from what Meta returns. Existing forms
    only; LeadsHub doesn't create forms.
 2. **Ad account currency:** USD only. Accounts in another currency are
-   refused until FX exists (M6).
+   refused until FX exists (M6). *Superseded on 2026-11-20 by
+   `2026-11-20-meta-launch-settings-design.md`: USD and EGP accounts, EGP
+   at the `META_EGP_PER_USD` setting, locked per launch.*
 3. **Location targeting:** Egypt-wide. The preset's free-text geo isn't sent.
 4. **Pause by staff:** the broker keeps seeing Live while it's paused on Meta.
 5. **Creative types:** images and reels in v1. Carousels and landing-page

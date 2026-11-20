@@ -12,7 +12,13 @@ media buying team launches approved campaigns at
 `ad_channels.meta_ads.client.MetaClient`; tests replace
 `ad_channels.meta_ads.sync.client_for` with
 `ad_channels.test_utils.FakeMetaLauncher`. Each Meta ID is saved in
-`MetaLaunch` as soon as Meta returns it, so a failed build resumes. The
+`MetaLaunch` as soon as Meta returns it, so a failed build resumes.
+Before the build the media buyer may lower the budget, narrow the dates,
+change the interests and drop creatives (`services.LaunchSettings`, never
+beyond the broker's approval); those values live on `MetaLaunch`, never on
+the broker's `Campaign`. Broker budgets are USD: an EGP ad account gets
+budget × `settings.META_EGP_PER_USD`, locked on the launch as `fx_rate`
+(a stand-in until M6's Finance-kept rate). The
 `AdPlatformClient` hooks below are still unused for Meta; Google has no
 calls yet.
 
